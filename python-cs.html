@@ -21,7 +21,7 @@
    </head>
 
    <body>
-      <div class="container" style="width:9<D-r>0%">
+      <div class="container">
          <div class="jumbotron" style="background:white;">
             <h1>Python Cheat Sheet</h1>
             <p>Cheat sheet of Python. Some basic concepts for Python programmer need to know.</p>
@@ -238,6 +238,35 @@ wrapper
 Example
 -------
 </pre>
+<h3>Decorator with arguments</h3>
+
+<pre class="code python">
+&gt;&gt;&gt; def example(value):
+...   def decor(func):
+...     def wrapper(*args,**kargs):
+...       print "Value is {0}".format(value)
+...       func()
+...     return wrapper
+...   return decor
+...
+&gt;&gt;&gt; @example(10)
+... def undecor():
+...   print "This is undecor func"
+...
+&gt;&gt;&gt; undecor()
+Value is 10
+This is undecor func
+
+# equivalent to
+&gt;&gt;&gt; def undecor():
+...   print "This is undecor func"
+...
+&gt;&gt;&gt; d = example(10)
+&gt;&gt;&gt; undecor = d(undecor)
+&gt;&gt;&gt; undecor()
+Value is 10
+This is undecor func
+</pre>
 
             </div>
             <div class="col-sm-4">
@@ -335,6 +364,37 @@ TypeError: Expect int
 &gt;&gt;&gt; ex = example()
 &gt;&gt;&gt; ex.square3
 8
+</pre>
+<h3>Descriptor - Another choice to manage attributes</h3>
+<pre class="code python">
+# Descriptor
+&gt;&gt;&gt; class Integer(object):
+...   def __init__(self,name):
+...     self._name = name
+...   def __get__(self,inst,cls):
+...     if inst is None:
+...       return self
+...     else:
+...       return inst.__dict__[self._name]
+...   def __set__(self,inst,value):
+...     if not isinstance(value,int):
+...       raise TypeError("Expected INT")
+...     inst.__dict__[self._name] = value
+...   def __delete__(self,inst):
+...     del inst.__dict__[self._name]
+...
+&gt;&gt;&gt; class example(object):
+...   x = Integer('x')
+...   def __init__(self,val):
+...     self.x = val
+...
+&gt;&gt;&gt; ex = example(1)
+&gt;&gt;&gt; ex = example("str")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 4, in __init__
+  File "<stdin>", line 11, in __set__
+TypeError: Expected an int
 </pre>
 
 
