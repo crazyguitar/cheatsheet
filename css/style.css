@@ -4,3 +4,9 @@
 pre.code {
   font: normal 12pt Ubuntu Mono;
 }
+footer {
+   text-align: center;
+   font-weight:bold;
+   color: darkgray;
+}
+
