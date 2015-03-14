@@ -348,6 +348,10 @@ example __repr__
 # find same key between two dictionary
 &gt;&gt;&gt; [_ for _ in a.keys() if _ in b.keys()]
 ['3', '2']
+# better way
+&gt;&gt;&gt; c = set(a).intersection(set(b))
+&gt;&gt;&gt; list(c)
+['3', '2']
 
 # update dictionary
 &gt;&gt;&gt; a.update(b)
