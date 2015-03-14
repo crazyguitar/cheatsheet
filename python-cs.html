@@ -766,6 +766,8 @@ TypeError: unbound method instmethod() ...
 <h3>Abstract method - Meta class</h3>
 <pre class="code python">
 # usually using in define methods but not implement
+from abc import ABCMeta, abstractmethod
+
 &gt;&gt;&gt; class base(object):
 ...   __metaclass__ = ABCMeta
 ...   @abstractmethod
