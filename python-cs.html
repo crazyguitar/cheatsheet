@@ -50,21 +50,104 @@ _var_
 # ex: __init__, __file__, __main__
 __var__
 
-# "throwaway" variable name
+# for "internal" use throwaway variable 
 # usually used in loop
 # ex: [_ for _ in range(10)]
+# or variable not used
+# for _, a in [(1,2),(3,4)]: print a
 _
 </pre>
+<h3>Check object attributes</h3>
+<pre class="code python">
+# example of check list attributes
+&gt;&gt;&gt; dir(list)
+['__add__', '__class__', ...]
+<D-r></pre>
+
+<h3>Define a function __doc__</h3>
+<pre class="code python">
+# Define a function document
+&gt;&gt;&gt; def Example():
+...   """ This is an example function """
+...   print "Example function"
+...
+&gt;&gt;&gt; Example.__doc__
+' This is an example function '
+
+# Or using help function
+&gt;&gt;&gt; help(Example)
+</pre>
+<h3>Check instance type</h3>
+<pre class="code python">
+&gt;&gt;&gt; ex = 10
+&gt;&gt;&gt; isinstance(ex,int)
+True
+</pre>
+<h3>Check, Get, Set attribute</h3>
+<pre class="code python">
+&gt;&gt;&gt; class example(object):
+...   def __init__(self):
+...     self.name = "ex"
+...   def printex(self):
+...     print "This is an example"
+... 
+
+# Check object has attributes
+# hasattr(obj, 'attr')
+&gt;&gt;&gt; ex = example()
+&gt;&gt;&gt; hasattr(ex,"name")
+True
+&gt;&gt;&gt; hasattr(ex,"printex")
+True
+&gt;&gt;&gt; hasattr(ex,"print")
+False
+
+# Get object attribute
+# getattr(obj, 'attr')
+&gt;&gt;&gt; getattr(ex,'name')
+'ex'
+
+# Set object attribute
+# setattr(obj, 'attr', value)
+&gt;&gt;&gt; setattr(ex,'name','example')
+&gt;&gt;&gt; ex.name
+'example'
+</pre>
+<h3>Check inheritance</h3>
+<pre class="code python">
+&gt;&gt;&gt; class example(object):
+...   def __init__(self):
+...     self.name = "ex"
+...   def printex(self):
+...     print "This is an example"
+... 
+&gt;&gt;&gt; issubclass(example,object)
+True
+</pre>
+
+<h3>Check all global variables</h3>
+
+<pre class="code python">
+# globals() return a dictionary
+# {'variable name': variable value}
+&gt;&gt;&gt; globals()
+{'args': (1, 2, 3, 4, 5), ...}
+</pre>
+
 <h3>Common Use "Magic"</h3>
 <pre class="code python">
+# see python document: data model 
 # For command class
 
 __main__
 __name__
 __file__
 __module__
+__all__
+__dict__
+__class__
 __doc__
-__init____init__(self, [...)
+__init__(self, [...)
 __str__(self)
 __repr__(self)
 __del__(self)
@@ -84,6 +167,7 @@ __getitem__(self, key)
 __setitem__(self, key, value)
 __delitem__(self, key)
 __iter__(self)
+__contains__(self, value)
 
 # Controlling Attribute Access
 __getattr__(self, name)
@@ -113,29 +197,97 @@ __and__(self, other)
 __or__(self, other)
 __xor__(self, other)
 </pre>
+
+<h3>Arithmetic operators and Comparison</h3>
+<pre class="code python">
+class example(object):
+
+   def __init__(self,val1,val2):
+      self.val1 = val1
+      self.val2 = val2
+   def __add__(self,other):
+      _1 = self.val1 + other.val1
+      _2 = self.val2 + other.val2
+      return _1 + _2
+
+   def __sub__(self,other):
+      _1 = self.val1 - other.val1
+      _2 = self.val2 - other.val2
+      return _1 - _2
+
+   def __mul__(self,other):
+      _1 = self.val1 * other.val1
+      _2 = self.val2 * other.val2
+      return _1 * _2
+
+   def __div__(self,other):
+      _1 = self.val1 / other.val1
+      _2 = self.val2 / other.val2
+      return _1 / _2
+
+   def __mod__(self,other):
+      _1 = self.val1 % other.val1
+      _2 = self.val2 % other.val2
+      return _1 % _2
+   
+   def __eq__(self,other):
+      if self.val1 == other.val1 and\
+            self.val2 == other.val2:
+         return True
+      return False
+
+   def __ne__(self,other):
+      if self.val1 != other.val1 or\
+            self.val2 != other.val2:
+         return True
+      return False
+   
+   def __lt__(self,other):
+      if self.val1 &lt; other.val1 or\
+            self.val2 &lt; other.val2:
+         return True
+      return False
+
+   def __gt__(self,other):
+      if self.val1 &gt; other.val1 or\
+            self.val2 &gt; other.val2:
+         return True
+      return False
+
+   def __le__(self,other):
+      if self.val1 &lt;= other.val1 or\
+            self.val2 &lt;= other.val2:
+         return True
+      return False
+
+   def __ge__(self,other):
+      if self.val1 &gt;= other.val1 or\
+            self.val2 &gt;= other.val2:
+         return True
+      return False
+
+# example result:
+&gt;&gt;&gt; ex1 = example(1.,2.)
+&gt;&gt;&gt; ex2 = example(3.,4.)
+&gt;&gt;&gt; ex1+ex2
+10.0
+&gt;&gt;&gt; ex1-ex2
+0.0
+&gt;&gt;&gt; ex1*ex2
+24.0
+&gt;&gt;&gt; ex1/ex2
+0.6666666666666666
+&gt;&gt;&gt; ex1%ex2
+1.0
+&gt;&gt;&gt; ex1&gt;ex2
+False
+&gt;&gt;&gt; ex1&lt;ex2
+True
+&gt;&gt;&gt; ex1==ex2
+False
+</pre>
             </div>
             <div class="col-sm-4">
-<h3>Check object attributes</h3>
-<pre class="code python">
-# example of check list attributes
-&gt;&gt;&gt; dir(list)
-['__add__', '__class__', ...]
-<D-r></pre>
-
-<h3>Define a function __doc__</h3>
-<pre class="code python">
-# Define a function document
-&gt;&gt;&gt; def Example():
-...   """ This is an example function """
-...   print "Example function"
-...
-&gt;&gt;&gt; Example.__doc__
-' This is an example function '
-
-# Or using help function
-&gt;&gt;&gt; help(Example)
-</pre>
-
 <h3>Representations of your class behave</h3>
 
 <pre class="code python">
@@ -173,6 +325,27 @@ example __repr__
 &gt;&gt;&gt; a[s]
 [1,3]
 </pre>
+<h3>Set a list/dict "SMART"</h3>
+<pre class="code python">
+# get a list with init value
+&gt;&gt;&gt; ex = [0]*10
+&gt;&gt;&gt; ex
+[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+# using generator
+&gt;&gt;&gt; [x for x in range(10)]
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+&gt;&gt;&gt; fn = lambda x: x**2
+&gt;&gt;&gt; [fn(x) for x in range(5)]
+[0, 1, 4, 9, 16]
+&gt;&gt;&gt; {'{0}'.format(x): x for x in range(3)}
+{'1': 1, '0': 0, '2': 2}
+
+# using builtin function "map"
+&gt;&gt;&gt; map(fn,range(5))
+[0, 1, 4, 9, 16] 
+</pre>
+
 <h3>Delegating Iteration (__iter__)</h3>
 <pre class="code python">
 # __iter__ return an iterator object
@@ -181,7 +354,7 @@ example __repr__
 ...    def __init__(self,list_):
 ...       self._list = list_
 ...    def __iter__(self):
-...    return iter(self,self._list)
+...    return iter(self._list)
 ...
 &gt;&gt;&gt; ex = example([1,2,3,4,5])
 &gt;&gt;&gt; for _ in ex: print _,
@@ -193,7 +366,6 @@ example __repr__
 <pre class="code python">
 # see: PEP289
 &gt;&gt;&gt; a = (_ for _ in range(10))
-&gt;&gt;&gt; for _ in a: print _,
 &gt;&gt;&gt; for _ in a: print _,
 ... 
 0 1 2 3 4 5 6 7 8 9
@@ -207,6 +379,91 @@ example __repr__
 &gt;&gt;&gt; for _ in a: print _,
 ... 
 0 1 2 3 4 5 6 7 8 9 
+</pre>
+
+<h3>Emulating a list</h3>
+
+<pre class="code python">
+&gt;&gt;&gt; class emulist(object):
+...   def __init__(self,list_):
+...     self._list = list_
+...   def __repr__(self):
+...     return "emulist: "+str(self._list)
+...   def append(self,item):
+...     self._list.append(item)
+...   def remove(self,item):
+...     self._list.remove(item)
+...   def __len__(self):
+...     return len(self._list)
+...   def __getitem__(self,sliced):
+...     return self._list[sliced]
+...   def __setitem__(self,sliced,val):
+...     self._list[sliced] = val
+...   def __delitem__(self,sliced):
+...     del self._list[sliced]
+...   def __contains__(self,item):
+...     return item in self._list
+...   def __iter__(self):
+...     return iter(self._list) 
+...
+&gt;&gt;&gt; emul = emulist(range(5))
+&gt;&gt;&gt; emul
+emulist: [0, 1, 2, 3, 4]
+&gt;&gt;&gt; emul[1:3]
+[1, 2]
+&gt;&gt;&gt; emul[0:4:2]
+[0, 2]
+&gt;&gt;&gt; len(emul)
+5
+&gt;&gt;&gt; emul.append(5)
+&gt;&gt;&gt; emul
+emulist: [0, 1, 2, 3, 4, 5]
+&gt;&gt;&gt; emul.remove(2)
+&gt;&gt;&gt; emul
+emulist: [0, 1, 3, 4, 5]
+&gt;&gt;&gt; emul[3] = 6
+&gt;&gt;&gt; emul
+emulist: [0, 1, 3, 6, 5]
+&gt;&gt;&gt; 0 in emul
+True
+</pre>
+
+<h3>Emulating a dictionary</h3>
+
+<pre class="code python">
+&gt;&gt;&gt; class emudict(object):
+...   def __init__(self,dict_):
+...     self._dict = dict_
+...   def __repr__(self):
+...     return "emudict: "+str(self._dict)
+...   def __getitem__(self,key):
+...     return self._dict[key]
+...   def __setitem__(self,key,val):
+...     self._dict[key] = val
+...   def __delitem__(self,key):
+...     del self._dict[key]
+...   def __contains__(self,key):
+...     return key in self._dict
+...   def __iter__(self):
+...     return iter(self._dict.keys())
+... 
+&gt;&gt;&gt; _ = {"1":1,"2":2,"3":3}
+&gt;&gt;&gt; emud = emudict(_)
+&gt;&gt;&gt; emud
+emudict: {'1': 1, '3': 3, '2': 2}
+&gt;&gt;&gt; emud['1']
+1
+&gt;&gt;&gt; emud['5'] = 5
+&gt;&gt;&gt; emud
+emudict: {'1': 1, '3': 3, '2': 2, '5': 5}
+&gt;&gt;&gt; del emud['2']
+&gt;&gt;&gt; emud
+emudict: {'1': 1, '3': 3, '5': 5}
+&gt;&gt;&gt; for _ in emud: print emud[_],
+... 
+1 3 5
+&gt;&gt;&gt; '1' in emudict
+True
 </pre>
 
 <h3>Decorator</h3>
@@ -241,10 +498,10 @@ Example
 <h3>Decorator with arguments</h3>
 
 <pre class="code python">
-&gt;&gt;&gt; def example(value):
+&gt;&gt;&gt; def example(val):
 ...   def decor(func):
 ...     def wrapper(*args,**kargs):
-...       print "Value is {0}".format(value)
+...       print "Val is {0}".format(val)
 ...       func()
 ...     return wrapper
 ...   return decor
@@ -254,7 +511,7 @@ Example
 ...   print "This is undecor func"
 ...
 &gt;&gt;&gt; undecor()
-Value is 10
+Val is 10
 This is undecor func
 
 # equivalent to
@@ -264,12 +521,60 @@ This is undecor func
 &gt;&gt;&gt; d = example(10)
 &gt;&gt;&gt; undecor = d(undecor)
 &gt;&gt;&gt; undecor()
-Value is 10
+Val is 10
 This is undecor func
 </pre>
 
             </div>
             <div class="col-sm-4">
+
+<h3>Lambda function</h3>
+<pre class="code python">
+# lambda [input]: expression
+# PS. Python not support multiline lambda
+&gt;&gt;&gt; fn = lambda x: x**2
+&gt;&gt;&gt; fn(3)
+9
+&gt;&gt;&gt; (lambda x:x**2)(3)
+9
+&gt;&gt;&gt; (lambda x: [x*_ for _ in range(5)])(2)
+[0, 2, 4, 6, 8]
+&gt;&gt;&gt; (lambda x: x if x&gt;3 else 3)(5)
+5
+</pre>
+
+<h3>Function with option arguments (*args, **kwargs)</h3>
+<pre class="code python">
+&gt;&gt;&gt; def example(a,b=None,*args,**kwargs):
+...   print a, b
+...   print args
+...   print kwargs
+...
+&gt;&gt;&gt; example(1,"var",2,3,word="hello")
+1 var
+(2, 3)
+{'word': 'hello'}
+&gt;&gt;&gt; _args = (1,2,3,4,5)
+&gt;&gt;&gt; _kwargs = {"1":1,"2":2,"3":3}
+&gt;&gt;&gt; example(1,"var",*_args,**_kwargs)
+1 var
+(1, 2, 3, 4, 5)
+{'1': 1, '3': 3, '2': 2}
+</pre>
+
+<h3>Callable object</h3>
+<pre class="code python">
+&gt;&gt;&gt; class calobj(object):
+...   def example(self):
+...     print "I am callable!"
+...   def __call__(self):
+...     self.example()
+... 
+&gt;&gt;&gt; ex = calobj()
+&gt;&gt;&gt; ex()
+I am callable!
+</pre>
+
 <h3>"with" statement (Context Manager)</h3>
 <pre class="code python">
 # replace try: ... finally: ...
@@ -395,6 +700,68 @@ Traceback (most recent call last):
   File "<stdin>", line 4, in __init__
   File "<stdin>", line 11, in __set__
 TypeError: Expected an int
+</pre>
+
+<h3>@staticmethod, @classmethod</h3>
+<pre class="code python">
+# @classmethod: bound to class
+# @staticmethod: like python function but in class
+&gt;&gt;&gt; class example(object):
+...   @classmethod
+...   def clsmethod(cls):
+...     print "I am classmethod"
+...   @staticmethod
+...   def stmethod():
+...     print "I am staticmethod"
+...   def instmethod(self):
+...     print "I am instancemethod"
+... 
+&gt;&gt;&gt; ex = example()
+&gt;&gt;&gt; ex.clsmethod()
+I am classmethod
+&gt;&gt;&gt; ex.stmethod()
+I am staticmethod
+&gt;&gt;&gt; ex.instmethod()
+I am instancemethod
+&gt;&gt;&gt; example.clsmethod()
+I am classmethod
+&gt;&gt;&gt; example.stmethod()
+I am staticmethod
+&gt;&gt;&gt; example.instmethod()
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unbound method instmethod() ...
+</pre>
+
+<h3>Abstract method - Meta class</h3>
+<pre class="code python">
+# usually using in define methods but not implement
+&gt;&gt;&gt; class base(object):
+...   __metaclass__ = ABCMeta
+...   @abstractmethod
+...   def absmethod(self):
+...     """ Abstract method """
+... 
+&gt;&gt;&gt; class example(base):
+...   def absmethod(self):
+...     print "abstract"
+... 
+&gt;&gt;&gt; ex = example()
+&gt;&gt;&gt; ex.absmethod()
+abstract
+
+# another better way to define a meta class
+&gt;&gt;&gt; class base(object):
+...   def absmethod(self):
+...     raise NotImplementedError
+...
+&gt;&gt;&gt; class example(base):
+...   def absmethod(self):
+...     print "abstract"
+... 
+&gt;&gt;&gt; ex = example()
+&gt;&gt;&gt; ex.absmethod()
+abstract
 </pre>
 
 
