@@ -561,7 +561,6 @@ This is undecor func
 <h3>Lambda function</h3>
 <pre class="code python">
 # lambda [input]: expression
-# PS. Python not support multiline lambda
 &gt;&gt;&gt; fn = lambda x: x**2
 &gt;&gt;&gt; fn(3)
 9
@@ -571,6 +570,14 @@ This is undecor func
 [0, 2, 4, 6, 8]
 &gt;&gt;&gt; (lambda x: x if x&gt;3 else 3)(5)
 5
+
+# multiline lambda example 
+&gt;&gt;&gt; (lambda x:
+... True
+... if x&gt;0 
+... else 
+... False)(3)
+True
 </pre>
 
 <h3>Function with option arguments (*args, **kwargs)</h3>
