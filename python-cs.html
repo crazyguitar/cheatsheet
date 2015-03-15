@@ -352,6 +352,9 @@ example __repr__
 &gt;&gt;&gt; c = set(a).intersection(set(b))
 &gt;&gt;&gt; list(c)
 ['3', '2']
+# or
+&gt;&gt;&gt; [_ for _ in a if _ in b]
+['3', '2']
 
 # update dictionary
 &gt;&gt;&gt; a.update(b)
