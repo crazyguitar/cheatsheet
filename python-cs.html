@@ -134,11 +134,22 @@ True
 {'args': (1, 2, 3, 4, 5), ...}
 </pre>
 
+<h3>Check "callable"</h3>
+<pre class="code python">
+&gt;&gt;&gt; a = 10
+&gt;&gt;&gt; def fun():
+...   print "I am callable"
+... 
+&gt;&gt;&gt; callable(a)
+False
+&gt;&gt;&gt; callable(fun)
+True
+</pre>
+
 <h3>Common Use "Magic"</h3>
 <pre class="code python">
 # see python document: data model 
 # For command class
-
 __main__
 __name__
 __file__
@@ -324,6 +335,13 @@ example __repr__
 &gt;&gt;&gt; s = slice(0,-1,2)
 &gt;&gt;&gt; a[s]
 [1,3]
+
+# Get index and item in loop
+&gt;&gt;&gt; a = range(3)
+&gt;&gt;&gt; for idx,item in enumerate(a):
+...   print (idx,item),
+... 
+(0, 0) (1, 1) (2, 2)
 
 # with filter
 &gt;&gt;&gt; [x for x in range(5) if x&gt;1]
