@@ -645,11 +645,17 @@ I am callable!
 # example:
 import socket
 class Socket(object):
+   def __init__(self,host,port):
+      self.host = host
+      self.port = port
    def __enter__(self):
-      self.sock = socket.socket(
-                     socket.AF_INET,
-                     socket.SOCK_STREAM   
-                  )
+      sock = socket.socket(
+               socket.AF_INET,
+               socket.SOCK_STREAM   
+            )
+      sock.bind((self.host,self.port))
+      sock.listen(5)
+      self.sock = sock
       return self.sock
 
    def __exit__(self,exc_ty,exc_val,tb):
@@ -660,9 +666,7 @@ class Socket(object):
 if __name__=="__main__":
    host = 'localhost'
    port 5566
-   with Socket() as s:
-      s.bind((host,port))
-      s.listen(5)
+   with Socket(host,port) as s:
       while True:
          s.accept()
          msg = s.recv(1024)
