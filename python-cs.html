@@ -582,6 +582,34 @@ This is undecor func
 
             </div>
             <div class="col-sm-4">
+<h3>for &lt;exp&gt; else &lt;exp&gt;</h3>
+<pre class="code python">
+# forloop’s else clause runs when no break occurs
+&gt;&gt;&gt; for _ in range(5):
+...   print _,
+... else:
+...   print "\nno break occur"
+... 
+0 1 2 3 4 
+no break occur
+&gt;&gt;&gt; for _ in range(5):
+...   if _ % 2 ==0:
+...     print "break occur"
+...     break
+... else:
+...   print "else not occur"
+... 
+break occur
+# above statement equivalent to
+flag = False
+for _ in range(5):
+  if _ % 2 == 0:
+    flag = True
+    print "break occur"
+    break
+if flag == False:
+  print "else not occur"
+</pre>
 
 <h3>Lambda function</h3>
 <pre class="code python">
@@ -762,9 +790,9 @@ TypeError: Expect int
 &gt;&gt;&gt; ex = example(1)
 &gt;&gt;&gt; ex = example("str")
 Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "<stdin>", line 4, in __init__
-  File "<stdin>", line 11, in __set__
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+  File "&lt;stdin&gt;", line 4, in __init__
+  File "&lt;stdin&gt;", line 11, in __set__
 TypeError: Expected an int
 </pre>
 

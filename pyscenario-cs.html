@@ -28,6 +28,43 @@
          </div>
          <div class="row">
             <div class="col-sm-4">
+
+<h3>Get information about exception</h3>
+<pre class="code python">
+# get:
+# - exception type
+# - exception parameter
+# - traceback object
+&gt;&gt;&gt; import sys
+&gt;&gt;&gt; try:
+...   1/0
+... except Exception as e:
+...   print sys.exc_info()
+... 
+(&lt;type 'exceptions.ZeroDivisionError'&gt;, ZeroDivisionError('integer division or modulo by zero',), &lt;traceback object at 0x1034cf440&gt;)
+</pre>
+
+<h3>Basic traceback exception</h3>
+<pre class="code python">
+# see: python document - traceback
+&gt;&gt;&gt; import traceback
+&gt;&gt;&gt; try:
+...   1/0
+... except:
+...   exc_info = sys.exc_info()
+...   print '---- traceback ----'
+...   traceback.print_tb(exc_info[2])
+...   print '---- exception ----'
+...   traceback.print_exception(*exc_info)
+... 
+---- traceback ----
+  File "&lt;stdin&gt;", line 2, in &lt;module&gt;
+---- exception ----
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 2, in &lt;module&gt;
+ZeroDivisionError: integer division or modulo by zero
+</pre>
+
 <h3>High-Level "print" - logging</h3>
 <pre class="code python">
 # see: python document-Logging HOWTO
@@ -256,53 +293,41 @@ with open('ex.json') as fd:
 ...
 </pre>
 
-<h3>TAR files without compress</h3>
+<h3>TAR files</h3>
 <pre class="code python">
 # see: python document - tarfile
 # Before start, I prepare two dd file
 # dd if=/dev/zero of=ex.dd bs=1m count=100
 &gt;&gt;&gt; import tarfile
-&gt;&gt;&gt; tar = tarfile.open('ex.tar','w')
+&gt;&gt;&gt; tar=tarfile.open('ex.tar','w')
 &gt;&gt;&gt; tar.add('ex.dd')
 &gt;&gt;&gt; tar.add('ex.dd2')
 &gt;&gt;&gt; tar.close()
-</pre>
 
-<h3>TAR files with gzip</h3>
-<pre class="code python">
-&gt;&gt;&gt; import tarfile
+# tar files with gzip
 &gt;&gt;&gt; tar=tarfile.open('ex.tar.gz','w|gz')
 &gt;&gt;&gt; tar.add('ex.dd')
 &gt;&gt;&gt; tar.add('ex.dd2')
 &gt;&gt;&gt; tar.close()
-</pre>
 
-<h3>TAR files with bzip</h3>
-<pre class="code python">
-&gt;&gt;&gt; import tarfile
+# tar files with bzip2
 &gt;&gt;&gt; tar=tarfile.open('ex.tar.bz2','w|bz2')
 &gt;&gt;&gt; tar.add('ex.dd')
 &gt;&gt;&gt; tar.add('ex.dd2')
 &gt;&gt;&gt; tar.close()
-</pre>
 
-<h3>Check tar info and extractall</h3>
-<pre class="code python">
+# check tar info
 &gt;&gt;&gt; tar = tarfile.open('ex.tar.bz2','r')
-
 # print a table of contents to sys.stdout
 &gt;&gt;&gt; tar.list()
 -rw-r--r-- ... 2015-03-22 10:15:50 ex.dd
 -rw-r--r-- ... 2015-03-22 10:24:40 ex.dd2
-
 # get tarball path 
 &gt;&gt;&gt; tar.name
 '/Users/apple/ex.tar.bz2'
-
 # get tarbal files name
 &gt;&gt;&gt; tar.getnames()
 ['ex.dd', 'ex.dd2']
-
 # TarInfo object for member name.
 &gt;&gt;&gt; tar.members
 [&lt;TarInfo 'ex.dd' at 0x1034c6fd0&gt;, 
@@ -412,6 +437,7 @@ dir ex1 ex2
 0
 &gt;&gt;&gt; cmd = 'l ex'
 &gt;&gt;&gt; subprocess.check_call(cmd.split())
+Traceback (most recent call last):
 ...
 raise child_exception
 OSError: [Errno 2] ...
