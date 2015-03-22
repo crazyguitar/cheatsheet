@@ -26,10 +26,11 @@
             <h1>Python Cheat Sheet</h1>
             <p>Cheat sheet of Python. Common scenarios for Python programmers.</p>
          </div>
+<h2 class="cs-section">Basic Scenario</h2>
          <div class="row">
             <div class="col-sm-4">
 
-<h3>Get information about exception</h3>
+<h3>Get Information about Exception</h3>
 <pre class="code python">
 # get:
 # - exception type
@@ -44,7 +45,7 @@
 (&lt;type 'exceptions.ZeroDivisionError'&gt;, ZeroDivisionError('integer division or modulo by zero',), &lt;traceback object at 0x1034cf440&gt;)
 </pre>
 
-<h3>Basic traceback exception</h3>
+<h3>Basic Traceback Exception</h3>
 <pre class="code python">
 # see: python document - traceback
 &gt;&gt;&gt; import traceback
@@ -130,7 +131,7 @@ INFO:__main__:info
 &gt;&gt;&gt; logger.info('info')
 </pre>
 
-<h3>Calculate time cost of a function</h3>
+<h3>Calculate Time Cost of a Function</h3>
 <pre class="code python">
 import time
 def CalTime(func):
@@ -155,7 +156,7 @@ if __name__ == '__main__':
    exLoop()
 </pre>
 
-<h3>Profiling - How efficiency of a function</h3>
+<h3>Profiling - How Efficiency of a Function</h3>
 <pre class="code python">
 import cProfile, pstats
 
@@ -186,7 +187,7 @@ if __name__ == '__main__':
 
             </div>
             <div class="col-sm-4">
-<h3>Handle json data</h3>
+<h3>Handle Json Data</h3>
 <pre class="code python">
 &gt;&gt;&gt; pydict = {"1":1,"2":[1,2,3]}
 import json
@@ -214,7 +215,7 @@ with open('ex.json') as fd:
 ...   json.load(pyobj,fd,indent=4)
 ...
 </pre>
-<h3>Handle yaml data</h3>
+<h3>Handle YAML Data</h3>
 <pre class="code python">
 # need to install PyYAML first
 # see: http://pyyaml.org/
@@ -245,7 +246,7 @@ with open('ex.json') as fd:
 ...   yaml.dump(pyobj,fd)
 ...
 </pre>
-<h3>Handle ini format</h3>
+<h3>Handle INI Format</h3>
 <pre class="code python">
 # ini is not convenient for list or dict
 # only "key value" is more suitable 
@@ -293,7 +294,7 @@ with open('ex.json') as fd:
 ...
 </pre>
 
-<h3>TAR files</h3>
+<h3>TAR Files</h3>
 <pre class="code python">
 # see: python document - tarfile
 # Before start, I prepare two dd file
@@ -339,14 +340,14 @@ with open('ex.json') as fd:
 
             </div>
             <div class="col-sm-4">
-<h3>Check file exists</h3>
+<h3>Check File Exists</h3>
 <pre class="code python">
 &gt;&gt;&gt; import os
 &gt;&gt;&gt; os.path.exists('/usr/local')
 True
 </pre>
 
-<h3>Check is directory or file</h3>
+<h3>Check is a Directory or File</h3>
 <pre class="code python">
 import os
 &gt;&gt;&gt; os.path.isdir('/usr/local')
@@ -367,7 +368,7 @@ import os
 ./ex/dir [] []
 </pre>
 
-<h3>Other common path related operation</h3>
+<h3>Other Common Path Related Operation</h3>
 <pre class="code python">
 import os
 # get current dir
@@ -422,7 +423,7 @@ True
 ('/usr/local/bin', '')
 </pre>
 
-<h3>Call Shell command</h3>
+<h3>Call Shell Command</h3>
 <pre class="code python">
 &gt;&gt;&gt; import subprocess
 &gt;&gt;&gt; cmd = 'ls ex'
@@ -449,7 +450,7 @@ OSError: [Errno 2] ...
 '"hi"\n'
 </pre>
 
-<h3>Get platform info</h3>
+<h3>Get Platform Info</h3>
 <pre class="code python">
 # see: python document - platform 
 &gt;&gt;&gt; import platform
@@ -472,46 +473,124 @@ OSError: [Errno 2] ...
 
             </div>
          </div>
+<h2 class="cs-section">SQL Related Scenario</h2>
          <div class="row">
-            <div class="col-sm-6">
-<h3>SQLAlchemy - Object Relational Mapping(ORM)</h3>
+            <div class="col-sm-4">
+<h3>SQLAlchemy(ORM with db) - Create a Basic Table</h3>
 <pre class="code python">
 # converting data between object 
 # interact without database without sql.
 # see: http://www.sqlalchemy.org/
-# step1 - connecting to database
-&gt;&gt;&gt; from sqlalchemy import create_engine
-&gt;&gt;&gt; engine = create_engine('sqlite:///example.db')
+# import engine creator
+from sqlalchemy import create_engine
+# import table declarative
+from sqlalchemy.ext.declarative \
+   import declarative_base
+# import table object metadata
+from sqlalchemy import \
+   Column, Integer, String, DateTime
+# import generic function
+from sqlalchemy import func
+# import sessionmaker
+from sqlalchemy.orm import sessionmaker
 
-# step2 - declare object(table)
-&gt;&gt;&gt; from sqlalchemy.ext.declarative import declarative_base
-&gt;&gt;&gt; Base = declarative_base()
-&gt;&gt;&gt; from sqlalchemy import Column, Integer, String, DateTime
-# import generic functions
-&gt;&gt;&gt; from sqlalchemy import func
-&gt;&gt;&gt; class exTable(Base):
-...   __tablename__ = 'extable'
-...   id = Column(Integer, primary_key=True)
-...   intcol = Column(Integer)
-...   strcol = Column(String(8))
-...   datecol = Column(DateTime, default=func.localtimestamp())
-... 
+# declare a table
+Base = declarative_base()
+class exTable(Base):
+   __tablename__ = 'extable'
+   id = Column(Integer, primary_key=True)
+   intcol = Column(Integer)
+   strcol = Column(String(8))
+   datecol = Column(
+      DateTime, 
+      default=func.localtimestamp()
+   )
 
-# step3 - create schema(table) 
-&gt;&gt;&gt; Base.metadata.create_all(engine)
+class DBsession(object):
+   def __init__(self, engine):
+      self._engine = engine 
+   def __enter__(self):
+      smaker = sessionmaker(
+         bind=self._engine
+      )
+      self._session = smaker()
+      return self._session
+   def __exit__(self,*exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+            *exc_info
+         )
+      self._session.close()
 
-# step4 - create a session(ORM talk to database by session) 
-&gt;&gt;&gt; from sqlalchemy.orm import sessionmaker
-&gt;&gt;&gt; smaker = sessionmaker(bind=engine)
-&gt;&gt;&gt; ex = exTable(intcol=1, strcol="ex")
-&gt;&gt;&gt; session = smaker()
-&gt;&gt;&gt; session.add(ex)
-# commit all change into datebase
-&gt;&gt;&gt; session.commit()
-&gt;&gt;&gt; session.close()
+if __name__ == "__main__":
+   db = 'sqlite:///example.db'
+   # create engine 
+   engine = create_engine(db, echo=True)
+   # create table
+   Base.metadata.create_all(engine)
+   with DBsession(engine) as session:
+      ex = exTable(intcol=1, strcol="ex")
+      session.add(ex)
+      session.commit()
 </pre>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
+
+            </div>
+            <div class="col-sm-4">
+
+            </div>
+         </div>
+<h2 class="cs-section">Socket Related Scenario</h2>
+         <div class="row">
+            <div class="col-sm-4">
+<h3>A Basic Synchronized Socket Server</h3>
+<pre class="code python">
+import socket
+
+class Socket(object):
+   def __init__(self,host,port):
+      self._host = host
+      self._port = port
+   def __enter__(self):
+      sock = socket.socket(
+         socket.AF_INET,
+         socket.SOCK_STREAM
+      )
+      sock.setsockopt(
+         socket.SOL_SOCKET,
+         socket.SO_REUSEADDR,1
+      )
+      sock.bind((self._host,self._port))
+      sock.listen(5)
+      self._sock = sock
+      return self._sock
+   def __exit__(self,*exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+            *exc_info      
+         )
+         self._sock.close()
+
+if __name__ == '__main__':
+   host = 'localhost'
+   port = 5566
+   with Socket(host,port) as sock:
+      while True:
+         conn,addr = sock.accept()
+         msg = conn.recv(1024)
+         print msg
+         conn.send(msg)
+         conn.close()
+</pre>
+
+            </div>
+            <div class="col-sm-4">
+
+            </div>
+            <div class="col-sm-4">
 
             </div>
          </div>

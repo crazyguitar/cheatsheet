@@ -1,6 +1,9 @@
 @import url(//fonts.googleapis.com/css?family=PT+Sans:400,700,400italic);
 @import url(//fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
+h2.cs-section{
+   text-align: center;
+}
 pre.code {
   font: normal 12pt Ubuntu Mono;
 }
