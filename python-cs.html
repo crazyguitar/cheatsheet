@@ -27,7 +27,7 @@
             <p>Cheat sheet of Python. Some basic concepts for Python programmer need to know.</p>
          </div>
          <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-6 col-md-4">
 <h3>Python Naming Styles</h3>
 <pre class="code python">
 # see: PEP8
@@ -144,6 +144,19 @@ True
 False
 &gt;&gt;&gt; callable(fun)
 True
+</pre>
+<h3>Get function/class name</h3>
+<pre class="code python">
+&gt;&gt;&gt; class excls(object):
+...   pass
+... 
+&gt;&gt;&gt; def exfun():
+...   pass
+...
+&gt;&gt;&gt; ex.__class__.__name__
+'excls'
+&gt;&gt;&gt; exfun.__name__
+'exfun'
 </pre>
 
 <h3>Common Use "Magic"</h3>
@@ -298,7 +311,7 @@ True
 False
 </pre>
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-6 col-md-4">
 <h3>Representations of your class behave</h3>
 
 <pre class="code python">
@@ -342,6 +355,12 @@ example __repr__
 ...   print (idx,item),
 ... 
 (0, 0) (1, 1) (2, 2)
+
+# Transfer two list into tuple list
+&gt;&gt;&gt; a = [1,2,3,4,5]
+&gt;&gt;&gt; b = [2,4,5,6,8]
+&gt;&gt;&gt; zip(a,b)
+[(1, 2), (2, 4), (3, 5), (4, 6), (5, 8)]
 
 # with filter
 &gt;&gt;&gt; [x for x in range(5) if x&gt;1]
@@ -399,6 +418,18 @@ example __repr__
 # using builtin function "map"
 &gt;&gt;&gt; map(fn,range(5))
 [0, 1, 4, 9, 16] 
+</pre>
+
+<h3>NamedTuple</h3>
+<pre class="code python">
+# namedtuple(typename, field_names)
+# replace define class without method 
+# see: python document collections
+&gt;&gt;&gt; from collections import namedtuple
+&gt;&gt;&gt; ex = namedtuple("ex",'a b c')
+&gt;&gt;&gt; e = ex(1,2,3)
+&gt;&gt;&gt; print e.a, e[1], e[1]+e.b
+1 2 4
 </pre>
 
 <h3>Delegating Iteration (__iter__)</h3>
@@ -581,7 +612,7 @@ This is undecor func
 </pre>
 
             </div>
-            <div class="col-sm-4">
+            <div class="col-sm-6 col-md-4">
 <h3>for: exp else: exp</h3>
 <pre class="code python">
 # see document: More Control Flow Tools
