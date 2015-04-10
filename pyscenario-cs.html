@@ -69,18 +69,7 @@ ZeroDivisionError: integer division or modulo by zero
 <h3>High-Level "print" - logging</h3>
 <pre class="code python">
 # see: python document-Logging HOWTO
-# 1. "print" message when you need.
-# 
-# 2. There are 5 different "level"
-# - DEBUG (lowest)
-# - INFO
-# - WARNING (default level)
-# - ERROR
-# - CIRITICAL (highest - like "print")
-# to determine whether to "print" message.
-#
-# 3. If "print level" is higher than a programmer set, it will print the message in runtime. 
-
+# "print" message when you need.
 # default level: warning
 &gt;&gt;&gt; import logging
 &gt;&gt;&gt; logging.debug("debug")
@@ -556,12 +545,10 @@ class Socket(object):
    def __enter__(self):
       sock = socket.socket(
          socket.AF_INET,
-         socket.SOCK_STREAM
-      )
+         socket.SOCK_STREAM)
       sock.setsockopt(
          socket.SOL_SOCKET,
-         socket.SO_REUSEADDR,1
-      )
+         socket.SO_REUSEADDR,1)
       sock.bind((self._host,self._port))
       sock.listen(5)
       self._sock = sock
@@ -570,8 +557,7 @@ class Socket(object):
       if exc_info[0]:
          import traceback
          traceback.print_exception(
-            *exc_info      
-         )
+            *exc_info)
          self._sock.close()
 
 if __name__ == '__main__':
@@ -586,8 +572,113 @@ if __name__ == '__main__':
          conn.close()
 </pre>
 
+<h3>A Basic Synchronized Socket Client</h3>
+<pre class="code python">
+import socket
+
+class client(object):
+   def __init__(self, host, port):
+      self._host = host
+      self._port = port
+      self._sock = socket.socket(
+         socket.AF_INET,
+         socket.SOCK_STREAM)
+   def __enter__(self):
+     self._sock.connect((host, port)) 
+     return self._sock
+   def __exit__(self, *exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+               *exc_info)
+      self._sock.close()
+
+if __name__ == "__main__":
+   host = 'localhost'
+   port = 5566
+   with client(host, port) as sock:
+      sock.send("test")
+      print sock.recv(4096)
+</pre>
+
             </div>
             <div class="col-sm-4">
+<h3>Thread Based Async Socket Server</h3>
+<pre class="code python">
+import threading, socket
+
+class server(object):
+   def __init__(self, host, port):
+      self._port = port
+      self._host = host
+      self._sock = socket.socket(
+         socket.AF_INET,
+         socket.SOCK_STREAM)
+   def __enter__(self):
+     self._sock.bind((host,port)) 
+     self._sock.listen(5)
+     return self._sock
+   def __exit__(self, *exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+               *exc_info)
+      self._sock.close()
+
+def echo():
+   while True:
+      msg = client.recv(8192)
+      if msg:
+         client.send(msg)
+      else:
+         client.close()
+         print "client leave" 
+         break
+
+if __name__ == "__main__":
+   host = socket.gethostbyname(
+         socket.gethostname())
+   port = 5566
+   with server(host,port) as sock:
+      while True:
+         client, addr = sock.accept()
+         threading.Thread(
+            targer=echo,client)
+         t.start()
+</pre>
+<h3>Select Based Async Socket Server</h3>
+
+<pre class="code python">
+readList   = [], writeList  = []
+exceptList = [], clients = {}
+host = 'localhost'
+port = 5566
+with server(host, port) as sock:
+   readList.append(sock)
+   while True:
+      """
+      ready = (ReadReady,
+               WriteReady,
+               ExceptionReady)
+      """
+      ready = select.select(
+               readList,
+               writeList,
+               exceptList)
+      # process read ready
+      for r in ready[0]:
+         if r == sock:
+            client, addr = sock.accept()
+         else:
+            msg = r.recv(4096)
+            writeList.append(r)
+            clients{r} = msg
+      # process write ready
+      for w in ready[1]:
+         w.send(clients[w])
+         writeList.remove(w)
+         del clients[w]
+</pre>
 
             </div>
             <div class="col-sm-4">
