@@ -402,8 +402,6 @@ True
 # join path
 &gt;&gt;&gt; os.path.join('/usr/local/','bin')
 '/usr/local/bin'
-&gt;&gt;&gt; os.path.join('/usr/local/','bin')
-'/usr/local/bin'
 
 # split path into ('dirname', 'basename')
 &gt;&gt;&gt; os.path.split('/usr/local/bin')
@@ -534,6 +532,19 @@ if __name__ == "__main__":
 <h2 class="cs-section">Socket Related Scenario</h2>
          <div class="row">
             <div class="col-sm-4">
+
+<h3>Get Hostname</h3>
+<pre class="code python">
+&gt;&gt;&gt; import socket
+&gt;&gt;&gt; socket.gethostname()
+'MacBookPro-4380.local'
+&gt;&gt;&gt; hostname = socket.gethostname()
+&gt;&gt;&gt; socket.gethostbyname(hostname)
+'172.20.10.4'
+&gt;&gt;&gt; socket.gethostbyname('localhost')
+'127.0.0.1'
+</pre>
+
 <h3>A Basic Synchronized Socket Server</h3>
 <pre class="code python">
 import socket
@@ -600,9 +611,121 @@ if __name__ == "__main__":
       sock.send("test")
       print sock.recv(4096)
 </pre>
+<h3>A Basic UDP Server</h3>
+<pre class="code python">
+import socket
+
+class UDPServer(object):
+   def __init__(self, host, port):
+      self._host = host
+      self._port = port
+      self._sock = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_DGRAM)
+   def __enter__(self):
+      self._sock.bind((host, port))
+      self._sock.listen(5)
+      return self._sock
+   def __exit__(self,*exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+               *exc_info)
+      self._sock.close()
+
+if __name__ == '__main__':
+   host = 'localhost'
+   port = 5566
+   with UDPServer(host, port) as sock:
+      while True:
+         msg, addr = sock.recvfrom(4096)
+         print msg
+</pre>
+<h3>A Basic UDP Client</h3>
+<pre class="code python">
+import socket
+
+class UDPClient(object):
+   def __init__(self):
+      self._sock = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_DGRAM)
+   def __enter__(self):
+      return self._sock
+   def __exit__(self, *exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+               *exc_info)
+      self._sock.close()
+
+if __name__ == "__main__":
+   remoteHost = 'localhost'
+   remotePort = 5566
+   with UDPClient() as sock:
+      sock.sendto("Hello",
+            (remoteHost, remotePort))
+</pre>
 
             </div>
             <div class="col-sm-4">
+
+<h3>Multicasting Sender</h3>
+<pre class="code python">
+import socket
+
+class Sender(object):
+   def __init__(self):
+      self._sock = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_DGRAM)
+      self._sock.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_BROADCAST, 1)
+   def __enter__(self):
+      return self
+   def __exit__(self, *exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+               *exc_info)
+      self._sock.close()
+   def broadcast(self, data, host, port):
+      self._sock.sendto(data, (host,port))
+
+if __init__ == '__main__':
+   with Sender() as sender:
+      sender.broadcast(
+            "Hello",
+            '&lt;broadcast&gt;',5566)
+</pre>
+<h3>Multicasting Receiver</h3>
+<pre class="code python">
+import socket
+
+class Receiver(object):
+   def __init__(self):
+      self._sock = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_DGRAM)
+      self._sock.setsockopt(
+            socket.SOL_SOCKET,
+            socket.SO_BROADCAST, 1)
+      self.bind(('',5566))
+   def __enter__(self):
+      return self
+   def __exit__(self, *exc_info):
+      if exc_info[0]:
+         import traceback
+         traceback.print_exception(
+               *exc_info)
+      self._sock.close()
+   def recvBroadcase(self):
+      data, addr = \
+         self._sock.recvfrom(1024)
+      print data, addr
+</pre>
+
 <h3>Thread Based Async Socket Server</h3>
 <pre class="code python">
 import threading, socket
@@ -649,8 +772,10 @@ if __name__ == "__main__":
 <h3>Select Based Async Socket Server</h3>
 
 <pre class="code python">
+import select
+
 readList   = [], writeList  = []
-exceptList = [], clients = {}
+exceptList = [], clients    = {}
 host = 'localhost'
 port = 5566
 with server(host, port) as sock:
@@ -682,6 +807,46 @@ with server(host, port) as sock:
 
             </div>
             <div class="col-sm-4">
+<h3>Poll Based Async Socket Server</h3>
+<pre class="code python">
+import select
+
+host     = 'localhost'
+port     = 5566
+READ     = select.POLLIN | select.POLLPRI 
+WRITE    = select.POLLOUT
+poller   = select.poll()
+fd_info  = {sock.fileno():sock}
+recv_msg = {} 
+poller.register(sock, READONLY)
+with server(host, port) as sock:
+  while True:
+    events = poller.poll()   
+    for fd, flag in events:
+      s = fd_info[fd]   
+      # process read
+      if flag & (select.POLLIN|\
+                 select.POLLPRI):
+        if s == sock:
+          conn, addr = sock.accept()
+          poller.register(conn, READ)
+          fd_info[conn.fileno()] = conn
+          else:
+            msg = s.recv(4096)
+            # check client conect
+            if msg:
+              recv_msg[s.fileno()] = msg  
+              poller.modify(s, WRITE)
+            else:
+              poller.unregister(s)
+              print "client leave"
+              s.close()
+      # process write
+      if flag & select.POLLOUT:
+        s.send(recv_msg[s.fileno()])
+        poller.modify(s, READ)
+        del recv_msg[s.fileno()]
+</pre>
 
             </div>
          </div>
