@@ -463,8 +463,23 @@ OSError: [Errno 2] ...
 <h2 class="cs-section">SQL Related Scenario</h2>
          <div class="row">
             <div class="col-sm-4">
-<h3>Declare A Table</h3>
+<h3>Declare A Table - Two Style of Map Object to Table</h3>
 <pre class="code python">
+# reference: http://www.sqlalchemy.org
+# see: Types of Mappings
+# classical style - using "Table"
+&gt;&gt;&gt; from sqlalchemy import Column,\
+...                        Integer,\
+...                        String,\
+...                        Table,\
+...                        MetaData
+&gt;&gt;&gt; metadata = MetaData()
+&gt;&gt;&gt; user = Table('User', metadata,
+...     Column('id', Integer, 
+...            primary_key=True),
+...     Column('name',String))
+
+# declarative style - using "class" 
 &gt;&gt;&gt; from sqlalchemy.ext.declarative\
 ... import declarative_base
 &gt;&gt;&gt; from sqlalchemy import Column,\
@@ -479,11 +494,48 @@ OSError: [Errno 2] ...
 ... 
 </pre>
 
-<h3>SQLAlchemy - Create a Basic Table</h3>
+<h3>Describing Databases with MetaData</h3>
 <pre class="code python">
-# converting data between object 
-# interact with database without sql.
-# see: http://www.sqlalchemy.org/
+# MetaData:
+# keep different features of databases
+# see: Describing Databases with MetaData
+from sqlalchemy import Column  ,\ 
+                       String  ,\ 
+                       Integer ,\
+                       MetaData,\ 
+                       Table   
+metadata = MetaData()
+user = Table('User', metadata,
+      Column('id', Integer, 
+             primary_key=True),
+      Column('name', String),
+      Column('age',Integer)) 
+
+company = Table('Company',metadata,
+      Column('id', Integer, 
+             primary_key=True),
+      Column('name', String),
+      Column('website', String))
+
+employees = Table('Employee',metadata,
+      Column('id', Integer,
+             primary_key=True),
+      Column('name', String),
+      Column('Job_title', String))
+
+address = Table('Address',metadata,
+      Column('id', Integer, 
+             primary_key=True),
+      Column('name', String))
+
+print dir(metadata)
+for _ in metadata.tables:
+   print _
+</pre>
+
+
+<h3>Create a Basic Table</h3>
+<pre class="code python">
 # import engine creator
 from sqlalchemy import create_engine
 # import table declarative
@@ -506,24 +558,21 @@ class exTable(Base):
    strcol = Column(String(8))
    datecol = Column(
       DateTime, 
-      default=func.localtimestamp()
-   )
+      default=func.localtimestamp())
 
 class DBsession(object):
    def __init__(self, engine):
       self._engine = engine 
    def __enter__(self):
       smaker = sessionmaker(
-         bind=self._engine
-      )
+         bind=self._engine)
       self._session = smaker()
       return self._session
    def __exit__(self,*exc_info):
       if exc_info[0]:
          import traceback
          traceback.print_exception(
-            *exc_info
-         )
+            *exc_info)
       self._session.close()
 
 if __name__ == "__main__":
