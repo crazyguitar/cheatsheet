@@ -463,10 +463,26 @@ OSError: [Errno 2] ...
 <h2 class="cs-section">SQL Related Scenario</h2>
          <div class="row">
             <div class="col-sm-4">
-<h3>SQLAlchemy(ORM with db) - Create a Basic Table</h3>
+<h3>Declare A Table</h3>
+<pre class="code python">
+&gt;&gt;&gt; from sqlalchemy.ext.declarative\
+... import declarative_base
+&gt;&gt;&gt; from sqlalchemy import Column,\
+...                        Integer,\
+...                        String
+&gt;&gt;&gt; class ex(Base):
+...   __tablename__='ex'
+...   id = Column(Integer,\
+...               primary_key=True)
+...   exint = Column(Integer)
+...   exstr = Column(String)
+... 
+</pre>
+
+<h3>SQLAlchemy - Create a Basic Table</h3>
 <pre class="code python">
 # converting data between object 
-# interact without database without sql.
+# interact with database without sql.
 # see: http://www.sqlalchemy.org/
 # import engine creator
 from sqlalchemy import create_engine
@@ -523,9 +539,222 @@ if __name__ == "__main__":
 </pre>
             </div>
             <div class="col-sm-4">
+<h3>Using PickleType to Store Python Object</h3>
+<pre class="code python">
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative\
+      import declarative_base
+from sqlalchemy import Column ,\
+                       Integer,\
+                       String ,\
+                       PickleType
+from sqlalchemy.orm import sessionmaker 
+
+Base = declarative_base()
+class exTable(Base):
+   __tablename__ = 'exampleTable'
+   id = Column(Integer, primary_key=True)
+   exint = Column(Integer)
+   exstr = Column(String)
+   # PickleType
+   exPickle = Column(PickleType)
+
+class DBSession(object):
+   def __init__(self, engine):
+      self._engine = engine
+   def __enter__(self):
+      smaker = sessionmaker(
+            bind=self._engine)
+      self._session = smaker()
+      return self._session
+   def __exit__(self,*exc_info):
+      self._session.close()
+
+db = 'sqlite:///ex.db'
+engine = create_engine(db)
+Base.metadata.create_all(engine)
+with DBSession(engine) as session:
+   # Add item to Table
+   for _ in range(10):
+      exItem = exTable(
+            exint    = _,
+            exstr    = "ex",
+            exPickle = range(_))
+      session.add(exItem)
+   session.commit()
+   queryRes = session.query(exTable).all()
+   print queryRes
+   for _ in queryRes:
+      print _.exint, _.exstr
+      print "PickleType: ",_.exPickle
+</pre>
 
             </div>
             <div class="col-sm-4">
+
+<h3>One to Many Relationship</h3>
+<pre class="code python">
+# see: document - basic relationship
+from sqlalchemy.ext.declarative\
+      import declarative_base
+from sqlalchemy import Column,\
+                       Integer,\
+                       String,\ 
+                       ForeignKey
+
+Base = declarative_base()
+
+# one(Parent) to many(Child)
+class Parent(Base):
+   __tablename__ = 'Parent'
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   children = relationship('Child')
+
+class Child(Base):
+   __tablename__ = "Child"
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   parent_id = Column(Integer, 
+                  ForeignKey('Parent.id'))
+
+if __name__ == '__main__':
+   p = Parent(name='p1')
+   c1 = Child(name='c1')
+   c2 = Child(name='c2')
+   p.children.append(c1) 
+   p.children.append(c2)
+   print p, p.children
+</pre>
+<h3>One To Many Relationship With "backref"</h3>
+<pre class="code python">
+Base = declarative_base()
+
+class Parent(Base):
+   __tablename__ = "Parent"
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   # enable child back reference to parent
+   children = relationship('Child',
+         backref='parent')
+
+class Child(Base):
+   __tablename__ = "Child"
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   parent_id = Column(Integer, 
+         ForeignKey('Parent.id'))
+
+if __name__ == '__main__':
+   c1 = Child(name='c1')
+   c2 = Child(name='c2')
+   p = Parent(name='p1')
+   p.children.append(c1)
+   p.children.append(c2)
+   print p, c1.parent
+   print p, c2.parent
+</pre>
+
+
+<h3>Many to One Relationship</h3>
+<pre class="code python">
+Base = declarative_base()
+
+# many(child) to one(parent)
+class Parent(Base):
+   __tablename__= "Parent"
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   
+class Child(Base):
+   __tablename__ = "Child"
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   parent_id = Column(Integer, 
+         ForeignKey("Parent.id"))
+   # uselist=False-disable "one to many"
+   parent = relationship('Parent',backref=
+         backref('child',uselist=False))
+
+if __name__ == "__main__":
+   c1 = Child(name='c1')
+   c2 = Child(name='c2')
+   p = Parent(name='p1')
+   c1.parent = p
+   print c1, c1.parent
+   print c1.parent.child
+   c2.parent = p
+   print c2, c2.parent
+   print c2.parent.child
+   print p.child
+</pre>
+
+<h3>One to One Relationship</h3>
+<pre class="code python">
+# turn "one to many" to "one to one"
+Base = declarative_base()
+class Parent(Base):
+   __tablename__ = 'Parent'
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   child = relationship('Child',
+                         uselist=False,
+                         backref='parent')
+
+class Child(Base):
+   __tablename__ = 'Child'
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   parent_id = Column(Integer, 
+                  ForeignKey('Parent.id'))
+
+if __name__ == '__main__':
+   c1 = Child(name='c1')
+   p1 = Parent(name='p1', child=c1)
+   print c1.parent, p1
+</pre>
+
+<h3>Many to Many Relationship</h3>
+<pre class="code python">
+# from sqlalchemy import Table
+# need an additional association table
+# 
+# The association table is indicated by the secondary argument to relationship()
+Base = declarative_base()
+association_table = Table('association', 
+   Base.metadata,
+    Column('left_id', 
+           Integer, 
+           ForeignKey('left.id')),
+    Column('right_id', 
+           Integer, 
+           ForeignKey('right.id')))
+
+class Parent(Base):
+   __tablename__ = 'left'
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+   children = relationship("Child", 
+         secondary=association_table,
+         backref='parent')
+
+class Child(Base):
+   __tablename__ = 'right'
+   id = Column(Integer, primary_key=True)
+   name = Column(String)
+
+if __name__ == '__main__':
+   c1 = Child(name='c1')
+   c2 = Child(name='c2')
+   p1 = Parent(name='p1')
+   p2 = Parent(name='p2')
+   p1.children.append(c1); 
+   p1.children.append(c2)
+   p2.children.append(c1); 
+   p2.children.append(c2) 
+   print c1.parent
+   print c2.parent
+</pre>
 
             </div>
          </div>
@@ -831,16 +1060,16 @@ with server(host, port) as sock:
           conn, addr = sock.accept()
           poller.register(conn, READ)
           fd_info[conn.fileno()] = conn
+        else:
+          msg = s.recv(4096)
+          # check client conect
+          if msg:
+            recv_msg[s.fileno()] = msg  
+            poller.modify(s, WRITE)
           else:
-            msg = s.recv(4096)
-            # check client conect
-            if msg:
-              recv_msg[s.fileno()] = msg  
-              poller.modify(s, WRITE)
-            else:
-              poller.unregister(s)
-              print "client leave"
-              s.close()
+            poller.unregister(s)
+            print "client leave"
+            s.close()
       # process write
       if flag & select.POLLOUT:
         s.send(recv_msg[s.fileno()])
