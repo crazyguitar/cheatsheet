@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+   
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="highlight/styles/github.css">
+      <link rel="stylesheet" href="css/style.css">
+      <script src="highlight/highlight.pack.js"></script>
+      <script>
+         $(document).ready(function(){
+            $('pre.code').each(function(i, block) {
+               hljs.highlightBlock(block);
+            }); 
+         });
+      </script> 
+   </head>
+
+   <body>
+      <div class="container">
+         <div class="jumbotron">
+            <h1>Python Cheat Sheet</h1>
+            <p>Cheat sheet of Python. Some basic concept for Python programmer need to know.</p>
+         </div>
+         <div class="row">
+            <div class="col-sm-4">
+<h3>Debug Switch - logging</h3>
+<pre class="code python">
+# see: python document-Logging HOWTO
+# "print" debug message when you need.
+# default level: warning
+&gt;&gt;&gt; import logging
+&gt;&gt;&gt; logging.debug("debug")
+&gt;&gt;&gt; logging.info("info")
+&gt;&gt;&gt; logging.warning("warning")
+WARNING:root:warning
+&gt;&gt;&gt; logging.error("error")
+ERROR:root:error
+&gt;&gt;&gt; logging.critical("cirtical")
+CRITICAL:root:cirtical
+
+# set up level: debug
+&gt;&gt;&gt; logging.basicConfig(
+...   level =logging.DEBUG)
+&gt;&gt;&gt; logging.debug("debug")
+DEBUG:root:debug
+&gt;&gt;&gt; logging.info("info")
+INFO:root:info
+&gt;&gt;&gt; logging.warning("warning")
+WARNING:root:warning
+&gt;&gt;&gt; logging.error("error")
+ERROR:root:error
+&gt;&gt;&gt; logging.critical("cirtical")
+CRITICAL:root:cirtical
+
+# log to a file(raw data)
+&gt;&gt;&gt; logging.basicConfig(
+...   filename='example.log',
+...   level=logging.DEBUG)
+
+# display with format with date
+&gt;&gt;&gt; logging.basicConfig(
+...   format='%(asctime)s: %(message)s',
+...   datefmt='%m/%d/%Y %I:%M:%S %p')
+&gt;&gt;&gt; logging.warning("warning")
+03/16/2015 10:46:35 PM: warning
+
+# logger object
+&gt;&gt;&gt; logger = logging.getLogger(__name__)
+&gt;&gt;&gt; logger.setLevel(logging.DEBUG)
+&gt;&gt;&gt; logger.info('info')
+INFO:__main__:info
+# set logger level
+&gt;&gt;&gt; logger.setLevel(logging.ERROR)
+&gt;&gt;&gt; logger.info('info')
+</pre>
+            </div>
+            <div class="col-sm-4">
+               <h3>Test</h3>
+            </div>
+            <div class="col-sm-4">
+<h3>Calculate Time Cost of a Function</h3>
+<pre class="code python">
+&gt;&gt;&gt; def cal_time(func):
+...   def wrapper(*args, **kwargs):
+...     start = time.time()
+...     func(*args, **kwargs)
+...     end   = time.time()
+...     print "cost time:", end - start 
+...   return wrapper
+... 
+&gt;&gt;&gt; @cal_time
+... def sleep_5_sec():
+...   time.sleep(5)
+... 
+&gt;&gt;&gt; sleep_5_sec()
+cost time: 5.00077295303
+&gt;&gt;&gt; @cal_time
+... def runloop():
+...   for _ in range(100000):
+...     pass
+... 
+&gt;&gt;&gt; runloop()
+cost time: 0.00877285003662
+</pre>
+
+<h3>Profiling - How Efficiency of a Function</h3>
+<pre class="code python">
+&gt;&gt;&gt; import cProfile
+&gt;&gt;&gt; import pstats
+&gt;&gt;&gt; def profiling(func):
+...   def wrapper(*args, **kwargs):
+...     profile = cProfile.Profile()
+...     profile.enable()
+...     func(*args, **kwargs)
+...     profile.disable()
+...     pstat = pstats.Stats(profile)
+...     pstat.print_stats()
+...   return wrapper
+... 
+&gt;&gt;&gt; @profiling 
+... def loop_sleep():
+...   for _ in range(100):
+...     time.sleep(0.01)
+... 
+&gt;&gt;&gt; loop_sleep()
+         103 function calls in 1.085 seconds
+
+   Random listing order was used
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      100    1.083    0.011    1.083    0.011 {time.sleep}
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+        1    0.000    0.000    0.000    0.000 {range}
+        1    0.002    0.002    1.085    1.085 &lt;stdin&gt;:1(loop_sleep)
+</pre>
+<h3>Profiling Per Line Via Line Profiler API</h3>
+<pre class="code python">
+# need install line_profiler first
+# see: https://github.com/rkern/line_profiler
+# pip install line_profiler
+# example.py
+from line_profiler import LineProfiler
+import time
+
+def profiling(func):
+   def wrapper(*args, **kwargs):
+      profiler = LineProfiler(func)
+      profiler.enable_by_count()
+      ret = func(*args, **kwargs)
+      profiler.print_stats()
+      return ret
+   return wrapper
+
+@profiling
+def sleep_loop():
+   for _ in range(100):
+      time.sleep(0.01)
+sleep_loop()
+
+# bash&gt; python example.py
+Timer unit: 1e-06 s
+
+Total time: 1.09067 s
+File: test1.py
+Function: sleep_loop at line 13
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    13                                           @profiling
+    14                                           def sleep_loop():
+    15       101         1380     13.7      0.1     for _ in range(100):
+    16       100      1089288  10892.9     99.9        time.sleep(0.01)
+</pre>
+<h3>Profiling Per Line Via "kernprof" Command Line Tool</h3>
+<pre class="code python">
+# example.py
+@profile
+def sleep_loop():
+   for _ in range(100):
+      time.sleep(0.01)
+sleep_loop()
+
+# bash&gt; kernprof -l -v test1.py
+Wrote profile results to test1.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 1.12235 s
+File: test1.py
+Function: sleep_loop at line 13
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    13                                           @profile
+    14                                           def sleep_loop():
+    15       101         1014     10.0      0.1     for _ in range(100):
+    16       100      1121334  11213.3     99.9        time.sleep(0.01)
+</pre>
+
+
+
+            </div>
+         </div>
+      </div>
+   </body>
+
+</html>

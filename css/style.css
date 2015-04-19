@@ -6,6 +6,10 @@ h2.cs-section{
 }
 pre.code {
   font: normal 12pt Ubuntu Mono;
+  overflow-y: auto;
+  overflow-wrap: normal;
+  word-wrap:normal;
+  white-space:pre;
 }
 footer {
    text-align: center;
