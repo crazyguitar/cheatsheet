@@ -22,9 +22,9 @@
 
    <body>
       <div class="container">
-         <div class="jumbotron">
+         <div class="jumbotron" style="background-color:white">
             <h1>Python Cheat Sheet</h1>
-            <p>Cheat sheet of Python. Some basic concept for Python programmer need to know.</p>
+            <p>Cheat sheet of Python. Some basic concept for debug, test and profiling.</p>
          </div>
          <div class="row">
             <div class="col-sm-4">
@@ -78,9 +78,285 @@ INFO:__main__:info
 &gt;&gt;&gt; logger.setLevel(logging.ERROR)
 &gt;&gt;&gt; logger.info('info')
 </pre>
+<h3>doctest - Testing Through Document</h3>
+<pre class="code python">
+&gt;&gt;&gt; import doctest
+&gt;&gt;&gt; def add(a,b):
+...   """
+...   &gt;&gt;&gt; add(2,3)
+...   5
+...   &gt;&gt;&gt; add("Hello", "World")
+...   'HelloWorld'
+...   """
+...   return a+b
+... 
+&gt;&gt;&gt; doctest.testmod()
+TestResults(failed=0, attempted=2)
+</pre>
+<h3>doctest - Running Test Via Command Line</h3>
+<pre class="code python">
+def add(a,b):
+   """
+   &gt;&gt;&gt; add(2,3)
+   5
+   """
+   return a+b
+
+"""
+&gt;&gt;&gt; add("Hello","World")
+'HelloWorld'
+"""
+
+class cal(object):
+   """
+   &gt;&gt;&gt; c = cal()
+   &gt;&gt;&gt; c.add(2,3)
+   5
+   &gt;&gt;&gt; c.sub(3,2)
+   1
+   """
+   def add(self,a,b):
+      return a+b
+   def sub(self,a,b):
+      return a-b
+# bash&gt; python -m doctest test1.py -v
+Trying:
+    add(2,3)
+Expecting:
+    5
+ok
+Trying:
+    c = cal()
+Expecting nothing
+ok
+Trying:
+    c.add(2,3)
+Expecting:
+    5
+ok
+Trying:
+    c.sub(3,2)
+Expecting:
+    1
+ok
+3 items had no tests:
+    test1
+    test1.cal.add
+    test1.cal.sub
+2 items passed all tests:
+   1 tests in test1.add
+   3 tests in test1.cal
+4 tests in 5 items.
+4 passed and 0 failed.
+Test passed.
+</pre>
+<h3>pdb - Set Breakpoint and Enter Debug Mode</h3>
+<pre class="code python">
+# example.py
+import pdb
+
+def add(a,b):
+   print a+b
+   return a+b
+
+for _i in range(5):
+   pdb.set_trace()
+   print add(_i,1)
+# bash&gt; python example.py
+&gt; /Users/apple/test1.py(9)<module>()
+-&gt; print add(_i,1)
+(Pdb) list
+  4  	   print a+b
+  5  	   return a+b
+  6  	
+  7  	for _i in range(5):
+  8  	   pdb.set_trace()
+  9  -&gt;	   print add(_i,1)
+[EOF]
+(Pdb) c
+1
+1
+&gt; /Users/apple/test1.py(8)<module>()
+-&gt; pdb.set_trace()
+(Pdb) c
+2
+2
+&gt; /Users/apple/test1.py(9)<module>()
+-&gt; print add(_i,1)
+(Pdb) c
+3
+3
+&gt; /Users/apple/test1.py(8)<module>()
+-&gt; pdb.set_trace()
+(Pdb) c
+4
+4
+&gt; /Users/apple/test1.py(9)<module>()
+-&gt; print add(_i,1)
+(Pdb) c
+5
+5
+</pre>
             </div>
+
             <div class="col-sm-4">
-               <h3>Test</h3>
+<h3>Test Cases in "unittest"</h3>
+<pre class="code python">
+# basic
+assertEqual(a,b)          # a==b
+assertNotEqual(a,b)       # a!=b
+assertTrue(x)             # bool(x) is True
+assertFalse(x)            # bool(x) is False
+assertIs(a,b)             # a is b
+assertIsNot(a,b)          # a is not b
+assertIsNone(x)           # x is None
+assertIsNotNone(x)        # x is not None
+assertIn(a,b)             # a in b
+assertNotIn(a,b)          # a not in b
+assertIsInstance(a,b)     # isinstance(a,b)
+assertNotIsInstance(a,b)  # not isinstance(a,b)
+
+# raise
+assertRaises(exc, fun, *args, **kwds)
+assertRaisesRegexp(exc, r, fun, *args, **kwds)
+
+# perform specific check
+assertAlmostEqual(a,b)        # round(a-b, 7) == 0
+assertNotAlmostEqual(a,b)     # round(a-b, 7) != 0
+assertGreater(a,b)            # a &gt; b
+assertGreaterEqual(a,b)       # a &gt;= b
+assertLess(a,b)               # a &lt; b
+assertLessEqual(a,b)          # a &lt;= b
+assertRegexpMatches(s,r)      # r.search(s) 
+assertNotRegexpMatches(s,r)   # not r.search(s)
+assertItemsEqual(a,b)         # sorted(a) == sorted(b)
+assertDictContainsSubset(a,b) # all the key/value pairs in a exist in b
+
+# others
+assertMultiLineEqual(a, b)
+assertSequenceEqual(a, b)
+assertListEqual(a, b)
+assertTupleEqual(a, b)
+assertSetEqual(a, b)
+assertDictEqual(a, b)
+</pre>
+
+<h3>Basic Unit Test - Success Case</h3>
+<pre class="code python">
+# unittest test must startwith "test"
+# see: python document unittest
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; def add(a,b):
+...   return a+b
+... 
+&gt;&gt;&gt; class Test(unittest.TestCase):
+...   def test_add(self):
+...     self.assertEqual(5,add(2,3))
+...     print "Test add"
+...
+&gt;&gt;&gt; unittest.main()
+Test add
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+</pre>
+<h3>Basic Unit Test - Failed Case</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; def add(a,b):
+...   return a+b
+... 
+&gt;&gt;&gt; class Test(unittest.TestCase):
+...   def setUp(self):
+...     self.adder = add
+...   def test_add(self):
+...     self.assertEqual(5,self.adder(2,3))
+...     self.assertEqual(2,self.adder(1,2))
+... 
+&gt;&gt;&gt; unittest.main()
+F
+======================================================================
+FAIL: test_add (__main__.Test)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<stdin>", line 6, in test_add
+AssertionError: 2 != 3
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+</pre>
+<h3>Test Raise Excpetion</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; def isint(a):
+...   if isinstance(a,int):
+...     return None
+...   else:
+...     raise TypeError
+... 
+&gt;&gt;&gt; class Test(unittest.TestCase):
+...   def test_isint(self):
+...     self.assertRaises(TypeError, isint, "a")
+... 
+&gt;&gt;&gt; unittest.main()
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+
+# Another Natural way
+&gt;&gt;&gt; def isint(a):
+...   if isinstance(a,int):
+...     return None
+...   else:
+...     raise TypeError
+... 
+&gt;&gt;&gt; class Test(unittest.TestCase):
+...   def test_exception(self):
+...     with self.assertRaises(TypeError):
+...       isint("a")
+... 
+&gt;&gt;&gt; unittest.main()
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+</pre>
+<h3>Setup and Teardown for Every Test</h3>
+<pre class="code python">
+&gt;&gt;&gt; def add(a,b):
+...   return a+b
+... 
+&gt;&gt;&gt; class Test(unittest.TestCase):
+...   def setUp(self):
+...     self.adder = add
+...     print "--- setUp ---"
+...   def test_add1(self):
+...     self.assertEqual(5,self.adder(2,3))
+...   def test_add2(self):
+...     self.assertEqual(3,self.adder(1,2))
+...   def tearDown(self):
+...     self.adder = None
+...     print "--- tearDown ---"
+... 
+&gt;&gt;&gt; unittest.main()
+--- setUp ---
+--- tearDown ---
+.--- setUp ---
+--- tearDown ---
+.
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</pre>
+
             </div>
             <div class="col-sm-4">
 <h3>Calculate Time Cost of a Function</h3>
@@ -205,6 +481,7 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
 
             </div>
          </div>
+         <footer><p>Copyright &#169; 2015 crazyguitar</p></footer>
       </div>
    </body>
 
