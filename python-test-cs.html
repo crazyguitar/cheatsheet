@@ -281,7 +281,7 @@ F
 FAIL: test_add (__main__.Test)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "<stdin>", line 6, in test_add
+  File "&lt;stdin&gt;", line 6, in test_add
 AssertionError: 2 != 3
 
 ----------------------------------------------------------------------
@@ -461,7 +461,7 @@ def sleep_loop():
       time.sleep(0.01)
 sleep_loop()
 
-# bash&gt; kernprof -l -v test1.py
+# bash&gt; kernprof -l -v example.py
 Wrote profile results to test1.py.lprof
 Timer unit: 1e-06 s
 
@@ -477,6 +477,35 @@ Line #      Hits         Time  Per Hit   % Time  Line Contents
     16       100      1121334  11213.3     99.9        time.sleep(0.01)
 </pre>
 
+<h3>Profiling - How many memory are used</h3>
+<pre class="code python">
+# need install memory_profiler first
+# see: https://pypi.python.org/pypi/memory_profiler
+# pip install memory_profiler
+# example.py
+@profile
+def example():
+   a = [_ for _ in range(100000)]
+   for _i in range(1000):
+      _ = _i+1
+   print _
+   del a 
+
+example()
+# bash&gt; python -m memory_profiler example.py -v
+1000
+Filename: test1.py
+
+Line #    Mem usage    Increment   Line Contents
+================================================
+     1    8.965 MiB    0.000 MiB   @profile
+     2                             def example():
+     3   13.051 MiB    4.086 MiB      a = [_ for _ in range(100000)]
+     4   13.066 MiB    0.016 MiB      for _i in range(1000):
+     5   13.066 MiB    0.000 MiB         _ = _i+1
+     6   13.066 MiB    0.000 MiB      print _
+     7   12.469 MiB   -0.598 MiB      del a
+</pre>
 
 
             </div>
