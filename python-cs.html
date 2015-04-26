@@ -406,6 +406,11 @@ example __repr__
 &gt;&gt;&gt; ex
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+# extend two list
+&gt;&gt;&gt; a = [1,2,3]; b=['a','b']
+&gt;&gt;&gt; a+b
+[1, 2, 3, 'a', 'b']
+
 # using generator
 &gt;&gt;&gt; [x for x in range(10)]
 [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -440,7 +445,7 @@ example __repr__
 ...    def __init__(self,list_):
 ...       self._list = list_
 ...    def __iter__(self):
-...    return iter(self._list)
+...      return iter(self._list)
 ...
 &gt;&gt;&gt; ex = example([1,2,3,4,5])
 &gt;&gt;&gt; for _ in ex: print _,
@@ -642,6 +647,19 @@ for _ in range(5):
 if flag == False:
   print "else not occur"
 </pre>
+<h3>try: exp else: exp</h3>
+<pre class="code python">
+# No exception occur will go into else.
+&gt;&gt;&gt; try:
+...   print "No exception"
+... except:
+...   pass
+... else:
+...   print "else occur"
+... 
+No exception
+else occur
+</pre>
 
 <h3>Lambda function</h3>
 <pre class="code python">
@@ -711,8 +729,7 @@ class Socket(object):
    def __enter__(self):
       sock = socket.socket(
                socket.AF_INET,
-               socket.SOCK_STREAM   
-            )
+               socket.SOCK_STREAM)
       sock.bind((self.host,self.port))
       sock.listen(5)
       self.sock = sock
@@ -722,8 +739,7 @@ class Socket(object):
       if exc_ty is not None:
          import traceback
          traceback.print_exception(
-            *exc_info   
-         )
+            *exc_info)
       self.sock.close()
 
 if __name__=="__main__":
@@ -741,12 +757,12 @@ if __name__=="__main__":
 <pre class="code python">
 from contextlib import contextmanager
 @contextmanager
-   def opening(filename):
-      f = open(filename)
-      try:
-          yield f
-      finally:
-          f.close()
+def opening(filename):
+   f = open(filename)
+   try:
+      yield f
+   finally:
+      f.close()
           
 with opening('example.txt','r') as fd:
    fd.read()
