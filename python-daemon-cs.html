@@ -219,7 +219,7 @@ if __name__ == '__main__':
 &gt;&gt;&gt; c = daemon.DaemonContext(
 ...   working_directory = '/',
 ...   umask   = os.umask(002),
-...   pidfile = file('/tmp/__.pid'),
+...   pidfile = file('/tmp/__.pid','w'),
 ...   stdin   = file('/dev/null','r'),
 ...   stdout  = file('/tmp/__.log','a+'),
 ...   stderr  = file('/tmp/__.log','a+'))
@@ -237,7 +237,62 @@ if __name__ == '__main__':
 </pre>
             </div>
             <div class="col-sm-4">
-               <h3>Test</h3>
+<h3>Job Manager Daemon</h3>
+
+<pre class="code python">
+# Consumer and Producer architecture
+from threading import Thread
+import random, time, Queue
+from daemon import runner
+import sys
+
+def Worker(queue):
+   """
+   Consumer
+   """
+   while True:
+      task, args, kwargs= queue.get()
+      try: 
+         task(*args, **kwargs)
+      except Exception as e:
+         import traceback
+         traceback.print_exception(e)
+      queue.task_done()
+
+def Manager(queue):
+   """
+   Producer
+   """
+   while True:
+      sec = random.random()*5
+      time.sleep(sec)
+      task = (Work, (sec,) ,{})
+      queue.put(task)
+
+def Work(sec):
+   print "Hello World wait %s" %sec
+   sys.stdout.flush()
+
+class App():
+   def __init__(self):
+      self.stdin_path   = '/dev/null'
+      self.stdout_path  = '/tmp/_.log'
+      self.stderr_path  = '/tmp/_.log'
+      self.pidfile_path =  '/tmp/_.pid'
+      self.pidfile_timeout = 5
+   def run(self):
+      tasks = [Worker, Manager]
+      q = Queue.Queue()
+      for _t in tasks:
+         task=Thread(target=_t,args=(q,))
+         task.start()
+
+app = App()
+daemon_runner = runner.DaemonRunner(app)
+daemon_runner.do_action()
+# bash&gt; python example.py start
+# bash&gt; tail -f /tmp/_.log
+</pre>
             </div>
          </div>
       </div>
