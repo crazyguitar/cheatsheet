@@ -57,6 +57,23 @@ __var__
 # for _, a in [(1,2),(3,4)]: print a
 _
 </pre>
+<h3>Get __future__ features</h3>
+<pre class="code python">
+# programmers can use to enable new language features
+# see: https://docs.python.org/2/glossary.html
+# for example: print function
+&gt;&gt;&gt; f = lambda: print("ker")
+  File "&lt;stdin&gt;", line 1
+    f = lambda: print("ker")
+                    ^
+SyntaxError: invalid syntax
+&gt;&gt;&gt; from __future__ import print_function
+&gt;&gt;&gt; f = lambda: print("ker")
+&gt;&gt;&gt; f()
+ker
+</pre>
+
+
 <h3>Check object attributes</h3>
 <pre class="code python">
 # example of check list attributes
