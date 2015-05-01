@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+   
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="highlight/styles/github.css">
+      <link rel="stylesheet" href="css/style.css">
+      <script src="highlight/highlight.pack.js"></script>
+      <script>
+         $(document).ready(function(){
+            $('pre.code').each(function(i, block) {
+               hljs.highlightBlock(block);
+            }); 
+         });
+      </script> 
+   </head>
+
+   <body>
+      <div class="container">
+         <div class="jumbotron" style="background-color:white;">
+            <h1>Python Cheat Sheet</h1>
+            <p>Cheat sheet of Python. Some concurrent concept for Python programmers need to know.</p>
+         </div>
+         <div class="row">
+            <div class="col-sm-4">
+
+<h3>Simple Daemon</h3>
+<pre class="code python">
+# Need using "kill" to kill process
+# 5 step need to do
+import os, sys, time
+# Step 1 - fork child process
+try:
+   pid = os.fork()
+   if pid &gt; 0:
+      sys.exit(0)
+except OSError as e:
+   import traceback
+   traceback.print_exception(e)
+   sys.exit(1)
+
+# Step 2 - set session id
+os.setsid()
+# Step 3 - set file mask
+os.umask(0)
+# Step 4 - change working directory
+os.chdir('/')
+# Step 5 - redirect stdin, stdout, stderr
+sys.stdin = file('/dev/null','r')
+sys.stdout = file('/tmp/_.log','a+')
+sys.stderr = file('/tmp/_.log','a+')
+# Run daemon
+while True:
+   print "Hello World"
+   sys.stdout.flush()
+   time.sleep(5.)
+
+# output:
+# bash&gt; tail -f /tmp/_.log
+</pre>
+
+<h3>Simple Daemon - fork() Twice</h3>
+<pre class="code python">
+# prevent daemon control terminal
+# see:http://stackoverflow.com/q/881388
+import os, sys, time
+
+try:
+   pid = os.fork()
+   if pid &gt; 0:
+      sys.exit(0)
+except OSError as e:
+   import traceback
+   traceback.print_exception(e)
+   sys.exit(1)
+
+os.setsid()
+os.umask(0)
+os.chdir('/')
+
+try:
+   pid = os.fork()
+   if pid &gt; 0:
+      sys.exit(0)
+except OSError as e:
+   import traceback
+   traceback.print_exception(e)
+   sys.exit(1)
+
+sys.stdin = file('/dev/null','r')
+sys.stdout = file('/tmp/_.log','a+')
+sys.stderr = file('/tmp/_.log','a+')
+while True:
+   print "Hello World"
+   sys.stdout.flush()
+   time.sleep(5.)
+</pre>
+
+<h3>Simple Daemon with pidfile</h3>
+<pre class="code python">
+# easiest way to check daemon alive
+# see:http://unix.stackexchange.com/q/12815
+# pidfile cannot always imply process alive
+import os, sys, time
+
+pidfile = '/tmp/_.pid'
+# check pidfile exist
+if os.path.exists(pidfile):
+   print "Daemon has already exist"
+   sys.exit(0)
+
+try:
+   pid = os.fork()
+   if pid &gt; 0:
+      sys.exit(0)
+except OSError as e:
+   import traceback
+   traceback.print_exception(e)
+   sys.exit(1)
+
+os.setsid()
+os.umask(0)
+os.chdir('/')
+
+# create pidfile
+with open(pidfile, 'w') as f:
+   f.write(str(os.getpid()))
+
+sys.stdin = file('/dev/null','r')
+sys.stdout = file('/tmp/_.log','a+')
+sys.stderr = file('/tmp/_.log','a+')
+while True:
+   print "Hello World"
+   sys.stdout.flush()
+   time.sleep(5.)
+</pre>
+            </div>
+            <div class="col-sm-4">
+<h3>Daemon - Start, Stop, Restart</h3>
+<pre class="code python">
+# using pidfile
+import os, sys, time
+from signal import SIGTERM
+
+pidfile = '/tmp/_.pid'
+def daemon():
+   if os.path.exists(pidfile):
+      print "Daemon has already exist"
+      sys.exit(0)
+   try:
+      pid = os.fork()
+      if pid > 0:
+         sys.exit(0)
+   except OSError as e:
+      import traceback
+      traceback.print_exception(e)
+      sys.exit(1)
+
+   os.setsid()
+   os.umask(0)
+   os.chdir('/')
+   with open(pidfile, 'w') as f:
+      f.write(str(os.getpid()))
+   sys.stdin = file('/dev/null','r')
+   sys.stdout = file('/tmp/_.log','a+')
+   sys.stderr = file('/tmp/_.log','a+')
+
+def run():
+   while True:
+      print "Hello World"
+      sys.stdout.flush()
+      time.sleep(5.)
+
+# Start function
+def start():
+   daemon()
+   run()
+# Stop function
+def stop():
+   try:
+      with open(pidfile, 'r') as f:
+         # get daemon pid
+         pid = int(f.read().strip())
+         # kill daemon process
+         os.kill(pid, SIGTERM)
+      # remove pidfile
+      os.remove(pidfile)
+   except: 
+      print "Daemon not exist"
+
+if __name__ == '__main__':
+   if len(sys.argv) == 2:
+      if sys.argv[1] == 'start':
+         start()
+      if sys.argv[1] == 'stop':
+         stop()
+      if sys.argv[1] == 'restart':
+         stop()
+         start()
+   else:
+      print "Usage: start|stop|restart"
+
+# using "ps" check daemon exist
+# bash&gt; python example.py start
+# bash&gt; python example.py restart
+# bash&gt; python example.py stop 
+</pre>
+
+<h3>Simple Daemon - Using python-daemon</h3>
+<pre class="code python">
+# see: pypi/python-daemon
+# see: PEP 3143
+&gt;&gt;&gt; import daemon, os, time, sys
+&gt;&gt;&gt; c = daemon.DaemonContext(
+...   working_directory = '/',
+...   umask   = os.umask(002),
+...   pidfile = file('/tmp/__.pid'),
+...   stdin   = file('/dev/null','r'),
+...   stdout  = file('/tmp/__.log','a+'),
+...   stderr  = file('/tmp/__.log','a+'))
+&gt;&gt;&gt; def hello_world():
+...   while True:
+...     print "Hello World"
+...     sys.stdout.flush()
+...     time.sleep(3.)
+... 
+&gt;&gt;&gt; with c:
+...   hello_world()
+... 
+# output:
+# bash&gt; tail -f /tmp/__.log
+</pre>
+            </div>
+            <div class="col-sm-4">
+               <h3>Test</h3>
+            </div>
+         </div>
+      </div>
+   </body>
+
+</html>
