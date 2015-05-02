@@ -243,6 +243,7 @@ if __name__ == '__main__':
 &gt;&gt;&gt; with c:
 ...   hello_world()
 ... 
+
 # output:
 # bash&gt; tail -f /tmp/__.log
 </pre>
@@ -331,6 +332,34 @@ daemon_runner.do_action()
 # bash&gt; tail -f /tmp/_.log
 # bash&gt; python example.py restart
 # bash&gt; python example.py stop
+</pre>
+
+<h3>How to Register as Service</h3>
+<pre class="code bash">
+# Step 1- copy pydaemon.sh to /etc/init.d
+# Step 2- copy pydaemon.py to /usr/share
+#!/bin/bash
+case "$1" in
+   start)
+      echo "Starting pydaemon"
+      /usr/share/pydaemon.py start 
+   ;;
+   stop)
+      echo "Stopping pydaemon"
+      /usr/share/pydaemon.py stop 
+   ;;
+   restart)
+      echo "Restarting pydaemon"
+      /usr/share/pydaemon.py restart
+   ;;
+   *)
+      echo "Usage: start|stop|restart"
+      exit 1
+   ;;
+esac
+
+# bash&gt; service pydaemon start
+# bash&gt; /etc/init.d/pydaemon start
 </pre>
             </div>
          </div>
