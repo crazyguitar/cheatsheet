@@ -92,7 +92,7 @@ except OSError as e:
    traceback.print_exception(e)
    sys.exit(1)
 
-sys.stdin = file('/dev/null','r')
+sys.stdin  = file('/dev/null','r')
 sys.stdout = file('/tmp/_.log','a+')
 sys.stderr = file('/tmp/_.log','a+')
 while True:
@@ -131,7 +131,7 @@ os.chdir('/')
 with open(pidfile, 'w') as f:
    f.write(str(os.getpid()))
 
-sys.stdin = file('/dev/null','r')
+sys.stdin  = file('/dev/null','r')
 sys.stdout = file('/tmp/_.log','a+')
 sys.stderr = file('/tmp/_.log','a+')
 while True:
@@ -141,6 +141,17 @@ while True:
 </pre>
             </div>
             <div class="col-sm-4">
+<h3>Get Pid from Pidfile and Kill Daemon</h3>
+<pre class="code python">
+&gt;&gt;&gt; import os, signal
+&gt;&gt;&gt; with open('/tmp/_.pid','r') as fd:
+...   pid = int(fd.read().strip())
+...   print pid
+...   os.kill(pid, signal.SIGTERM)
+... 
+68866
+</pre>
+
 <h3>Daemon - Start, Stop, Restart</h3>
 <pre class="code python">
 # using pidfile
@@ -154,7 +165,7 @@ def daemon():
       sys.exit(0)
    try:
       pid = os.fork()
-      if pid > 0:
+      if pid &gt; 0:
          sys.exit(0)
    except OSError as e:
       import traceback
@@ -166,7 +177,7 @@ def daemon():
    os.chdir('/')
    with open(pidfile, 'w') as f:
       f.write(str(os.getpid()))
-   sys.stdin = file('/dev/null','r')
+   sys.stdin  = file('/dev/null','r')
    sys.stdout = file('/tmp/_.log','a+')
    sys.stderr = file('/tmp/_.log','a+')
 
@@ -237,37 +248,42 @@ if __name__ == '__main__':
 </pre>
             </div>
             <div class="col-sm-4">
+<h3>Implement start, stop, restart in convenient way</h3>
+<pre class="code python">
+# using daemon runner
+from daemon import runner
+import sys, time
+
+class App(object):
+   def __init__(self):
+      self.stdin_path   = '/dev/null'
+      self.stdout_path  = '/tmp/_.log'
+      self.stderr_path  = '/tmp/_.log'
+      self.pidfile_path = '/tmp/_.pid'
+      self.pidfile_timeout = 5
+   def run(self):
+      while True:
+         print "Hello World"
+         sys.stdout.flush()
+         time.sleep(5)
+
+app = App()
+daemon_runner = runner.DaemonRunner(app)
+daemon_runner.do_action()
+
+# bash&gt; python example.py start
+# bash&gt; tail -f /tmp/_.log
+# bash&gt; python example.py restart 
+# bash&gt; python example.py stop
+</pre>
+
 <h3>Job Manager Daemon</h3>
 
 <pre class="code python">
 # Consumer and Producer architecture
+import random, time, sys, Queue
 from threading import Thread
-import random, time, Queue
 from daemon import runner
-import sys
-
-def Worker(queue):
-   """
-   Consumer
-   """
-   while True:
-      task, args, kwargs= queue.get()
-      try: 
-         task(*args, **kwargs)
-      except Exception as e:
-         import traceback
-         traceback.print_exception(e)
-      queue.task_done()
-
-def Manager(queue):
-   """
-   Producer
-   """
-   while True:
-      sec = random.random()*5
-      time.sleep(sec)
-      task = (Work, (sec,) ,{})
-      queue.put(task)
 
 def Work(sec):
    print "Hello World wait %s" %sec
@@ -278,23 +294,47 @@ class App():
       self.stdin_path   = '/dev/null'
       self.stdout_path  = '/tmp/_.log'
       self.stderr_path  = '/tmp/_.log'
-      self.pidfile_path =  '/tmp/_.pid'
+      self.pidfile_path = '/tmp/_.pid'
       self.pidfile_timeout = 5
+      self.q = Queue.Queue()
+   def worker(self):
+      """
+      Consumer
+      """
+      while True:
+         task, args, kwargs= self.q.get()
+         try: 
+            task(*args, **kwargs)
+         except Exception as e:
+            import traceback
+            traceback.print_exception(e)
+         self.q.task_done()
    def run(self):
-      tasks = [Worker, Manager]
-      q = Queue.Queue()
-      for _t in tasks:
-         task=Thread(target=_t,args=(q,))
-         task.start()
+      task = Thread(target=self.worker)
+      task.daemon = True
+      task.start()
+      while True:
+         """
+         producer
+         """
+         sec = random.random()*5
+         time.sleep(sec)
+         task = (Work, (sec,) ,{})
+         self.q.put(task)
+      queue.join()
 
 app = App()
 daemon_runner = runner.DaemonRunner(app)
 daemon_runner.do_action()
+
 # bash&gt; python example.py start
 # bash&gt; tail -f /tmp/_.log
+# bash&gt; python example.py restart
+# bash&gt; python example.py stop
 </pre>
             </div>
          </div>
+         <footer><p>Copyright &#169; 2015 crazyguitar</p></footer>
       </div>
    </body>
 
