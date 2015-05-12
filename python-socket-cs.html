@@ -114,6 +114,26 @@ if __name__ == '__main__':
 # Hello World
 # Hello World
 </pre>
+<h3>Broadcast UDP Packets</h3>
+<pre class="code python">
+&gt;&gt;&gt; import socket
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; sock = socket.socket(
+...   socket.AF_INET,
+...   socket.SOCK_DGRAM)
+&gt;&gt;&gt; sock.bind(('',0))
+&gt;&gt;&gt; sock.setsockopt(
+...   socket.SOL_SOCKET,
+...   socket.SO_BROADCAST,1)
+&gt;&gt;&gt; 
+&gt;&gt;&gt; while True:
+...   m = '{0}\n'.format(time.time())
+...   sock.sendto(m,('&lt;broadcast&gt;',5566))
+...   time.sleep(5)
+...
+# bash&gt; nc -k -w 1 -ul 5566
+# 1431473025.72
+</pre>
             </div>
             <div class="col-sm-4">
                <h3>Test</h3>
