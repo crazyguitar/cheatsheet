@@ -24,7 +24,7 @@
       <div class="container">
          <div class="jumbotron" style="background-color:white">
             <h1>Python Cheat Sheet</h1>
-            <p>Cheat sheet of Python. Some basic concept for Python programmer need to know.</p>
+            <p>Cheat sheet of Python. Some nextwork concept for Python programmer need to know.</p>
          </div>
          <div class="row">
             <div class="col-sm-4">
@@ -80,6 +80,25 @@ if __name__ == '__main__':
 # Hello World 
 </pre>
 
+<h3>Simple TCP Echo Server Via SocketServer</h3>
+<pre class="code python">
+&gt;&gt;&gt; import SocketServer
+&gt;&gt;&gt; bh = SocketServer.BaseRequestHandler
+&gt;&gt;&gt; class handler(bh):
+...   def handle(self):
+...     data = self.request.recv(1024)
+...     print self.client_address
+...     self.request.sendall(data)
+... 
+&gt;&gt;&gt; host = ('localhost',5566)
+&gt;&gt;&gt; s = SocketServer.TCPServer(
+...   host, handler)
+&gt;&gt;&gt; s.serve_forever()
+# bash&gt; nc -u localhost 5566
+# Hello World
+# Hello World
+</pre>
+
 <h3>Simple UDP Echo Server</h3>
 <pre class="code python">
 import socket
@@ -114,6 +133,42 @@ if __name__ == '__main__':
 # Hello World
 # Hello World
 </pre>
+<h3>Simple UDP Echo Server Via SocketServer</h3>
+<pre class="code python">
+&gt;&gt;&gt; import SocketServer
+&gt;&gt;&gt; bh = SocketServer.BaseRequestHandler
+&gt;&gt;&gt; class handler(bh):
+...   def handle(self):
+...     m,s = self.request
+...     s.sendto(m,self.client_address)
+...     print self.client_address
+... 
+&gt;&gt;&gt; host = ('localhost',5566)
+&gt;&gt;&gt; s = SocketServer.UDPServer(
+...   host, handler)
+&gt;&gt;&gt; s.serve_forever()
+# bash&gt; nc -u localhost 5566
+# Hello World
+# Hello World
+</pre>
+
+<h3>Simple UDP client - Sender</h3>
+<pre class="code python">
+&gt;&gt;&gt; import socket
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; sock = socket.socket(
+...   socket.AF_INET,
+...   socket.SOCK_DGRAM)
+&gt;&gt;&gt; host = ('localhost',5566)
+&gt;&gt;&gt; while True:
+...   sock.sendto("Hello\n",host)
+...   time.sleep(5)
+...
+# bash&gt; nc -lu localhost 5566
+# Hello
+# Hello
+</pre>
+
 <h3>Broadcast UDP Packets</h3>
 <pre class="code python">
 &gt;&gt;&gt; import socket
@@ -136,10 +191,95 @@ if __name__ == '__main__':
 </pre>
             </div>
             <div class="col-sm-4">
-               <h3>Test</h3>
+<h3>Simple Asynchronous TCP Server - Thread</h3>
+<pre class="code python">
+&gt;&gt;&gt; from threading import Thread
+&gt;&gt;&gt; import socket
+&gt;&gt;&gt; def work(conn):
+...   while True:
+...     msg = conn.recv(1024)
+...     conn.send(msg)
+...
+&gt;&gt;&gt; sock = socket.socket(
+...   socket.AF_INET,
+...   socket.SOCK_STREAM)
+&gt;&gt;&gt; sock.setsockopt(
+...   socket.SOL_SOCKET,
+...   socket.SO_REUSEADDR,1)
+&gt;&gt;&gt; sock.bind(('localhost',5566))
+&gt;&gt;&gt; sock.listen(5)
+&gt;&gt;&gt; while True:
+...   conn,addr = sock.accept()
+...   t=Thread(target=work,args=(conn,))
+...   t.daemon=True
+...   t.start()
+...
+# bash1&gt; nc localhost 5566
+# Hello
+# Hello
+# bash2&gt; nc localhost 5566
+# Ker Ker
+# Ker Ker
+</pre>
+<h3>Simple Asynchronous TCP Server - select</h3>
+<pre class="code python">
+from select import select
+import socket
+
+host = ('localhost',5566)
+sock = socket.socket(
+      socket.AF_INET,
+      socket.SOCK_STREAM)
+sock.setsockopt(
+      socket.SOL_SOCKET,
+      socket.SO_REUSEADDR,1)
+sock.bind(host)
+sock.listen(5)
+rl = [sock]
+wl = []
+ml = {}
+try:
+   while True:
+      r, w, _ = select(rl,wl,[])
+      # process ready to ready
+      for _ in r:
+         if _ == sock:
+            conn, addr = sock.accept()
+            rl.append(conn)
+         else:
+            msg = _.recv(1024)
+            ml[_.fileno()] = msg
+            wl.append(_) 
+      # process ready to write
+      for _ in w:
+         msg = ml[_.fileno()] 
+         _.send(msg)
+         wl.remove(_)
+         del ml[_.fileno()]
+except:
+   sock.close()
+# bash1&gt; nc localhost 5566
+# Hello
+# Hello
+# bash2&gt; nc localhost 5566
+# Ker Ker
+# Ker Ker
+</pre>
             </div>
             <div class="col-sm-4">
-               <h3>Test</h3>
+<h3>Run a SimpleHTTPServer</h3>
+<pre class="code python">
+# method 1
+# bash&gt; python -m SimpleHTTPServer 5566
+# method 2
+&gt;&gt;&gt; import SocketServer as ss
+&gt;&gt;&gt; import SimpleHTTPServer as shttps
+&gt;&gt;&gt; h = shttps.SimpleHTTPRequestHandler
+&gt;&gt;&gt; host = ('localhost',5566)
+&gt;&gt;&gt; s = ss.TCPServer(
+...   host, h)
+&gt;&gt;&gt; s.serve_forever()
+</pre>
             </div>
          </div>
       </div>
