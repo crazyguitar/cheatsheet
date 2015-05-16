@@ -168,7 +168,50 @@ if __name__ == '__main__':
 </pre>
             </div>
             <div class="col-sm-4">
-               <h3>Test</h3>
+<h3>Implement Coroutines Via "Yield"</h3>
+<pre class="code python">
+&gt;&gt;&gt; def fib(n):
+...   if n &lt;= 2:
+...     return 1
+...   return fib(n-1)+fib(n-2)
+... 
+&gt;&gt;&gt; def genfib2():
+...   for _ in range(30,35):
+...     yield
+...     print "gen fib2"
+...     print "fib = {0}".format(fib(_))
+... 
+&gt;&gt;&gt; def genfib1():
+...   for _ in range(10,20):
+...     yield
+...     print "gen fib1"
+...     print "fib = {0}".format(fib(_))
+...
+&gt;&gt;&gt; class scheduler(object):
+...   def __init__(self):
+...     self._tasks = deque()
+...   def add_task(self,task):
+...     self._tasks.append(task)
+...   def run(self):
+...     while self._tasks:
+...       try:
+...          task = self._tasks.popleft()
+...          task.next()
+...          self._tasks.append(task)
+...       except StopIteration:
+...          pass
+...
+&gt;&gt;&gt; s = scheduler()
+&gt;&gt;&gt; s.add_task(genfib1())
+&gt;&gt;&gt; s.add_task(genfib2())
+&gt;&gt;&gt; s.run()
+gen fib1
+fib = 89
+gen fib2
+fib = 1346269
+...
+</pre>
+
             </div>
          </div>
       </div>
