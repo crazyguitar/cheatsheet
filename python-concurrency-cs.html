@@ -168,49 +168,114 @@ if __name__ == '__main__':
 </pre>
             </div>
             <div class="col-sm-4">
-<h3>Implement Coroutines Via "Yield"</h3>
+<h3>Simple round-robin Scheduler</h3>
 <pre class="code python">
 &gt;&gt;&gt; def fib(n):
 ...   if n &lt;= 2:
 ...     return 1
 ...   return fib(n-1)+fib(n-2)
 ... 
-&gt;&gt;&gt; def genfib2():
-...   for _ in range(30,35):
-...     yield
-...     print "gen fib2"
-...     print "fib = {0}".format(fib(_))
+&gt;&gt;&gt; def gen_fib(n):
+...   for _ in range(1,n+1):
+...     yield fib(_)
+...
+&gt;&gt;&gt; t=[gen_fib(5),gen_fib(3)]
+&gt;&gt;&gt; from collections import deque
+&gt;&gt;&gt; tasks = deque()
+&gt;&gt;&gt; tasks.extend(t)
+&gt;&gt;&gt; def run(tasks):
+...   while tasks:
+...     try:
+...       task = tasks.popleft()
+...       print task.next()
+...       tasks.append(task)
+...     except StopIteration:
+...       print "done"
 ... 
-&gt;&gt;&gt; def genfib1():
-...   for _ in range(10,20):
-...     yield
-...     print "gen fib1"
-...     print "fib = {0}".format(fib(_))
-...
-&gt;&gt;&gt; class scheduler(object):
-...   def __init__(self):
-...     self._tasks = deque()
-...   def add_task(self,task):
-...     self._tasks.append(task)
-...   def run(self):
-...     while self._tasks:
-...       try:
-...          task = self._tasks.popleft()
-...          task.next()
-...          self._tasks.append(task)
-...       except StopIteration:
-...          pass
-...
-&gt;&gt;&gt; s = scheduler()
-&gt;&gt;&gt; s.add_task(genfib1())
-&gt;&gt;&gt; s.add_task(genfib2())
-&gt;&gt;&gt; s.run()
-gen fib1
-fib = 89
-gen fib2
-fib = 1346269
-...
+&gt;&gt;&gt; run(tasks)
+1
+1
+1
+1
+2
+2
+3
+done
+5
+done
 </pre>
+<h3>Simple round-robin Scheduler with blocking function</h3>
+<pre class="code python">
+# ref: <a href="https://www.youtube.com/watch?v=MCs5OvhV9S4">PyCon 2015 - David Beazley</a>
+import socket
+from select import select
+from collections import deque
+
+tasks  = deque()
+r_wait = {}
+s_wait = {}
+
+def fib(n):
+   if n &lt;= 2:
+      return 1
+   return fib(n-1)+fib(n-2)
+
+def run():
+   while any([tasks,r_wait,s_wait]):
+      while not tasks:
+         # polling
+         rr, sr, _ = select(r_wait, 
+                        s_wait, {})
+         for _ in rr:
+            tasks.append(r_wait.pop(_))
+         for _ in sr:
+            tasks.append(s_wait.pop(_))
+      try:
+         task = tasks.popleft()
+         why,what = task.next()
+         if why == 'recv':
+            r_wait[what] = task
+         elif why == 'send':
+            s_wait[what] = task
+         else:
+            raise RuntimeError
+      except StopIteration:
+         pass
+def fib_server():
+   sock = socket.socket(
+         socket.AF_INET,
+         socket.SOCK_STREAM)
+   sock.setsockopt(
+         socket.SOL_SOCKET,
+         socket.SO_REUSEADDR,1)
+   sock.bind(('localhost',5566))
+   sock.listen(5)
+   while True:
+      yield 'recv', sock
+      c, a = sock.accept()
+      tasks.append(fib_handler(c))
+      
+def fib_handler(client):
+   while True:
+      yield 'recv', client
+      req  = client.recv(1024)
+      if not req:
+         break
+      resp = fib(int(req))
+      yield 'send', client
+      client.send(str(resp)+'\n')
+   client.close()
+
+tasks.append(fib_server())
+run()
+# bash1&gt; nc loalhost 5566
+# 20
+# 6765
+# bash2&gt; nc localhost 5566 
+# 10
+# 55
+</pre>
+
 
             </div>
          </div>
