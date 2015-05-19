@@ -134,6 +134,85 @@ if __name__ == '__main__':
 
             </div>
             <div class="col-sm-4">
+<h3>Synchronization Options in "threading"</h3>
+<pre class="code python">
+threading.Lock
+threading.RLock
+threading.Semaphore
+threading.BoundedSemaphore
+threading.Event
+threading.Condition
+</pre>
+
+<h3>Mutex lock - using for synchronization primitive</h3>
+
+<pre class="code python">
+&gt;&gt;&gt; from threading import Thread
+&gt;&gt;&gt; from threading import Lock
+&gt;&gt;&gt; lock = Lock()
+&gt;&gt;&gt; def getlock(id):
+...   lock.acquire()
+...   print "task{0} get".format(id)
+...   lock.release()
+... 
+&gt;&gt;&gt; t1=Thread(target=getlock,args=(1,))
+&gt;&gt;&gt; t2=Thread(target=getlock,args=(2,))
+&gt;&gt;&gt; t1.start();t2.start()
+task1 get
+task2 get
+
+# using lock manager
+&gt;&gt;&gt; def getlock(id):
+...   with lock:
+...     print "task%d get" % id
+... 
+&gt;&gt;&gt; t1=Thread(target=getlock,args=(1,))
+&gt;&gt;&gt; t2=Thread(target=getlock,args=(2,))
+&gt;&gt;&gt; t1.start();t2.start()
+task1 get
+task2 get
+</pre>
+
+<h3>Deadlock - happen when more than one mutex lock</h3>
+<pre class="code python">
+# deadlock example as below
+&gt;&gt;&gt; import threading
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; lock1 = threading.Lock()
+&gt;&gt;&gt; lock2 = threading.Lock()
+&gt;&gt;&gt; def task1():
+...   with lock1:
+...     print "get lock1"
+...     time.sleep(3)
+...     with lock2:
+...       print "No deadlock"
+... 
+&gt;&gt;&gt; def task2():
+...   with lock2:
+...     print "get lock2"
+...     with lock1:
+...       print "No deadlock"
+... 
+&gt;&gt;&gt; t1=threading.Thread(target=task1)
+&gt;&gt;&gt; t2=threading.Thread(target=task2)
+&gt;&gt;&gt; t1.start();t2.start()
+get lock1
+ get lock2
+
+&gt;&gt;&gt; t1.isAlive()
+True
+&gt;&gt;&gt; t2.isAlive()
+True
+</pre>
+
+
+<h3>RLock - Reentrant Lock</h3>
+<pre class="code python">
+# ref:<a href="http://www.slideshare.net/dabeaz/an-introduction-to-python-concurrency?related=1"> SlideShare - David Beazley</a>
+# "monitor object" 
+</pre>
+
+
 <h3>Multiprocessing - Solving GIL Problem Via Processes</h3>
 <pre class="code python">
 # see: <a href="https://docs.python.org/2/library/multiprocessing.html">multiprocessing</a>
