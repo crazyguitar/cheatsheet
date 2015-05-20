@@ -87,9 +87,40 @@ I am worker 2
 11.3131771088
 # !Thread get bad Performance
 </pre>
+<h3>Consumer and Producer Architecture</h3>
+<pre class="code python">
+# This architecture make concurrency easy
+&gt;&gt;&gt; from threading import Thread
+&gt;&gt;&gt; from Queue import Queue
+&gt;&gt;&gt; from random import random
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; q = Queue()
+&gt;&gt;&gt; def fib(n):
+...   if n&lt;=2:
+...     return 1
+...   return fib(n-1)+fib(n-2)
+... 
+&gt;&gt;&gt; def producer():
+...   while True:
+...     wt = random()*5
+...     time.sleep(wt)
+...     q.put((fib,35))
+... 
+&gt;&gt;&gt; def consumer():
+...   while True:
+...     task,arg = q.get()
+...     print task(arg)
+...     q.task_done()
+... 
+&gt;&gt;&gt; t1 = Thread(target=producer)
+&gt;&gt;&gt; t2 = Thread(target=consumer)
+&gt;&gt;&gt; t1.start();t2.start()
+</pre>
+
+
 <h3>Thread Pool Templeate</h3>
 <pre class="code python">
-# producer and consumer architecture
+# using producer and consumer architecture
 from Queue import Queue
 from threading import Thread
 
@@ -136,15 +167,21 @@ if __name__ == '__main__':
             <div class="col-sm-4">
 <h3>Synchronization Options in "threading"</h3>
 <pre class="code python">
+# sync primitive
 threading.Lock
+
+# reentry sync primitive
+# can use it to implement monitor
 threading.RLock
+
+# counter-based sync primitive
 threading.Semaphore
 threading.BoundedSemaphore
 threading.Event
 threading.Condition
 </pre>
 
-<h3>Mutex lock - using for synchronization primitive</h3>
+<h3>Simple synchronization primitive - Mutex lock</h3>
 
 <pre class="code python">
 &gt;&gt;&gt; from threading import Thread
@@ -206,10 +243,110 @@ True
 </pre>
 
 
-<h3>RLock - Reentrant Lock</h3>
+<h3>Implement "Monitor" Via RLock</h3>
 <pre class="code python">
 # ref:<a href="http://www.slideshare.net/dabeaz/an-introduction-to-python-concurrency?related=1"> SlideShare - David Beazley</a>
-# "monitor object" 
+# example.py
+from threading import Thread
+from threading import RLock
+import time
+
+class monitor(object):
+   lock = RLock()
+   def foo(self,tid):
+      with monitor.lock:
+         print "%d in foo" % tid
+         time.sleep(5)
+         self.ker(tid)
+
+   def ker(self,tid):
+      with monitor.lock:
+         print "%d in ker" % tid
+m = monitor()
+def task1(id):
+   m.foo(id)
+
+def task2(id):
+   m.ker(id)      
+
+t1 = Thread(target=task1,args=(1,))
+t2 = Thread(target=task2,args=(2,))
+t1.start()
+t2.start()
+t1.join()
+t2.join()
+
+# bash&gt; python example.py 
+# 1 in foo
+# 1 in ker
+# 2 in ker
+</pre>
+
+<h3>Using Semaphore to control resource</h3>
+<pre class="code python">
+# example.py
+from threading import Thread
+from threading import Semaphore
+from random    import random
+import time
+
+# limit resource to 3
+sema = Semaphore(3)
+def foo(tid):
+   with sema:
+      print "%d acquire sema" % tid
+      wt = random()*5
+      time.sleep(wt)
+   print "%d release sema" % tid
+
+threads = []
+for _t in range(5):
+   t = Thread(target=foo,args=(_t,))
+   threads.append(t)
+   t.start()
+for _t in threads:
+   _t.join()
+
+# bash&gt; python example.py 
+# 0 acquire sema
+# 1 acquire sema
+# 2 acquire sema
+# 0 release sema
+#  3 acquire sema
+# 2 release sema
+#  4 acquire sema
+# 1 release sema
+# 4 release sema
+# 3 release sema
+</pre>
+
+<h3>Using Semaphore to signal other to task work</h3>
+<pre class="code python">
+# example.py
+from threading import Thread
+from threading import Semaphore
+import time
+
+sema = Semaphore(0)
+def task1():
+   time.sleep(3)
+   print "signaling task2 to work"
+   sema.release()
+
+def task2():
+   sema.acquire()
+   print "task1 call me to work"
+
+t1 = Thread(target=task1)
+t2 = Thread(target=task2)
+t2.start()
+t1.start()
+t2.join()
+t1.join()
+
+# bash&gt; python example.py
+# signaling task2 to work
+# task1 call me to work
 </pre>
 
 
