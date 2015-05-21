@@ -350,6 +350,38 @@ t1.join()
 </pre>
 
 
+<h3>Using event to ensure some task has done</h3>
+<pre class="code python">
+# example.py
+from threading import Thread
+from threading import Event
+import time
+
+e = Event()
+
+def worker(id):
+   print "%d wait event" % id
+   e.wait()
+   print "%d get event set" % id
+
+t1=Thread(target=worker,args=(1,))
+t2=Thread(target=worker,args=(2,))
+t3=Thread(target=worker,args=(3,))
+t1.start()
+t2.start()
+t3.start()
+# wait sleep task(event) happen
+time.sleep(3)
+e.set()
+# bash&gt; python example.py 
+# 1 wait event
+# 2 wait event
+# 3 wait event
+# 2 get event set
+#  3 get event set
+# 1 get event set
+</pre>
+
 <h3>Multiprocessing - Solving GIL Problem Via Processes</h3>
 <pre class="code python">
 # see: <a href="https://docs.python.org/2/library/multiprocessing.html">multiprocessing</a>
