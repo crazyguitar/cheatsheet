@@ -242,6 +242,34 @@ alice 55
 &gt;&gt;&gt; max(d, key=d.get)
 '1'
 </pre>
+
+<h3>filter</h3>
+<pre class="code python">
+# filter list
+&gt;&gt;&gt; a = [1,2,3,4,5]
+&gt;&gt;&gt; [_ for _ in a if _&gt;3]
+[4, 5]
+# above expression equivalent to
+&gt;&gt;&gt; filter(lambda x: x&gt;3,a)
+[4, 5]
+
+# if expression before loop expression 
+&gt;&gt;&gt; a = [1,2,3,4,5]
+&gt;&gt;&gt; [_ if _ &gt;3 else None for _ in a]
+[None, None, None, 4, 5]
+
+# filter dict
+&gt;&gt;&gt; a = {'k1':a,'k2':2,'k3':3}
+&gt;&gt;&gt; {_k:_v for _k,_v in a.items() if _v&gt;2}
+{'k3': 3}
+# above expression equivalent to
+&gt;&gt;&gt; l=filter(lambda (x,y): y&gt;2, a.items())
+&gt;&gt;&gt; l
+[('k3', 3)]
+&gt;&gt;&gt; dict(l)
+{'k3': 3}
+</pre>
+
 <h3>How to using __getitem__?</h3>
 <pre class="code python">
 # enable object "getitem" like list 
@@ -449,6 +477,35 @@ True
 ... 
 55 89 144 233 377
 </pre>
+
+<h3>Generator Delegating</h3>
+<pre class="code python">
+# using "yield from" (appear in Python3)
+# delegating from list
+&gt;&gt;&gt; def chain(a,b):
+...   yield from a
+...   yield from b
+... 
+&gt;&gt;&gt; for _ in chain(a,b):
+...   print(_, end=" ")
+... 
+1 2 3 4 5 6 &gt;&gt;&gt;
+
+# delegating from other generator
+&gt;&gt;&gt; def countdown(n):
+...   while n&gt;0:
+...     yield n
+...     n-=1
+... 
+&gt;&gt;&gt; def delegate(n):
+...   yield from countdown(n)
+... 
+&gt;&gt;&gt; for _ in delegate(5):
+...   print(_, end=" ")
+... 
+5 4 3 2 1 &gt;&gt;&gt;
+</pre>
+
 
             </div>
          </div>
