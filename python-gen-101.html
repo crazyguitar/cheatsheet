@@ -125,6 +125,43 @@ k2 k1 k3 k4 &gt;&gt;&gt;
 
 </pre>
 
+<h3>Implement a simple scheduler via generator</h3>
+<pre class="code python">
+&gt;&gt;&gt; def fib(n):
+...   if n&lt;=2:
+...     return 1
+...   return fib(n-1)+fib(n-2)
+... 
+&gt;&gt;&gt; def g_fib(n):
+...   for _ in range(1,n+1):
+...     yield fib(_)
+... 
+&gt;&gt;&gt; from collections import deque
+&gt;&gt;&gt; t = [g_fib(3),g_fib(5)]
+&gt;&gt;&gt; q = deque()
+&gt;&gt;&gt; q.extend(t)
+&gt;&gt;&gt; def run():
+...   while q:
+...     try:
+...       t = q.popleft()
+...       print(next(t))
+...       q.append(t)
+...     except StopIteration:
+...       print("Task done")
+... 
+&gt;&gt;&gt; run()
+1
+1
+1
+1
+2
+2
+Task done
+3
+5
+Task done
+</pre>
+
 <h3>Relationship between generator and contextmanager</h3>
 <pre class="code python">
 &gt;&gt;&gt; import contextlib
