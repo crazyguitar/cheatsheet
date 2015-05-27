@@ -161,6 +161,144 @@ Task done
 5
 Task done
 </pre>
+<h3>Implement Simple round-robin with blocking</h3>
+<pre class="code python">
+# skill: using task and wait queue
+from collections import deque
+from select import select
+import socket
+
+tasks = deque()
+w_read = {}
+w_send = {}
+
+def run():
+   while any([tasks,w_read,w_send]):
+      while not tasks:
+         # polling tasks
+         can_r,can_s,_ = select(
+               w_read,w_send,[])
+         for _r in can_r:
+            tasks.append(w_read.pop(_r))
+         for _w in can_s:
+            tasks.append(w_send.pop(_w))
+      try:
+         task = tasks.popleft()
+         why,what = next(task)
+         if why == 'recv':
+            w_read[what] = task 
+         elif why == 'send':
+            w_send[what] = task 
+         else:
+            raise RuntimeError
+      except StopIteration:
+         pass
+
+def server():
+   host = ('localhost',5566)
+   sock = socket.socket(
+         socket.AF_INET,
+         socket.SOCK_STREAM)
+   sock.setsockopt(
+         socket.SOL_SOCKET,
+         socket.SO_REUSEADDR,1)
+   sock.bind(host)
+   sock.listen(5)
+   while True:
+      # tell scheduler want block
+      yield 'recv', sock 
+      conn,addr = sock.accept()
+      tasks.append(client_handler(conn))
+
+def client_handler(conn):
+   while True:
+      # tell scheduler want block
+      yield 'recv', conn
+      msg = conn.recv(1024)
+      if not msg:
+         break
+      # tell scheduler want block
+      yield 'send', conn
+      conn.send(msg)
+   conn.close()
+
+tasks.append(server())
+run()
+</pre>
+<h3>Implement simple round-robin with blocking and non-blocking</h3>
+<pre class="code pythob">
+# this method will cause blocking hunger
+from collections import deque
+from select import select
+import socket
+
+tasks = deque()
+w_read = {}
+w_send = {}
+
+def run():
+   while any([tasks,w_read,w_send]):
+      while not tasks:
+         # polling tasks
+         can_r,can_s,_ = select(
+               w_read,w_send,[])
+         for _r in can_r:
+            tasks.append(w_read.pop(_r))
+         for _w in can_s:
+            tasks.append(w_send.pop(_w))
+      try:
+         task = tasks.popleft()
+         why,what = next(task)
+         if why == 'recv':
+            w_read[what] = task 
+         elif why == 'send':
+            w_send[what] = task 
+         elif why == 'continue':
+            print what
+            tasks.append(task)
+         else:
+            raise RuntimeError
+      except StopIteration:
+         pass
+
+def fib(n):
+   if n&lt;=2:
+      return 1
+   return fib(n-1)+fib(n-2)
+
+def g_fib(n):
+   for _ in range(1,n+1):
+      yield 'continue', fib(_)
+tasks.append(g_fib(15))
+
+def server():
+   host = ('localhost',5566)
+   sock = socket.socket(
+         socket.AF_INET,
+         socket.SOCK_STREAM)
+   sock.setsockopt(
+         socket.SOL_SOCKET,
+         socket.SO_REUSEADDR,1)
+   sock.bind(host)
+   sock.listen(5)
+   while True:
+      yield 'recv', sock 
+      conn,addr = sock.accept()
+      tasks.append(client_handler(conn))
+
+def client_handler(conn):
+   while True:
+      yield 'recv', conn
+      msg = conn.recv(1024)
+      if not msg:
+         break
+      yield 'send', conn
+      conn.send(msg)
+   conn.close()
+
+tasks.append(server())
+run()
+</pre>
 
 <h3>Relationship between generator and contextmanager</h3>
 <pre class="code python">

@@ -177,7 +177,11 @@ threading.RLock
 # counter-based sync primitive
 threading.Semaphore
 threading.BoundedSemaphore
+
+# common used: signaling or barrier
 threading.Event
+
+# combination of locking and signaling
 threading.Condition
 </pre>
 
@@ -380,6 +384,73 @@ e.set()
 # 2 get event set
 #  3 get event set
 # 1 get event set
+</pre>
+
+
+<h3>Implement a thread-safe priority queue via condition</h3>
+
+<pre class="code python">
+# ex.py
+import threading
+import heapq
+import time
+import random
+
+class PriorityQueue(object):
+   def __init__(self):
+      self._q = []
+      self._count = 0
+      self._cv = threading.Condition()
+
+   def __str__(self):
+      return str(self._q)
+   def __repr__(self):
+      return self._q
+
+   def put(self, item, priority):
+      with self._cv:
+         heapq.heappush(
+            self._q,
+            (-priority,self._count,item))
+         self._count += 1
+         self._cv.notify()
+   def pop(self):
+      with self._cv:
+         while len(self._q) == 0:
+            print("wait...")
+            self._cv.wait()
+         ret = heapq.heappop(self._q)[-1]
+         return ret
+
+priq = PriorityQueue()
+def producer():
+   while True:
+      print(priq.pop())
+
+def consumer():
+   while True:
+      time.sleep(3)
+      print("consumer put value")
+      priority = random.random()
+      priq.put(priority,priority*10)
+
+for _ in range(3):
+   priority = random.random()
+   priq.put(priority,priority*10)
+
+t1=threading.Thread(target=producer)
+t2=threading.Thread(target=consumer)
+t1.start();t2.start()
+t1.join();t2.join()
+
+# bash&gt; python3 ex.py
+# 0.6657491871045683
+# 0.5278797439991247
+# 0.20990624606296315
+# wait...
+# consumer put value
+# 0.09123101305407577
+# wait...
 </pre>
 
 <h3>Multiprocessing - Solving GIL Problem Via Processes</h3>
