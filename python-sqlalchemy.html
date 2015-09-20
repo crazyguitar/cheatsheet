@@ -28,7 +28,7 @@
          </div>
          <div class="row">
             <div class="col-sm-4">
-<h3>Sqlalchemy support DBAPI - PEP249</h3>
+<h3>Sqlalchemy Support DBAPI - PEP249</h3>
 <pre class="code python">
 from sqlalchemy import create_engine 
 
@@ -64,8 +64,25 @@ print result.fetchall()
 # (1, u'raw1')
 # []
 </pre>
+<h3>Transaction and Connect Object</h3>
+<pre class="code python">
+from sqlalchemy import create_engine
 
-<h3>Metadata - Similar with Database Schema</h3>
+db_uri = 'sqlite:///db.sqlite'
+engine = create_engine(db_uri)
+
+# Create connection
+conn = engine.connect()
+# Begin transaction
+trans = conn.begin()
+conn.execute('INSERT INTO "EX1" (name) '
+             'VALUES ("Hello")')
+trans.commit()
+# Close connection
+conn.close()
+</pre>
+
+<h3>Metadata - Generating Database Schema</h3>
 <pre class="code python">
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
@@ -91,7 +108,7 @@ for _t in metadata.tables:
 # bash&gt; ex.py
 # Table:  Example
 </pre>
-<h3>Reflect Database schema to MetaData instance</h3>
+<h3>Reflection - Loading Table from Existing Database</h3>
 <pre class="code python">
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
@@ -126,7 +143,7 @@ print metadata.tables
 ex_table = metadata.tables['Example'] 
 print ex_table
 </pre>
-<h3>Create all tables store in "MetaData"</h3>
+<h3>Create all Tables Store in "MetaData"</h3>
 <pre class="code python">
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
@@ -194,9 +211,96 @@ t1.create()
 #	 PRIMARY KEY (id)
 # );
 </pre>
+<h3>Some Table Object Operation</h3>
+<pre class="code python">
+from sqlalchemy import MetaData
+from sqlalchemy import Table
+from sqlalchemy import Column
+from sqlalchemy import Integer, String
+
+meta = MetaData()
+t = Table('ex_table', meta,
+          Column('id', Integer,
+                 primary_key=True),
+          Column('key', String),
+          Column('val', Integer))
+# Get Table Name
+print t.name
+
+# Get Columns
+print t.columns.keys()
+
+# Get Column
+c = t.c.key
+print c.name
+# Or
+c = t.columns.key
+print c.name
+
+# Get Table from Column
+print c.table
+# bash&gt; python ex.py
+# ex_table
+# ['id', 'key', 'val']
+# key
+# key
+# ex_table
+</pre>
              </div>
             <div class="col-sm-4">
-               <h3>Test</h3>
+<h3>Inspect - Get Database Information</h3>
+<pre class="code python">
+from sqlalchemy import create_engine
+from sqlalchemy import inspect
+
+db_uri = 'sqlite:///db.sqlite'
+engine = create_engine(db_uri)
+
+inspector = inspect(engine)
+
+# Get table information
+print inspector.get_table_names()
+
+# Get column information
+print inspector.get_columns('EX1')
+</pre>
+
+<h3>SQL Expression Language</h3>
+<pre class="code python">
+# Think Column as "ColumnElement"
+# Implement via overwrite special function
+from sqlalchemy import MetaData
+from sqlalchemy import Table
+from sqlalchemy import Column
+from sqlalchemy import Integer, String
+
+meta = MetaData()
+table = Table('example', meta,
+              Column('id', Integer,
+                 primary_key=True),
+              Column('l_name', String),
+              Column('f_name', String))
+
+# sql expression binary object 
+print repr(table.c.l_name == 'ed')
+# exhbit sql expression
+print str(table.c.l_name == 'ed')
+
+print repr(table.c.f_name != 'ed')
+print str(table.c.f_name != 'ed')
+
+print repr(table.c.id &gt; 3)
+print str(table.c.id &gt; 3)
+
+# bash&gt; python ex.py
+# &lt;sqlalchemy.sql.elements.Binary...
+# example.l_name = :l_name_1
+# &lt;sqlalchemy.sql.elements.Binary...
+# example.f_name != :f_name_1
+# &lt;sqlalchemy.sql.elements.Binary...
+# example.id > :id_1
+</pre>
+
             </div>
             <div class="col-sm-4">
                <h3>Test</h3>
