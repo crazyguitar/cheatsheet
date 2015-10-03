@@ -156,6 +156,58 @@ int main(int argc, char *argv[]) {
    return 0;
 }
 </pre>
+<h3>Context Manager in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; class CtxManager(object):
+...     def __enter__(self):
+...         self._attr = "KerKer"
+...         return self._attr
+...     def __exit__(self,*e_info):
+...         del self._attr
+... 
+&gt;&gt;&gt; with CtxManager() as c:
+...     print c
+... 
+KerKer
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+#define ENTER(type,ptr,len) \
+   printf("enter context manager\n");\
+   ptr = malloc(sizeof(type)*len);\
+   if (NULL == ptr) { \
+      printf("malloc get error\n");\
+      goto exit;\
+   }\
+
+#define EXIT(ptr) \
+exit:\
+   printf("exit context manager\n");\
+   if (NULL != ptr) {\
+      free(ptr);\
+      ptr = NULL;  \
+   }\
+
+#define CONTEXT_MANAGER(t, p, l,...){\
+   ENTER(t,p,l)\
+   __VA_ARGS__ \
+   EXIT(ptr)\
+}
+
+int main(int argc, char *argv[]) {
+   char *ptr;
+   CONTEXT_MANAGER(char, ptr, 128,
+      sprintf(ptr, "Hello World");  
+      printf("%s\n",ptr);
+   );
+   printf("ptr = %s\n",ptr);
+   return 0;
+}
+</pre>
 
    </div>
    <div class="col-sm-4">
@@ -203,6 +255,11 @@ int main(int argc, char *argv[]) {
 <pre class="code python">
 &gt;&gt;&gt; x = [1,2,3,4,5]
 &gt;&gt;&gt; y = map(lambda x:2*x, x)
+&gt;&gt;&gt; print y
+[2, 4, 6, 8, 10]
+#or
+&gt;&gt;&gt; x = [1,2,3,4,5]
+&gt;&gt;&gt; y = [2*_ for _ in x]
 &gt;&gt;&gt; print y
 [2, 4, 6, 8, 10]
 </pre>
