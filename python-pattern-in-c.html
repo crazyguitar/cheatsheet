@@ -102,6 +102,57 @@ int main(int argc, char *argv[]) {
 # I am decorator
 # add 1 + 2 = 3
 </pre>
+
+<h3>A Set of Functions</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; def func_1():
+...     print "Hello"
+... 
+&gt;&gt;&gt; def func_2():
+...     print "World"
+... 
+&gt;&gt;&gt; def func_3():
+...     print "!!!"
+... 
+&gt;&gt;&gt; s = [func_1,func_2,func_3]
+&gt;&gt;&gt; for _ in s: _()
+... 
+Hello
+World
+!!!
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+
+typedef void (*func)(void);
+enum func_id{
+   FUNC_1,FUNC_2,FUNC_3
+};
+
+void func_1() {
+   printf("Hello ");
+}
+void func_2() {
+   printf("World ");
+}
+void func_3() {
+   printf("!!!\n");
+}
+
+func gFuncTable[] = {
+   func_1,func_2,func_3
+};
+
+int main(int argc, char *argv[]) {
+   gFuncTable[FUNC_1]();
+   gFuncTable[FUNC_2]();
+   gFuncTable[FUNC_3]();
+   return 0;
+}
+</pre>
+
    </div>
    <div class="col-sm-4">
 <h3>Generator</h3>
@@ -209,6 +260,28 @@ int main(int argc, char *argv[]) {
 }
 </pre>
 
+<h3>Tuple in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; a = ("Hello","World",123)
+&gt;&gt;&gt; for _ in a: print _,
+... 
+Hello World 123
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+
+int main(int argc, char *argv[]) {
+   int a = 123;
+   void *x[4] = {"Hello","World",&a};
+   printf("%s %s, "
+     "%d\n",x[0],x[1],*(int *)x[2]);
+
+   return 0;
+}
+</pre>
+
    </div>
    <div class="col-sm-4">
 <h3>Keyword Arguments in C</h3>
@@ -292,8 +365,36 @@ int main(int argc, char *argv[]) {
 }
 </pre>
 
+<h3>foreach in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; x = ["Hello","World","!!!"]
+&gt;&gt;&gt; for _ in x:print _,
+... 
+Hello World !!!
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+
+#define foreach(it, x,...) \
+   for(char **it=x;*it;it++) {__VA_ARGS__}
+
+int main(int argc, char *argv[]) {
+   char *x[] = {"Hello","World",
+                "!!!",NULL};
+   foreach(it,x,
+      printf("%s ",*it);  
+   )
+   printf("\n");
+   return 0;
+}
+</pre>
+
+
    </div>
          </div>
+         <footer><p>Copyright &#169; 2015 crazyguitar</p></footer>
       </div>
    </body>
 
