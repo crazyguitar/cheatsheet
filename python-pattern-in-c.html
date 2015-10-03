@@ -159,7 +159,45 @@ int main(int argc, char *argv[]) {
 
    </div>
    <div class="col-sm-4">
-<h3>Test</h3>
+<h3>Keyword Arguments in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; def f(str_, float_,int_=0):
+...     print(str_, float_, int_)
+... 
+&gt;&gt;&gt; f("KerKer",2.0,2)
+KerKer 2.0 2
+&gt;&Gt;&Gt; f("HaHa",3.)
+HaHa 3.0 0
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &gt;stdio.h&gt;
+
+#define FUNC(...) \
+   base_func((struct input ){ \
+     .var=0, ##__VA_ARGS__});
+
+struct input {
+   char *str;
+   int var;
+   double dvar;
+};
+
+void base_func(struct input in){
+   printf("str = %s, var = %d" 
+      ", dvar = %lf\n",
+      in.str, in.var,in.dvar);
+}
+
+int main(int argc, char *argv[]) {
+   FUNC(.str="KerKer", 2.0);
+   FUNC(2, .str="KerKer");
+   FUNC(.var=10, .dvar=2.0, .str="HAHA");
+   return 0;
+}
+</pre>
+
    </div>
          </div>
       </div>
