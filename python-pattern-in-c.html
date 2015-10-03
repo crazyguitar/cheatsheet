@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html>
+   <head>
+   
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+      <link rel="stylesheet" href="highlight/styles/github.css">
+      <link rel="stylesheet" href="css/style.css">
+      <script src="highlight/highlight.pack.js"></script>
+      <script>
+         $(document).ready(function(){
+            $('pre.code').each(function(i, block) {
+               hljs.highlightBlock(block);
+            }); 
+         });
+      </script> 
+   </head>
+
+   <body>
+      <div class="container">
+         <div class="jumbotron" style="background-color:white;">
+            <h1>Python Design Pattern in C</h1>
+            <p>Some baseic Python design pattern in C. Make a programmer writing C code better.</p>
+         </div>
+         <div class="row">
+
+   <div class="col-sm-4">
+<h3>Decorator in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&Gt; def decorator(func):
+...     def wrapper(*args, **kwargs):
+...         print("I am decorator")
+...         ret = func(*args, **kwargs)
+...         return ret
+...     return wrapper
+...
+&gt;&gt;&gt; @decorator
+... def hello(str):
+...     print("Hello {0}".format(str))
+... 
+&gt;&gt;&gt; @decorator
+... def add(a,b):
+...     print("add %d+%d=%d" % (a,b,a+b))
+...     return a+b
+... 
+&gt;&gt;&gt; hello("KerKer")
+I am decorator
+Hello KerKer
+&gt;&gt;&gt; add(1,2)
+I am decorator
+add 1+2=3
+3
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+
+#define DECORATOR(t, f, declar, input) \
+   t decor_##f(declar) { \
+      printf("I am decorator\n"); \
+      return f(input);\
+   }
+#define FUNC_DEC(func, ...) \
+   decor_##func(__VA_ARGS__)
+
+// Original function
+void hello(char *str) {
+   printf("Hello %s\n", str);
+}
+
+int add(int a, int b) {
+   printf("add %d + %d = %d\n",a,b,a+b);
+   return a+b;
+}
+// Patch function
+#define DECLAR    char *str
+#define INPUT     str
+DECORATOR(void, hello, DECLAR, INPUT)
+#undef DECLAR
+#undef INPUT
+
+#define DECLAR    int a, int b
+#define INPUT     a,b 
+DECORATOR(int, add, DECLAR, INPUT)
+#undef DECLAR
+#undef INPUT
+
+int main(int argc, char *argv[]) {
+   FUNC_DEC(hello, "KerKer");
+   FUNC_DEC(add,1,2);
+   return 0;
+}
+# bash&gt; gcc example.c
+# bash&gt; ./a.out
+# I am decorator
+# Hello KerKer
+# I am decorator
+# add 1 + 2 = 3
+</pre>
+   </div>
+   <div class="col-sm-4">
+<h3>Generator</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; def gen():
+...     var = 0
+...     while True:
+...         var += 1
+...         yield var
+...
+&gt;&gt;&gt; g = gen()
+&gt;&gt;&gt; for _ in range(3):
+...     print next(g)
+... 
+1
+2
+3
+</pre>
+<h5>C</h5>
+<pre class="code c">
+/* c generator */
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+struct gen {
+   int (*next) (struct gen *);
+   int var;
+};
+
+int next_func(struct gen *g) {
+   printf("var = %d\n",g-&gt;var);
+   g-&gt;var +=1;
+   return g-&gt;var;
+}
+
+struct gen * new_gen() {
+   struct gen *g = NULL;
+   g = (struct gen*) 
+         malloc(sizeof(struct gen));
+   g-&gt;var = 0;
+   g-&gt;next = next_func;
+   return g;
+}
+
+int main(int argc, char *argv[]) {
+   struct gen *g = new_gen();
+   int i = 0;
+   for (i=0;i&lt;3;i++) {
+      printf("gen var = %d\n",g-&gt;next(g));
+   }
+   return 0;
+}
+</pre>
+
+   </div>
+   <div class="col-sm-4">
+<h3>Test</h3>
+   </div>
+         </div>
+      </div>
+   </body>
+
+</html>
