@@ -198,6 +198,43 @@ int main(int argc, char *argv[]) {
 }
 </pre>
 
+<h3>Function "MAP"</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; x = [1,2,3,4,5]
+&gt;&gt;&gt; y = map(lambda x:2*x, x)
+&gt;&gt;&gt; print y
+[2, 4, 6, 8, 10]
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+
+#define MAP(func, src, dst, len) \
+   do {\
+      unsigned i=0;\
+      for(i=0; i&lt;len; i++) {\
+         dst[i] = func(src[i]);\
+      }\
+   }while(0);
+
+int multi2(int a) {
+   return 2*a;
+}
+
+int main(int argc, char *argv[]) {
+   int x[] = {1,2,3,4,5};
+   int y[5] = {0};
+   int i = 0;
+
+   MAP(multi2, x, y, 5);
+   for(i=0;i&lt;5;i++) {
+      printf("%d ",y[i]);
+   }
+   printf("\n");
+}
+</pre>
+
    </div>
          </div>
       </div>
