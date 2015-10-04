@@ -314,7 +314,7 @@ exit:\
 #define CONTEXT_MANAGER(t, p, l,...){\
    ENTER(t,p,l)\
    __VA_ARGS__ \
-   EXIT(ptr)\
+   EXIT(p)\
 }
 
 int main(int argc, char *argv[]) {
