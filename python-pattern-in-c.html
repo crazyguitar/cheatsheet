@@ -274,7 +274,8 @@ Hello World 123
 
 int main(int argc, char *argv[]) {
    int a = 123;
-   void *x[4] = {"Hello","World",&a};
+   void * const x[4] = {"Hello",
+                        "World",&a};
    printf("%s %s, "
      "%d\n",x[0],x[1],*(int *)x[2]);
 
@@ -387,6 +388,93 @@ int main(int argc, char *argv[]) {
       printf("%s ",*it);  
    )
    printf("\n");
+   return 0;
+}
+</pre>
+
+<h3>Simple OOP in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+# common declaration
+&gt;&gt;&gt; class obj(object):
+...     def __init__(self):
+...         self.a = 0
+...         self.b = 0
+...     def add(self):
+...         return self.a + self.b
+...     def sub(self):
+...         return self.a - self.b
+...     
+&gt;&gt;&gt; o = obj()
+&gt;&gt;&gt; o.a = 9527
+&gt;&gt;&gt; o.b = 5566
+&gt;&gt;&gt; o.add()
+15093
+&gt;&gt;&gt; o.sub()
+3961
+# patch class (more like ooc)
+&gt;&gt;&gt; class obj(object):
+...     def __init__(self):
+...         self.a = 0
+...         self.b = 0
+... 
+&gt;&gt;&gt; def add(self):
+...     return self.a+self.b
+... 
+&gt;&gt;&gt; def sub(self):
+...     return self.a - self.b
+... 
+&gt;&gt;&gt; obj.add = add
+&gt;&gt;&gt; obj.sub = sub
+&gt;&gt;&gt; o = obj()
+&gt;&gt;&gt; o.a = 9527
+&gt;&gt;&gt; o.b = 5566
+&gt;&gt;&gt; o.add()
+15093
+&gt;&gt;&gt; o.sub()
+3961
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+typedef struct object Obj;
+typedef int (*func)(Obj *);
+
+struct object {
+   int a;
+   int b;
+   // virtual
+   func add; 
+   func sub;
+};
+int add_func(Obj *self) {
+   return self-&t;a + self-&gt;b;
+}
+int sub_func(Obj *self) {
+   return self-&gt;a - self-&gt;b;
+}
+int init_obj(Obj **self) {
+   *self = malloc(sizeof(Obj));
+   if (NULL == *self) {
+      return -1;
+   }
+   (*self)-&gt;a = 0;
+   (*self)-&gt;b = 0;
+   (*self)-&gt;add = add_func;
+   (*self)-&gt;sub = sub_func;
+   return 0;
+}
+
+
+int main(int argc, char *argv[]) {
+   Obj *o = NULL;
+   init_obj(&o);
+   o-&gt;a = 9527;
+   o-&gt;b = 5566;
+   printf("add = %d\n",o-&gt;add(o));
+   printf("sub = %d\n",o-&gt;sub(o));
    return 0;
 }
 </pre>
