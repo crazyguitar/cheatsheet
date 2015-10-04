@@ -24,7 +24,7 @@
       <div class="container">
          <div class="jumbotron" style="background-color:white;">
             <h1>Python Design Pattern in C</h1>
-            <p>Some baseic Python design pattern in C. Make a programmer writing C code better.</p>
+            <p>Below code blocks are not all suitable for C but hoping to inspire your idea.</p>
          </div>
          <div class="row">
 
@@ -93,6 +93,7 @@ DECORATOR(int, add, DECLAR, INPUT)
 int main(int argc, char *argv[]) {
    FUNC_DEC(hello, "KerKer");
    FUNC_DEC(add,1,2);
+
    return 0;
 }
 # bash&gt; gcc example.c
@@ -127,6 +128,7 @@ World
 #include &lt;stdio.h&gt;
 
 typedef void (*func)(void);
+
 enum func_id{
    FUNC_1,FUNC_2,FUNC_3
 };
@@ -149,9 +151,78 @@ int main(int argc, char *argv[]) {
    gFuncTable[FUNC_1]();
    gFuncTable[FUNC_2]();
    gFuncTable[FUNC_3]();
+
    return 0;
 }
 </pre>
+
+<h3>Closure in C</h3>
+<h5>Python</h5>
+<pre class="code python">
+# implement via __call__
+&gt;&gt;&gt; class closure(object):
+...     def __init__(self):
+...         self.val = 5566
+...     def __call__(self,var):
+...         self.val += var
+... 
+&gt;&gt;&gt; c = closure()
+&gt;&gt;&gt; c(9527)
+&gt;&gt;&gt; print c.val
+15093
+# using "global" keyword 
+&gt;&gt;&gt; x = 0
+&gt;&gt;&gt; def closure(val):
+...     def wrapper():
+...         global x 
+...         x += val
+...         print x
+...     wrapper()
+... 
+&gt;&gt;&gt; closure(5566)
+5566
+&gt;&gt;&gt; closure(9527)
+15093
+# using "nonlocal" (only in python3)
+&gt;&gt;&gt; def closure(val):
+...     x = 0
+...     def wrapper():
+...         nonlocal x
+...         x += val
+...         print(x)
+...     wrapper()
+... 
+&gt;&gt;&gt; closure(5566)
+5566
+&gt;&gt;&gt; closure(9527)
+9527
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+typedef struct Closure {
+   int val;
+   void (*add) (struct Closure **, int);
+}closure;
+
+void add_func(closure **c, int var) {
+   (*c)-&gt;val += var;
+}
+
+int main(int argc, char *argv[]) {
+   closure *c = NULL;
+   c = malloc(sizeof(closure));
+   c-&gt;val = 5566;
+   c-&gt;add = add_func;
+   c-&gt;add(&c,9527);
+   printf("result: %d\n",c-&gt;val);
+
+   return 0;
+}
+</pre>
+
 
    </div>
    <div class="col-sm-4">
@@ -166,11 +237,9 @@ int main(int argc, char *argv[]) {
 ...
 &gt;&gt;&gt; g = gen()
 &gt;&gt;&gt; for _ in range(3):
-...     print next(g)
+...     print next(g),
 ... 
-1
-2
-3
+1 2 3
 </pre>
 <h5>C</h5>
 <pre class="code c">
@@ -278,8 +347,76 @@ int main(int argc, char *argv[]) {
                         "World",&a};
    printf("%s %s, "
      "%d\n",x[0],x[1],*(int *)x[2]);
-
    return 0;
+}
+</pre>
+
+<h3>Error Handling</h3>
+<h5>Python</h5>
+<pre class="code python">
+&gt;&gt;&gt; import os
+&gt;&gt;&gt; def spam(a,b):
+...     try:
+...         os.listdir('.')
+...     except OSError:
+...         print "listdir get error"
+...         return
+...     try:
+...         a/b
+...     except ZeroDivisionError:
+...         print "zero division"
+...         return
+... 
+&gt;&gt;&gt; spam(1,0)
+zero division
+# single exit -&gt; using decorator
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; def profile(func):
+...     def wrapper(*args, **kwargs):
+...         s = time.time()
+...         ret = func(*args, **kwargs)
+...         e = time.time()
+...         print e - s
+...         return ret
+...     return wrapper
+...
+&gt;&gt;&gt; @profile
+... def spam(a,b):
+...     try:
+...         os.listdir('.')
+...     except OSError:
+...         return
+...     try:
+...         a/b
+...     except ZeroDivisionError:
+...         return
+... 
+&gt;&gt;&gt; spam(1,0)
+0.000284910202026
+</pre>
+<h5>C</h5>
+<pre class="code c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+int main(int argc, char *argv[]) {
+   int ret = -1;
+   char *ptr;
+   ptr = malloc(sizeof(char)*128);
+   if (NULL == ptr) {
+      perror("malloc get error");
+      goto exit;
+   }
+   strcpy(ptr,"KerKer");
+   printf("%s\n", ptr);
+   ret = 0;
+exit:
+   if (ptr) {
+      free(ptr);
+      ptr = NULL;
+   } 
+   return ret;
 }
 </pre>
 
@@ -466,7 +603,6 @@ int init_obj(Obj **self) {
    (*self)-&gt;sub = sub_func;
    return 0;
 }
-
 
 int main(int argc, char *argv[]) {
    Obj *o = NULL;
