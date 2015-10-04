@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>Cheat Sheets.</title>
+    <!--css-->
+    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <!--scripts-->
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.7/angular.min.js"></script>
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.7/angular-route.js"></script>
+
+  </head>
+  <body ng-app='cheatsheet'>
+    <nav class="pure-menu-horizontal pure-menu-scrollable">
+        <!--span class="pure-menu-heading pure-menu-link">Menu</span-->
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item"><a href="#/git-cs" class="pure-menu-link">git</a></li>
+            <li class="pure-menu-item"><a href="#/gnu-autotool-cs" class="pure-menu-link">gnu-autool</a></li>
+            <li class="pure-menu-item"><a href="#/python-cs" class="pure-menu-link">CS</a></li>
+            <li class="pure-menu-item"><a href="#/pyscenario-cs" class="pure-menu-link">Scenario</a></li>
+            <li class="pure-menu-item"><a href="#/python-concurrency-cs" class="pure-menu-link">concurrency</a></li>
+            <li class="pure-menu-item"><a href="#/python-daemon-cs" class="pure-menu-link">daemon</a></li>
+            <li class="pure-menu-item"><a href="#/python-gen-101" class="pure-menu-link">gen-101</a></li>
+            <li class="pure-menu-item"><a href="#/python-iter-gen-cs" class="pure-menu-link">iter-gen</a></li>
+            <li class="pure-menu-item"><a href="#/python-network-cs" class="pure-menu-link">network</a></li>
+            <li class="pure-menu-item"><a href="#/python-pattern-in-c" class="pure-menu-link">pattern To C</a></li>
+            <li class="pure-menu-item"><a href="#/python-sqlalchemy" class="pure-menu-link">sqlalchemy</a></li>
+            <li class="pure-menu-item"><a href="#/python-test-cs" class="pure-menu-link">test</a></li>
+        </ul>
+    </nav>
+    <div ng-view class="pure-content">
+    </div>
+  </body>
+    <script type="text/javascript">
+      angular.module('cheatsheet', ["ngRoute"])
+        .config(function($routeProvider) {
+            $routeProvider
+                .when('/index',{ templateUrl:'python-cs.html'})
+                .when('/git-cs',{templateUrl:'git-cs.html'})
+                .when("/gnu-autotool-cs", {templateUrl:'gnu-autotool-cs.html'})
+                .when("/pyscenario-cs", {templateUrl:'pyscenario-cs.html'})
+                .when("/python-concurrency-cs", {templateUrl:'python-concurrency-cs.html'})
+                .when("/python-cs", {templateUrl:'python-cs.html'})
+                .when("/python-daemon-cs", {templateUrl:'python-daemon-cs.html.html'})
+                .when("/python-gen-101", {templateUrl:'python-gen-101.html.html'})
+                .when("/python-iter-gen-cs", {templateUrl:'python-iter-gen-cs.html.html'})
+                .when("/python-network-cs", {templateUrl:'python-network-cs.html.html'})
+                .when("/python-pattern-in-c", {templateUrl:'python-pattern-in-c.html.html'})
+                .when("/python-sqlalchemy", {templateUrl:'python-sqlalchemy.html.html'})
+                .when("/python-test-cs", {templateUrl:'python-test-cs.html.html'})
+                .otherwise({redirectTo:'/index'});
+        })
+        .run(function($rootScope){
+      });
+    </script>
+</html>
