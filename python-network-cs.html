@@ -75,6 +75,7 @@ if __name__ == '__main__':
          msg = conn.recv(1024)
          conn.send(msg)
          conn.close()
+
 # bash&gt; nc localhost 5566
 # Hello World 
 # Hello World 
@@ -129,6 +130,7 @@ if __name__ == '__main__':
       while True:
          msg, addr = s.recvfrom(1024)
          s.sendto(msg, addr)
+
 # bash&gt; nc -u localhost 5566
 # Hello World
 # Hello World
@@ -265,6 +267,92 @@ except:
 # Ker Ker
 # Ker Ker
 </pre>
+<h3>Synchronous Simple UNIX Domain Socket</h3>
+<pre class="code python">
+import socket
+import contextlib
+import os
+
+@contextlib.contextmanager
+def DomainServer(addr):
+   try:
+      if os.path.exists(addr):
+         os.unlink(addr)
+      sock = socket.socket(
+            socket.AF_UNIX,
+            socket.SOCK_STREAM)
+      sock.bind(addr)
+      sock.listen(10)
+      yield sock
+   finally:
+      sock.close()
+      if os.path.exists(addr):
+         os.unlink(addr)
+
+addr = "./domain.sock"
+with DomainServer(addr) as sock:
+   while True:
+      conn, _ = sock.accept()
+      msg = conn.recv(1024)
+      conn.send(msg)
+      conn.close()
+
+# bash &gt; nc -U ./domain.sock
+# Hello
+# Hello
+</pre>
+<h3>Asynchronous UNIX Domain Socket</h3>
+<pre class="code python">
+import socket
+import os
+import contextlib
+from select import select
+
+@contextlib.contextmanager
+def DomainServer(addr):
+   try:
+      if os.path.exists(addr):
+         os.unlink(addr)
+      sock = socket.socket(
+            socket.AF_UNIX,
+            socket.SOCK_STREAM)
+      sock.bind(addr)
+      sock.listen(10)
+      yield sock
+   finally:
+      sock.close()
+      if os.path.exists(addr):
+         os.unlink(addr)
+
+addr = "./domain.sock"
+with DomainServer(addr) as sock:
+   rl = [sock]
+   wl = {}
+   while True:
+      r, w ,_ = select(rl,wl,[])
+      for _s in r:
+         if _s == sock:
+            c, _ = sock.accept()
+            rl.append(c)
+         else:
+            msg = _s.recv(1024)
+            wl[_s] = msg
+      for _s in w:
+         msg = wl[_s]
+         try:
+            _s.send(msg)
+         except socket.error:
+            pass
+         del wl[_s]
+
+# bash1&gt; nc -U ./domain.sock
+# Hello
+# Hello
+# bash&gt; nc -U ./domain.sock
+# KerKer
+# KerKer
+</pre>
+
             </div>
             <div class="col-sm-4">
 <h3>Run a SimpleHTTPServer</h3>
