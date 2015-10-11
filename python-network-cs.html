@@ -267,6 +267,66 @@ except:
 # Ker Ker
 # Ker Ker
 </pre>
+<h3>High-Level API - selectors</h3>
+<pre class="code python">
+# Pyton3.4+ only
+# Reference: <a href="https://docs.python.org/3.5/library/selectors.html">selectors</a> 
+import selectors
+import socket
+import contextlib
+
+@contextlib.contextmanager
+def Server(host,port):
+   try:
+      s = socket.socket(
+            socket.AF_INET,
+            socket.SOCK_STREAM)
+      s.setsockopt(socket.SOL_SOCKET,
+            socket.SO_REUSEADDR, 1)
+      s.bind((host,port))
+      s.listen(10)
+      sel = selectors.DefaultSelector()
+      yield s, sel
+   except socket.error:
+      print("Get socket error")
+      raise
+   finally:
+      if s:
+         s.close()
+
+def read_handler(conn, sel):
+   msg = conn.recv(1024) 
+   if msg:
+      conn.send(msg)
+   else:
+      sel.unregister(conn)
+      conn.close()
+
+def accept_handler(s, sel):
+   conn, _ = s.accept()
+   sel.register(conn, 
+         selectors.EVENT_READ,
+         read_handler)
+
+host = 'localhost'
+port = 5566
+with Server(host, port) as (s,sel):
+   sel.register(s, 
+         selectors.EVENT_READ,
+         accept_handler)
+   while True:
+      events = sel.select()
+      for sel_key, m in events:
+         handler = sel_key.data
+         handler(sel_key.fileobj, sel)
+# bash1&gt; nc localhost 5566
+# Hello 
+# Hello
+# bash2&gt; nc localhost 5566
+# Hi
+# Hi
+</pre>
+
 <h3>Synchronous Simple UNIX Domain Socket</h3>
 <pre class="code python">
 import socket
