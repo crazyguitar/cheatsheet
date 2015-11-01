@@ -1,10 +1,11 @@
 from app import app
 import unittest
+import os
 
 
 class FlaskAppTest(unittest.TestCase):
 
-    test_cs = '/python-cs'
+    sheet_path = 'server/templates/cheatsheet'
 
     def test_index_found(self):
         test_client = app.test_client()
@@ -21,10 +22,12 @@ class FlaskAppTest(unittest.TestCase):
         rv = test_client.get('/spam')
         self.assertEqual(rv.status, '404 NOT FOUND')
 
-    def test_page_exists(self):
+    def test_sheets_exists(self):
         test_client = app.test_client()
-        rv = test_client.get(self.test_cs)
-        self.assertEqual(rv.status, '200 OK')
+        sheets = os.listdir(self.sheet_path)
+        for _s in sheets:
+           rv = test_client.get('/' + _s.replace('.html',''))
+           self.assertEqual(rv.status, '200 OK')
 
 
 if __name__ == "__main__":
