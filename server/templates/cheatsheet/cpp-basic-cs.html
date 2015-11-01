@@ -77,6 +77,39 @@ square a = 64
 */
 </pre>
 
+<h3>Template in C++</h3>
+<pre class="code c++">
+#include &lt;iostream&gt;
+using namespace std;
+
+template &lt;class T&gt; struct Cls {
+   T var;
+   Cls(T in):var(in) {
+      var = in; 
+   };
+   void spam() {
+      cout &lt;&lt; var &lt;&lt; endl;
+   };
+};
+
+int main(int argc, char *argv[])
+{
+   Cls&lt;int&gt; obj1(5566);
+   Cls&lt;double&gt; obj2(95.27);
+   
+   obj1.spam();
+   obj2.spam();
+
+   return 0;
+}
+/* 
+output:
+
+5566
+95.27
+*/
+</pre>
+
 </div> <!-- ./row1 -->
 
 <div class="row col-md-4 col-xs-12">
@@ -135,14 +168,14 @@ val b = 5566
 #include &lt;iostream&gt;
 using namespace std;
 
-typedef struct _cppstruct {
+struct cppstruct {
    int a;
    double b;
    void spam(){
      cout &lt;&lt; a &lt;&lt; endl; 
      cout &lt;&lt; b &lt;&lt; endl;
    };
-} cppstruct;
+};
 
 class cls {
 public:
