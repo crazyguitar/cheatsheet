@@ -1,0 +1,179 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>C++ Cheat Sheet</h1>
+   <p>Cheat sheet of C++. Some basic concept for a C++ programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>Basic Usage of Reference and Pointer</h3>
+<pre class="code c++">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main(int argc, char* argv[])
+{
+   int a = 5566;
+   int *p_a_addr = &a;
+   int &r_a_addr = a;
+
+   /* value of a*/
+   cout &lt;&lt; a &lt;&lt; endl;
+   /* address of a */
+   cout &lt;&lt; &a &lt;&lt;endl;
+   /* address of a */
+   cout &lt;&lt; p_a_addr &lt;&lt; endl;
+   /* address of pointer */
+   cout &lt;&lt; &p_a_addr &lt;&lt;endl;
+   /* value of a */
+   cout &lt;&lt; r_a_addr &lt;&lt; endl;
+   /* address of a */
+   cout &lt;&lt; &r_a_addr &lt;&lt; endl;
+   return 0;
+}
+
+/* 
+output:
+
+5566
+0x7fff586ef6ec
+0x7fff586ef6ec
+0x7fff586ef6e0
+5566
+0x7fff586ef6ec
+*/
+</pre>
+
+
+<h3>Lambda Function</h3>
+<pre class="code c++">
+/* Lambda since C++11 */
+#include &lt;iostream&gt;
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+   int a = 8;
+   int sa = 0;
+
+   /* lambda square(since c++11) */
+   sa = [](int x) {return x*x;}(a);
+   cout &lt;&lt; "a = " &lt;&lt; a &lt;&lt; endl;
+   cout &lt;&lt; "square a = "
+        &lt;&lt; sa &lt;&lt; endl;
+   
+   return 0;
+}
+/*
+bash&gt; g++ ex.cpp --std=c++11
+output:
+
+a = 8
+square a = 64
+*/
+</pre>
+
+</div> <!-- ./row1 -->
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>Different between Pointer and Reference</h3>
+<pre class="code c++">
+#include &lt;iostream&gt;
+using namespace std;
+
+int main(int argc, char *argv[])
+{
+   int a = 5566;
+   int b = 9527;
+   int *ptr1, *ptr2;
+   int &ref1 = a; 
+   int &ref2 = b;
+
+   ptr1 = &a;
+   ptr2 = &b;
+   cout &lt;&lt; "b value will not change" 
+        &lt;&lt; endl;
+   cout &lt;&lt; "val b = "
+        &lt;&lt; b  &lt;&lt; endl;
+   ptr2 = &a;
+   cout  &lt;&lt; "val b = "
+         &lt;&lt; b  &lt;&lt; endl;
+
+   cout  &lt;&lt; "b value will change"
+         &lt;&lt; endl;
+   cout  &lt;&lt; "val b = "
+         &lt;&lt; b  &lt;&lt; endl;
+   ref2 = a;
+   cout  &lt;&lt; "val b = "
+         &lt;&lt; b  &lt;&lt; endl;
+   
+   return 0;
+}
+
+/* 
+output:
+
+b value will not change
+val b = 9527
+val b = 9527
+b value will change
+val b = 9527
+val b = 5566
+*/
+</div><!-- ./row2 -->
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>Call by "Reference"</h3>
+<pre class="code c++">
+#include &lt;iostream&gt;
+using namespace std;
+
+void spam_ptr(int *ptr)
+{
+   cout &lt;&lt; "addr = " 
+        &lt;&lt; ptr &lt;&lt; endl; 
+   cout &lt;&lt; "val = "
+        &lt;&lt; *ptr &lt;&lt; endl;
+}
+
+void spam_ref(int &ref)
+{
+   cout &lt;&lt; "addr = "
+        &lt;&lt; &ref &lt;&lt; endl;
+   cout &lt;&lt; "val = "
+        &lt;&lt; ref &lt;&lt;endl;
+}
+
+int main(int argc, char *argv[])
+{
+   int var = 5566;
+   spam_ptr(&var);
+   spam_ref(var);
+   
+   return 0;
+}
+/*
+output:
+
+addr = 0x7fff53c6c74c
+val = 5566
+addr = 0x7fff53c6c74c
+val = 5566
+*/
+</pre>
+
+
+</div><!-- ./row3 -->
+
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+{% endblock %}

@@ -16,4 +16,9 @@ footer {
    font-weight:bold;
    color: darkgray;
 }
-
+.jumbotron {
+   background-color: white;
+}
+.row {
+   margin:auto;
+}
