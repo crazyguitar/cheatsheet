@@ -125,6 +125,67 @@ b value will change
 val b = 9527
 val b = 5566
 */
+</pre>
+
+<h3>C++ struct</h3>
+<pre class="code c++">
+/* C++ struct is same as class
+ * which all members are public.
+ */
+#include &lt;iostream&gt;
+using namespace std;
+
+typedef struct _cppstruct {
+   int a;
+   double b;
+   void spam(){
+     cout &lt;&lt; a &lt;&lt; endl; 
+     cout &lt;&lt; b &lt;&lt; endl;
+   };
+} cppstruct;
+
+class cls {
+public:
+   int a;
+   int b;
+   void spam(){
+      cout &lt;&lt; a &lt;&lt; endl;
+      cout &lt;&lt; b &lt;&lt; endl;
+   };
+};
+
+int main(int argc, char *argv[])
+{
+   cppstruct obj1;
+   cls obj2;
+
+   cout &lt;&lt; "cpp strcut" 
+        &lt;&lt; endl;
+   obj1.a = 5566;
+   obj1.b = 9527;
+   obj1.spam();
+
+   cout &lt;&lt; "all member public class"
+        &lt;&lt; endl;
+   obj2.a = 1234;
+   obj2.b = 5677;
+   obj2.spam();
+   
+   return 0;
+}
+
+/*
+output:
+
+cpp strcut
+5566
+9527
+all member public class
+1234
+5677
+*/
+</pre>
+
 </div><!-- ./row2 -->
 
 <div class="row col-md-4 col-xs-12">
@@ -168,6 +229,64 @@ val = 5566
 */
 </pre>
 
+<h3>Object Constructor</h3>
+<pre class="code c++">
+#include <iostream>
+using namespace std;
+
+class cls1 {
+public:
+   int x;
+   int y;
+   /* Basic Constructor */
+   cls1(int a, int b) {
+      cout &lt;&lt; "Construct cls1" 
+           &lt;&lt; endl;
+      x=a;
+      y=b;
+   };
+   ~cls1() {
+      cout &lt;&lt; "Destruct cls1" 
+           &lt;&lt; endl;
+   };
+};
+
+class cls2 {
+public:
+   int x;
+   int y;
+   /* Initialization Lists */
+   cls2(int a, int b):x(a), y(b) {
+      cout &lt;&lt; "Construct cls2"
+           &lt;&lt; endl;
+   }
+   ~cls2() {
+      cout &lt;&lt; "Destruct cls2" 
+           &lt;&lt; endl;
+   };
+};
+
+int main(int argc, char *argv[])
+{
+   cls1 obj1(5566, 9527);
+   cls2 obj2(123,456);
+   cout &lt;&lt; obj1.x &lt;&lt; ", "
+        &lt;&lt; obj1.y &lt;&lt; endl;
+   cout &lt;&lt; obj2.x &lt;&lt; ", "
+        &lt;&lt; obj2.y &lt;&lt; endl;
+   return 0;
+}
+/* 
+output:
+
+Construct cls1
+Construct cls2
+5566, 9527
+123, 456
+Destruct cls2
+Destruct cls1
+*/
+</pre>
 
 </div><!-- ./row3 -->
 
