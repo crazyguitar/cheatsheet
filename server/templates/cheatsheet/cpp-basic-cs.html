@@ -110,6 +110,53 @@ output:
 */
 </pre>
 
+<h3>Class "operator" Overloading</h3>
+<pre class="code c++">
+#include &lt;iostream&gt;
+using namespace std;
+
+class cls {
+public:
+   /* obj++ operation */
+   cls operator++(int) {
+      cls tmp(idx);
+      idx++;
+      return tmp; 
+   };
+   /* ++obj operation */
+   cls& operator++() {
+      ++idx;
+      return *this;
+   };
+   void spam() {
+      cout &lt;&lt; "idx val = "
+           &lt;&lt; idx &lt;&lt; endl;
+   };
+   cls(int x) :idx(x) {};
+private:
+   int idx;
+};
+
+int main(int argc, char *argv[])
+{
+   cls obj(5566);
+
+   obj.spam();
+   ++obj;
+   obj.spam();
+   obj++;
+   obj.spam();
+   return 0;
+}
+/*
+output:
+
+idx val = 5566
+idx val = 5567
+idx val = 5568
+*/
+</pre>
+
 </div> <!-- ./row1 -->
 
 <div class="row col-md-4 col-xs-12">
