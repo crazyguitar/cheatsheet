@@ -1,33 +1,15 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
 
-<html>
-   <head>
-   
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-      <link rel="stylesheet" href="highlight/styles/github.css">
-      <link rel="stylesheet" href="css/style.css">
-      <script src="highlight/highlight.pack.js"></script>
-      <script>
-         $(document).ready(function(){
-            $('pre.code').each(function(i, block) {
-               hljs.highlightBlock(block);
-            }); 
-         });
-      </script> 
-   </head>
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some nextwork concept for Python programmer need to know.</p>
+</div>
+{% endblock %}
 
-   <body>
-      <div class="container">
-         <div class="jumbotron" style="background-color:white">
-            <h1>Python Cheat Sheet</h1>
-            <p>Cheat sheet of Python. Some nextwork concept for Python programmer need to know.</p>
-         </div>
-         <div class="row">
-            <div class="col-sm-4">
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
 <h3>Get Hostname</h3>
 <pre class="code python">
 &gt;&gt;&gt; import socket
@@ -191,8 +173,10 @@ if __name__ == '__main__':
 # bash&gt; nc -k -w 1 -ul 5566
 # 1431473025.72
 </pre>
-            </div>
-            <div class="col-sm-4">
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
 <h3>Simple Asynchronous TCP Server - Thread</h3>
 <pre class="code python">
 &gt;&gt;&gt; from threading import Thread
@@ -412,9 +396,10 @@ with DomainServer(addr) as sock:
 # KerKer
 # KerKer
 </pre>
+</div>
 
-            </div>
-            <div class="col-sm-4">
+<div class="row col-md-4 col-xs-12">
+
 <h3>"socketpair" - Similar to PIPE</h3>
 <pre class="code python">
 import socket
@@ -466,9 +451,10 @@ else:
 ...   host, h)
 &gt;&gt;&gt; s.serve_forever()
 </pre>
-            </div>
-         </div>
-      </div>
-   </body>
+</div>
+{% endblock %}
 
-</html>
+{% block script %}
+{{ super() }}
+
+{% endblock %}
