@@ -7,7 +7,8 @@
 <div class="panel-heading"><b>Catalog</b></div>
 
 <!-- Table -->
-<table class="table">
+<div class="table-responsive">
+<table class="table table-hover">
    <thead>
       <tr><th>Subject</th><th>Description</th><th>Create time</th><th>Modify time</th></tr>
    </thead>
@@ -35,6 +36,14 @@
          <td>How powerful of generator in Python</td>
          <td>2015/11/3</td>
          <td>2015/11/3</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="{{ url_for('cheatsheet', page='python-metaprogramming') }}">Python Metaprogramming</a>
+         </td>
+         <td>Python code that manipulates Python code</td>
+         <td>2015/11/4</td>
+         <td>2015/11/4</td>
       </tr>
       <tr>
          <td>
@@ -78,7 +87,8 @@
       </tr>
    </tbody>
 </table>
-   </div>
+</div>
+   </div> <!-- ./panel -->
 </div>
 
 {% endblock %}
