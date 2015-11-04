@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some basic concepts for a Python programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>Debuging via Decorator</h3>
+<pre class="code python">
+# Using print is ugly.
+&gt;&gt;&gt; def spam1():
+...   print spam1.__name__
+...   print 'SPAM_1'
+... 
+&gt;&gt;&gt; def spam2():
+...   print spam2.__name__
+...   print 'SPAM_2'
+... 
+&gt;&gt;&gt; spam1()
+spam1
+SPAM_1
+&gt;&gt;&gt; spam2()
+spam2
+SPAM_2
+
+# Using decorator
+&gt;&gt;&gt; def debug(func):
+...   def wrapper(*args, **kwargs):
+...     print func.__name__
+...     return func(*args, **kwargs)
+...   return wrapper
+... 
+&gt;&gt;&gt; @debug
+... def spam():
+...   print 'SPAM'
+... 
+&gt;&gt;&gt; spam()
+spam
+SPAM
+</pre>
+
+</div>
+<div class="row col-md-4 col-xs-12">
+
+<h3>Get Original Function Attr - @wraps</h3>
+<pre class="code python">
+
+</pre>
+
+</div>
+<div class="row col-md-4 col-xs-12">
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+{% endblock %}
