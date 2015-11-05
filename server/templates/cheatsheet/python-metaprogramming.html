@@ -43,18 +43,69 @@ SPAM_2
 spam
 SPAM
 </pre>
-
-</div>
-<div class="row col-md-4 col-xs-12">
-
-<h3>Get Original Function Attr - @wraps</h3>
+<h3>@wraps - Get Original Function's "Description"</h3>
 <pre class="code python">
-
+&gt;&gt;&gt; from functools import wraps
+&gt;&gt;&gt; def debug(func):
+...     @wraps(func)
+...     def wrapper(*args, **kwargs):
+...         print func.__doc__
+...         print func.__name__
+...         return func(*args, **kwargs)
+...     return wrapper
+... 
+&gt;&gt;&gt; @debug
+... def spam():
+...     '''spam function'''
+...     print "SPAM"
+... 
+&gt;&gt;&gt; spam()
+spam function 
+spam
+SPAM
 </pre>
 
+<h3>Decorate "class" methods</h3>
+<pre class="code python">
+&gt;&gt;&gt; from functools import wraps
+&gt;&gt;&gt; def debug(func):
+...     @wraps(func)
+...     def wrapper(*args, **kwargs):
+...         print "doc:", func.__doc__
+...         print "func: ", func.__name__
+...         return func(*args, **kwargs)
+...     return wrapper
+... 
+&gt;&gt;&gt; def debugmethods(cls):
+...     for k,v in vars(cls).items():
+...         if callable(v):
+...             setattr(cls, k, debug(v))
+...     return cls
+...
+&gt;&gt;&gt; @debugmethods
+... class Spam(object):
+...     def hello(self):
+...         ''' I am hello '''
+...         print "Hello"
+...     def world(self):
+...         ''' I am world '''
+...         print "World"
+... 
+&gt;&gt;&gt; s = Spam()
+&gt;&gt;&gt; s.hello()
+doc:  I am hello 
+func:  hello
+Hello
+&gt;&gt;&gt; s.world()
+doc:  I am world 
+func:  world
+World
+</pre>
+</div>
+
+<div class="row col-md-4 col-xs-12">
 </div>
 <div class="row col-md-4 col-xs-12">
-
 </div>
 {% endblock %}
 
