@@ -1,33 +1,15 @@
-<!DOCTYPE html>
+{% extends "layout.html" %}
 
-<html>
-   <head>
-   
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-      <link rel="stylesheet" href="highlight/styles/github.css">
-      <link rel="stylesheet" href="css/style.css">
-      <script src="highlight/highlight.pack.js"></script>
-      <script>
-         $(document).ready(function(){
-            $('pre.code').each(function(i, block) {
-               hljs.highlightBlock(block);
-            }); 
-         });
-      </script> 
-   </head>
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>GNU Autotool Cheat Sheet</h1>
+   <p>Cheat sheet of GNU Autotool. Some basic concept for a programmer need to know.</p>
+</div>
+{% endblock %}
 
-   <body>
-      <div class="container">
-         <div class="jumbotron" style="background-color:white;">
-            <h1>GNU Autotool Cheat Sheet</h1>
-            <p>Cheat sheet of GNU Autotool. Some basic concept for a programmer need to know.</p>
-         </div>
-         <div class="row">
-            <div class="col-sm-4">
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
 <h3>Project structure</h3>
 <pre class="code bash">
 # before "bash &gt; autoreconf --install"
@@ -78,8 +60,10 @@ AC_OUTPUT
 SUBDIRS = include lib src
 ACLOCAL_AMFLAGS = -I m4
 </pre>
-            </div>
-            <div class="col-sm-4">
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
 <h3>lib/Makefile.am</h3>
 <pre class="code makefile">
 # recursively "auto make"
@@ -127,8 +111,10 @@ void world(void)
    printf("===== World =====\n");
 }
 </pre>
-            </div>
-            <div class="col-sm-4">
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
 <h3>src/Makefile.am</h3>
 <pre class="code c">
 # build binary hello which will be install in bin/
@@ -177,10 +163,10 @@ bash&gt; autoreconf --install
 bash&gt; ./configure 
 bash&gt; make && make install
 </pre>
+</div>
+{% endblock %}
 
-            </div>
-         </div>
-      </div>
-   </body>
+{% block script %}
+{{ super() }}
 
-</html>
+{% endblock %}
