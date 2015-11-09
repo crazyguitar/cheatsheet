@@ -22,3 +22,9 @@ footer {
 .row {
    margin:auto;
 }
+.navbar-default {
+   background-color: white;
+}
+.navbar {
+   border: 0px;
+}
