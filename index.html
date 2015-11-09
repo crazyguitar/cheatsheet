@@ -1,56 +1,140 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <title>Cheat Sheets.</title>
-    <!--css-->
-    <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
-    <!--scripts-->
-    <script type="text/javascript" src="https://code.angularjs.org/1.4.7/angular.min.js"></script>
-    <script type="text/javascript" src="https://code.angularjs.org/1.4.7/angular-route.js"></script>
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="static/bootstrap-3.3.5-dist/css/bootstrap.min.css">
+   <link rel="stylesheet" href="static/highlight/styles/github.css">
+   <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+<!-- static navbar -->
+<nav class="navbar navbar-default navbar-static-top">
+<div class="container">
 
-  </head>
-  <body ng-app='cheatsheet'>
-    <nav class="pure-menu-horizontal pure-menu-scrollable">
-        <!--span class="pure-menu-heading pure-menu-link">Menu</span-->
-        <ul class="pure-menu-list">
-            <li class="pure-menu-item"><a href="#/git-cs" class="pure-menu-link">git</a></li>
-            <li class="pure-menu-item"><a href="#/gnu-autotool-cs" class="pure-menu-link">gnu-autool</a></li>
-            <li class="pure-menu-item"><a href="#/python-cs" class="pure-menu-link">CS</a></li>
-            <li class="pure-menu-item"><a href="#/pyscenario-cs" class="pure-menu-link">Scenario</a></li>
-            <li class="pure-menu-item"><a href="#/python-concurrency-cs" class="pure-menu-link">concurrency</a></li>
-            <li class="pure-menu-item"><a href="#/python-daemon-cs" class="pure-menu-link">daemon</a></li>
-            <li class="pure-menu-item"><a href="#/python-gen-101" class="pure-menu-link">gen-101</a></li>
-            <li class="pure-menu-item"><a href="#/python-iter-gen-cs" class="pure-menu-link">iter-gen</a></li>
-            <li class="pure-menu-item"><a href="#/python-network-cs" class="pure-menu-link">network</a></li>
-            <li class="pure-menu-item"><a href="#/python-pattern-in-c" class="pure-menu-link">pattern To C</a></li>
-            <li class="pure-menu-item"><a href="#/python-sqlalchemy" class="pure-menu-link">sqlalchemy</a></li>
-            <li class="pure-menu-item"><a href="#/python-test-cs" class="pure-menu-link">test</a></li>
-        </ul>
-    </nav>
-    <div ng-view class="pure-content">
-    </div>
-  </body>
-    <script type="text/javascript">
-      angular.module('cheatsheet', ["ngRoute"])
-        .config(function($routeProvider) {
-            $routeProvider
-                .when('/index',{ templateUrl:'python-cs.html'})
-                .when('/git-cs',{templateUrl:'git-cs.html'})
-                .when("/gnu-autotool-cs", {templateUrl:'gnu-autotool-cs.html'})
-                .when("/pyscenario-cs", {templateUrl:'pyscenario-cs.html'})
-                .when("/python-concurrency-cs", {templateUrl:'python-concurrency-cs.html'})
-                .when("/python-cs", {templateUrl:'python-cs.html'})
-                .when("/python-daemon-cs", {templateUrl:'python-daemon-cs.html'})
-                .when("/python-gen-101", {templateUrl:'python-gen-101.html'})
-                .when("/python-iter-gen-cs", {templateUrl:'python-iter-gen-cs.html'})
-                .when("/python-network-cs", {templateUrl:'python-network-cs.html'})
-                .when("/python-pattern-in-c", {templateUrl:'python-pattern-in-c.html'})
-                .when("/python-sqlalchemy", {templateUrl:'python-sqlalchemy.html'})
-                .when("/python-test-cs", {templateUrl:'python-test-cs.html'})
-                .otherwise({redirectTo:'/index'});
-        })
-        .run(function($rootScope){
-      });
-    </script>
+   <a href="https://github.com/crazyguitar/cheatsheet">
+      <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png">
+   </a>
+  <div class="navbar-header">
+    <a class="navbar-brand" href="http://howindergg.com/">Cheat Sheets</a>
+   </div>
+</div>
+</nav>
+
+   <div class="container">
+<div class="col-md-8 col-md-offset-2 col-xs-12">
+   <div class="panel panel-default">
+<!-- panel contents -->
+<div class="panel-heading"><b>Catalog</b></div>
+
+<!-- Table -->
+<div class="table-responsive">
+<table class="table table-hover">
+   <thead>
+      <tr><th>Subject</th><th>Description</th><th>Create time</th><th>Modify time</th></tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-cs">Python Basic</a>
+         </td>
+         <td>Some basic concepts of Python</td>
+         <td>2015/10/21</td>
+         <td>2015/10/21</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-iter-cs">Python Iterator</a>
+         </td>
+         <td>Writing a loop more like Python</td>
+         <td>2015/11/3</td>
+         <td>2015/11/3</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-gen-cs">Python Generator</a>
+         </td>
+         <td>How powerful of generator in Python</td>
+         <td>2015/11/3</td>
+         <td>2015/11/3</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-metaprogramming">Python Metaprogramming</a>
+         </td>
+         <td>Python code that manipulates Python code</td>
+         <td>2015/11/4</td>
+         <td>2015/11/5</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-network-cs">Python Socket</a>
+         </td>
+         <td>Some basic concepts of socket in Python</td>
+         <td>2015/10/21</td>
+         <td>2015/10/21</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-concurrency-cs">Python Concurrency</a>
+         </td>
+         <td>Some basic concepts of concurrency in Python</td>
+         <td>2015/11/9</td>
+         <td>2015/11/9</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-daemon-cs">Python Daemon</a>
+         </td>
+         <td>A basic daemon write in Python</td>
+         <td>2015/11/2</td>
+         <td>2015/11/2</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-sqlalchemy">Python Sqlalchemy</a>
+         </td>
+         <td>Python database operation via sqlalchemy</td>
+         <td>2015/11/2</td>
+         <td>2015/11/2</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/python-pattern-in-c">Python Style in C</a>
+         </td>
+         <td>Some Python design pattern in C</td>
+         <td>2015/11/2</td>
+         <td>2015/11/2</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/cpp-basic-cs">C++ Basic</a>
+         </td>
+         <td>Some basic concepts of C++</td>
+         <td>2015/11/1</td>
+         <td>2015/11/1</td>
+      </tr>
+      <tr>
+         <td>
+            <a href="http://howindergg.com/gnu-autotool-cs">GNU Autotool</a>
+         </td>
+         <td>Some basic concepts of GNU Autotool</td>
+         <td>2015/11/7</td>
+         <td>2015/11/7</td>
+      </tr>
+   </tbody>
+</table>
+</div>
+   </div> <!-- ./panel -->
+
+</div>
+   </div>
+   <div class="container">
+      <footer><p>Copyright &#169; 2015 crazyguitar</p></footer>
+   </div>
+<!-- script -->   
+<script src="static/jquery-1.11.3/jquery-1.11.3.min.js"></script>
+<script src="static/bootstrap-3.3.5-dist/js/bootstrap.min.js"></script>
+
+</body>
 </html>
