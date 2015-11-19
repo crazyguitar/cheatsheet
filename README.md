@@ -1,5 +1,6 @@
-### Build Staus
+### Development Staus
 [![Build Status](https://travis-ci.org/crazyguitar/cheatsheet.svg)](https://travis-ci.org/crazyguitar/cheatsheet)
+[![Build Status](https://drone.io/github.com/crazyguitar/cheatsheet/status.png)](https://drone.io/github.com/crazyguitar/cheatsheet/latest)
 
 ### How to run the server
 
