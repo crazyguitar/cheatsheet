@@ -6,9 +6,13 @@ python:
 
 install:
    - pip install flask
+   - pip install codecov
 
 script:
    - python app_test.py
+
+after_success:
+   - codecov
 
 sudo: false
 
