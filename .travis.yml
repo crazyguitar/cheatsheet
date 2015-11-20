@@ -9,7 +9,7 @@ install:
    - pip install codecov
 
 script:
-   - python app_test.py
+   - coverage run app_test.py
 
 after_success:
    - codecov
