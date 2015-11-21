@@ -13,6 +13,7 @@
 <h3>Ruby Indentation</h3>
 <pre class="code ruby">
 # Use two spaces per indentation level
+# ref: <a href="https://github.com/bbatsov/ruby-style-guide">ruby-style-guide</a>
 def spam_method
   puts "spam"
 end
@@ -170,6 +171,47 @@ true=&gt; nil
 1 2 3 4 5 =&gt; 1..5
 </pre>
 
+<h3>Some Array Operations</h3>
+<pre class="code ruby">
+# gen some len of array
+&gt;&gt; a = [0]*5
+=&gt; [0, 0, 0, 0, 0]
+
+# gen array from range
+&gt;&gt; a = (1..5).to_a
+=&gt; [1, 2, 3, 4, 5]
+
+# push item to an array
+&gt;&gt; (1..3).each do |i|
+..   a.push(i**2)
+.. end
+=&gt; 1..3
+&gt;&gt; a
+=&gt; [1, 4, 9]
+
+# check array empty
+&gt;&gt; a.empty?
+=&gt; true
+
+# get items from array
+&gt;&gt; a = (1..5) .map {|i| i*2}
+=&gt; [2, 4, 6, 8, 10]
+&gt;&gt; a[1..3]
+=&gt; [4, 6, 8]
+&gt;&gt; len = a.length
+=&gt; 5
+&gt;&gt; (1..len-1).step(2).map {|i| a[i]}
+=&gt; [4, 8]
+</pre>
+
+<h3>Some Hash Operations</h3>
+<pre class="code ruby">
+# basic assign val to hash
+&gt;&gt; a = {'1'=&gt;1,'2'=&gt;2}
+=&gt; {"1"=&gt;1, "2"=&gt;2}
+&gt;&gt; a['3'] = 3
+=&gt; 3
+</pre>
 
 <h3>while Statement</h3>
 <pre class="code ruby">
@@ -325,6 +367,18 @@ spam
 =&gt; nil
 &gt;&gt; spam(1,2,3,'ker')
 [1, 2, 3, "ker"]=&gt; nil
+</pre>
+
+<h3>Question Mark "?"</h3>
+<pre class="code ruby">
+# "?" is valid at the end of a method
+# ref: <a href=http://stackoverflow.com/questions/1345843/what-does-the-question-mark-operator-mean-in-ruby>What does "?" mean in Ruby?</a>
+&gt;&gt; def spam?
+..   return true
+.. end
+=&gt; nil
+&gt;&gt; spam?
+=&gt; true
 </pre>
 
 <h3 class="code ruby">Ruby Block</h3>
