@@ -26,8 +26,8 @@ class FlaskAppTest(unittest.TestCase):
         test_client = app.test_client()
         sheets = os.listdir(self.sheet_path)
         for _s in sheets:
-           rv = test_client.get('/' + _s.replace('.html',''))
-           self.assertEqual(rv.status, '200 OK')
+            rv = test_client.get('/' + _s.replace('.html', ''))
+            self.assertEqual(rv.status, '200 OK')
 
 
 if __name__ == "__main__":
