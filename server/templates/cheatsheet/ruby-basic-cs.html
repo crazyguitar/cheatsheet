@@ -1,0 +1,252 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Ruby Cheat Sheet</h1>
+   <p>Cheat sheet of Ruby. Some basic concepts for a newbie Ruby programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>Ruby Indentation</h3>
+<pre class="code ruby">
+# Use two spaces per indentation level
+def spam_method
+  puts "spam"
+end
+</pre>
+
+<h3>Ruby Naming Styles</h3>
+<pre class="code ruby">
+# constant: SCREAMING_SNAKE_CASE 
+SOME_CONST = 9527
+
+# variable: snake_case
+this_is_var
+
+# methods: snake_case
+def spam_method
+  puts "spam"
+end
+
+# class: CamleCase
+class CamleCase
+  def spam_method
+    puts "sapm" 
+  end
+end
+
+# file: snake_case
+ruby_test.rb
+
+# directory: snake_case
+ruby_pkg/ruby_test.rb
+</pre>
+
+<h3>Ruby Comments</h3>
+<pre class="code ruby">
+# donnot use block comment
+# bad
+=begin
+- Hello
+- World
+=end
+
+# good
+# - Hello
+# - World
+</pre>
+
+<h3>Ruby use ";"</h3>
+<pre class="code ruby">
+# donnot use ";" between two exp
+# bad
+puts "Hello"; puts "World"
+# good 
+puts "Hello"
+puts "World"
+
+# prefer use ";" with nobody
+def spam_method; end
+</pre>
+
+<h3>if ... else Statement</h3>
+<pre class="code ruby">
+if true
+  puts "Hello"
+else
+  puts "World"
+end
+
+# one line statement
+puts "true" if true
+</pre>
+
+<h3>unless ... else Statement</h3>
+<pre class="code ruby">
+unless true
+  puts "Hello"
+else
+  puts "World"
+end
+
+# same as 
+if not true
+  puts "Hello"
+else
+  puts "World"
+end
+
+# one line statement
+&gt;&gt; puts "Hello" unless false
+Hello
+=&gt; nil
+</pre>
+
+<h3>case ... when Statement</h3>
+<pre class="code ruby">
+&gt;&gt; a = 'hello'
+=&gt; "hello"
+&gt;&gt; case a
+.. when 'hello'
+..   print 'hello'
+.. else
+..   print 'world'
+.. end
+hello=&gt; nil
+
+# case statement with range
+&gt;&gt; a = 5566
+=&gt; 5566
+&gt;&gt; case a
+.. when 0 .. 5
+..   print 'hello'
+.. else 
+..   print 'world'
+.. end
+world=&gt; nil
+</pre>
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>while Statement</h3>
+<pre class="code ruby">
+&gt;&gt; while i &lt; 3
+..   i += 1
+..   puts i
+.. end
+1
+2
+3
+=&gt; nil
+
+# ruby do while statement
+&gt;&gt; i = 0
+=&gt; 0
+&gt;&gt; begin
+..   puts i
+..   i += 1
+.. end while i &lt; 3
+0
+1
+2
+=&gt; nil
+</pre>
+
+<h3>until Statement</h3>
+<pre class="code ruby">
+&gt;&gt; i = 3
+=&gt; 3
+&gt;&gt; until i &lt; 0
+..   print i, ' '
+..   i -= 1
+.. end
+3 2 1 0 =&lt; nil
+
+# equal to
+&gt;&gt; i = 3
+=&gt; 3
+&gt;&gt; while not i &lt; 0
+..   print i, ' '
+..   i -= 1
+.. end
+3 2 1 0 =&gt; nil
+
+# begin ... until statement
+&gt;&gt; i = 3
+=&gt; 3
+&gt;&gt; begin
+..   print i, ' '
+..   i -= 1
+.. end until i &lt; 0
+3 2 1 0 =&gt; nil
+</pre>
+
+<h3>for loop</h3>
+<pre class="code ruby">
+# using each
+&gt;&gt; (0...5).each do |i|
+..   print "#{i} "
+.. end
+0 1 2 3 4 =&gt;&gt; 0...5
+
+# for loop
+&gt;&gt; for i in 0..3
+..   print "#{i} "
+.. end
+0 1 2 3 =&gt; 0..3
+</pre>
+
+<h3>break Statement</h3>
+<pre class="code ruby">
+&gt;&gt; for i in 0..3
+..   if i &gt; 1
+..     break
+..   end
+..   print "#{i} "
+.. end
+0 1 =&gt; nil
+</pre>
+
+<h3>next Statement</h3>
+<pre class="code ruby">
+# just like c - continue
+&gt;&gt; for i in 0..3
+..   if i &lt; 2
+..     next
+..   end
+..   print "#{i} "
+.. end
+2 3 =&gt; 0..3
+</pre>
+
+<h3>redo Statement</h3>
+<pre class="code ruby">
+# restart loop
+&gt;&gt; flag = false
+=&gt; false
+&gt;&gt; for i in 0..5
+..   if i &gt; 3 and flag == false
+..     puts 'redo'
+..     flag = true
+..     redo
+..   end
+..   print i, ' '
+.. end
+0 1 2 3 redo
+4 5 =&gt; 0..5
+</pre>
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+{% endblock %}
