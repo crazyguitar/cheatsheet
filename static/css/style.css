@@ -28,3 +28,15 @@ footer {
 .navbar {
    border: 0px;
 }
+.boardless{
+   border:none !important;
+}
+.boardless td, .boardless th {
+   border: none !important;
+}
+pre.code {
+   border: none;
+}
+a {
+   text-decoration:none !important;
+}
