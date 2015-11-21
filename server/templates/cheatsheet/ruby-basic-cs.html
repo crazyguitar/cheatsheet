@@ -132,6 +132,45 @@ world=&gt; nil
 
 <div class="row col-md-4 col-xs-12">
 
+<h3>Range in Ruby</h3>
+<pre class="code ruby">
+# (0..3) =&gt; [0, 1, 2, 3]
+# (0...3) =&gt; [0, 1, 2]
+&gt;&gt; a = (1..5).to_a
+=&gt; [1, 2, 3, 4, 5]
+&gt;&gt; a = (0...3).to_a
+=&gt; [0, 1, 2]
+&gt;&gt; a = ('a'..'d').to_a
+=&gt; ["a", "b", "c", "d"]
+
+# "in statement" in ruby 
+# for Array
+&gt;&gt; a = (1..5).to_a
+=&gt; [1, 2, 3, 4, 5]
+&gt;&gt; a.class
+=&gt; Array
+&gt;&gt; a.include?3
+=&gt; true
+
+# for Range 
+&gt;&gt; a = 1..5
+=&gt; 1..5
+&gt;&gt; a.class
+=&gt; Range
+&gt;&gt; a.include?3
+=&gt; true
+# test 3 in (1..5) via "==="
+&gt;&gt; print true if (1..5) === 3
+true=&gt; nil
+
+# traverse "Range"
+&gt; a.each do |i|
+..   print i, ' '
+.. end
+1 2 3 4 5 =&gt; 1..5
+</pre>
+
+
 <h3>while Statement</h3>
 <pre class="code ruby">
 &gt;&gt; while i &lt; 3
