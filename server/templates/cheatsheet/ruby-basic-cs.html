@@ -243,6 +243,116 @@ world=&gt; nil
 
 <div class="row col-md-4 col-xs-12">
 
+<h3>Methods (Functions)</h3>
+<pre class="code ruby">
+# no arguments
+&gt;&gt; def spam
+..   puts "spam"
+.. end
+=&gt; nil
+&gt;&gt; spam
+spam
+=&gt; nil
+
+# with arguments
+&gt;&gt; def spam(a,b)
+..   return a+b
+.. end
+=&gt; nil
+&gt;&gt; print spam(1,2)
+3=&gt; nil
+
+# with default input
+&gt;&gt; def spam(a=3,b=1,c)
+..   puts a, b, c
+..   return a+b+c
+.. end
+=&gt; nil
+&gt;&gt; ret = spam(2,3)
+2
+1
+3
+=&gt; 6
+&gt;&gt; ret = spam(5)
+3
+1
+5
+=&gt; 9
+
+# variable number of parameters
+&gt;&gt; def spam(*args)
+..   print args
+.. end
+=&gt; nil
+&gt;&gt; spam(1,2,3,'ker')
+[1, 2, 3, "ker"]=&gt; nil
+</pre>
+
+<h3 class="code ruby">Ruby Block</h3>
+<pre class="code ruby">
+# block:
+# - chunk of code
+# - invoked from a func
+# - with same name of invoked func
+# - using yield statement
+&gt;&gt; def spam
+..   puts 'in the function'
+..   yield
+.. end
+=&gt; nil
+&gt;&gt; spam {puts 'in the block'}
+in the function
+in the block
+=&gt; nil
+
+# send argument to block
+&gt;&gt; def spam
+..   puts 'in the function'
+..   yield 'Hello World'
+.. 
+.. ^C
+&gt;&gt; def spam
+..   puts 'in the function'
+..   yield 'Hello World'
+.. end
+=&gt; nil
+&gt;&gt; spam {|i| puts i}
+in the function
+Hello World
+=&gt; nil
+
+# equal to
+&gt;&gt; spam {|i| puts i}
+in the function
+Hello World
+=&gt; nil
+&gt;&gt; def spam(&block)
+..   block.call('Hello World')
+.. end
+=&gt; nil
+&gt;&gt; spam {|i| puts i}
+Hello World
+=&gt; nil
+</pre>
+
+<h3>BEGIN and END block</h3>
+<pre class="code ruby">
+# run BEGIN block before main
+BEGIN {
+  puts 'begin ruby script'
+}
+# run END block after main
+END {
+  puts 'end ruby script'
+}
+# main script
+puts 'ruby script main'
+
+# bash&gt; ruby ex.rb
+# begin ruby script
+# ruby script main
+# end ruby script
+</pre>
 </div>
 {% endblock %}
 
