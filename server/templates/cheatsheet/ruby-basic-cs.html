@@ -73,6 +73,76 @@ puts "World"
 def spam_method; end
 </pre>
 
+<h3>Ruby variable type</h3>
+<pre class="code ruby">
+# $global_variable
+module Spam1
+  $var = 5566
+end
+puts $var
+module Spam2
+  $var = 9527
+end
+puts $var
+# bash&gt; ruby ex.rb
+# 5566
+# 9527
+
+# @@class_variable
+class Spam
+  @@class_count = 0
+  def initialize
+    @@class_count += 1
+  end
+  def print_count
+    puts @@class_count
+  end
+end
+o1 = Spam.new
+o1.print_count
+o2 = Spam.new
+o1.print_count
+# bash&gt; ruby ex.rb
+# 1
+# 2
+
+# @instance_variable
+class Spam
+  def initialize(spam)
+    @spam = spam
+  end
+  def print_spam
+    puts @spam
+  end
+end
+o1 = Spam.new(9527)
+o2 = Spam.new(5566)
+o1.print_spam
+o2.print_spam
+# bash&gt; ruby ex.rb
+# 9527
+# 5566
+
+# classname::CONSTANT
+class Spam
+  SPAM_CONST = 5566
+end
+puts Spam:: SPAM_CONST
+# bash&gt; ruby ex.rb
+# 5566 
+
+# local_variable
+def spam
+  local_var = 9527
+  puts local_var 
+end
+spam
+spam
+# bash&gt; ruby ex.rb
+# 9527
+# 9527
+</pre>
+
 <h3>if ... else Statement</h3>
 <pre class="code ruby">
 if true
