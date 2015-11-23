@@ -5,8 +5,7 @@ python:
    - "2.7"
 
 install:
-   - pip install flask
-   - pip install codecov
+   - pip install -r requirements.txt
 
 script:
    - coverage run app_test.py
