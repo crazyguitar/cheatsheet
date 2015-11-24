@@ -1,6 +1,13 @@
 @import url(//fonts.googleapis.com/css?family=PT+Sans:400,700,400italic);
 @import url(//fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
+h1, h2, h3 , h4, h5 {
+   font-weight: 700;
+}
+p {
+   font-weight:500 !important;
+}
+
 h2.cs-section {
    text-align: center;
 }
