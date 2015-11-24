@@ -1,6 +1,10 @@
 @import url(//fonts.googleapis.com/css?family=PT+Sans:400,700,400italic);
 @import url(//fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
+body, .navbar-default {
+   background-color:#F2F1EF;
+}
+
 h1, h2, h3 , h4, h5 {
    font-weight: 700;
 }
@@ -24,13 +28,10 @@ footer {
    color: darkgray;
 }
 .jumbotron {
-   background-color: white;
+   background-color: #F2F1EF;
 }
 .row {
    margin:auto;
-}
-.navbar-default {
-   background-color: white;
 }
 .navbar {
    border: 0px;
@@ -43,6 +44,9 @@ footer {
 }
 pre.code {
    border: none;
+}
+nav {
+   font-weight: 700;
 }
 a {
    text-decoration:none !important;
