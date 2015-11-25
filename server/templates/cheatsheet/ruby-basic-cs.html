@@ -473,7 +473,6 @@ in the block
 ..   puts 'in the function'
 ..   yield 'Hello World'
 .. 
-.. ^C
 &gt;&gt; def spam
 ..   puts 'in the function'
 ..   yield 'Hello World'
@@ -497,6 +496,76 @@ Hello World
 Hello World
 =&gt; nil
 </pre>
+
+<h3>"do...end" VS. "{}"</h3>
+<pre class="code ruby">
+# similar behavior
+&gt;&gt; def spam
+..   puts "spam running..."
+..   yield
+.. end
+=&gt; nil
+&gt; spam {
+..   puts "brackets block"
+.. }
+spam running...
+brackets block
+=&gt; nil
+&gt;&gt; spam do 
+..   puts "do...end block"
+.. end
+spam running...
+do...end block
+=&gt; nil
+
+# different between them
+# ref: <a href="http://stackoverflow.com/questions/2122380/using-do-block-vs-brackets">stackoverflow</a>
+def spam_hello(var)
+  puts __method__
+  puts "arg: #{var}"
+  if block_given?
+    puts "block=&gt;#{__method__}"
+    return "#{__method__} block run"
+    yield
+  else
+    puts "no block to #{__method__}" 
+  end
+end
+
+def spam_world
+  puts __method__
+  if block_given?
+    puts "bloc=&gt;#{__method__}"
+    return "#{__method__} block run"
+  else
+    puts "no block to #{__method__}"
+  end
+end
+
+puts "=== do...end ==="
+spam_hello spam_world do
+  |x| puts x
+end
+puts "=== brackets ==="
+spam_hello spam_world { 
+  |x| puts x
+}
+# output:
+=== do...end ===
+spam_world
+no block to spam_world
+spam_hello
+arg: 
+block=&gt;spam_hello
+=== brackets ===
+spam_world
+bloc=&gt;spam_world
+spam_hello
+arg: spam_world block run
+no block to spam_hello
+
+</pre>
+
 
 <h3>BEGIN and END block</h3>
 <pre class="code ruby">
