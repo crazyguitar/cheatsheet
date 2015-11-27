@@ -143,6 +143,23 @@ spam
 # 9527
 </pre>
 
+<h3>Ruby "symbol"</h3>
+<pre class="code ruby">
+# :symbol =&gt; colon + string 
+# symbol contains 'string' and 'number'
+# symbol object id
+&gt;&gt; :hello.object_id
+=&gt; 547208
+# assign a symbol to var
+&gt;&gt; a = :hello
+=&gt; :hello
+&gt;&gt; a.object_id
+=&gt; 547208
+# symbol to string
+&gt;&gt; :hello.to_s
+=&gt; "hello"
+</pre>
+
 <h3>if ... else Statement</h3>
 <pre class="code ruby">
 if true
@@ -264,6 +281,14 @@ true=&gt; nil
 =&gt; true
 
 # get items from array
+&gt;&gt; a = [1,2,3,4,5]
+=&gt;[1, 2, 3, 4, 5]
+&gt;&gt; a[-1]
+=&gt;5
+&gt;&gt; a[-3]
+=&gt;3
+&gt;&gt; a[-3..-1]
+=&gt;[3, 4, 5]
 &gt;&gt; a = (1..5) .map {|i| i*2}
 =&gt; [2, 4, 6, 8, 10]
 &gt;&gt; a[1..3]
@@ -430,6 +455,19 @@ spam
 5
 =&gt; 9
 
+# with keyword arguments (&gt;ruby2.0)
+&gt;&gt; def spam(a, p:3)
+..   puts a, p
+.. end
+=&gt;nil
+&gt;&gt; spam(2)
+2
+3
+&gt;&gt; spam(2,p:5)
+2
+5
+=&gt;nil
+
 # variable number of parameters
 &gt;&gt; def spam(*args)
 ..   print args
@@ -437,6 +475,16 @@ spam
 =&gt; nil
 &gt;&gt; spam(1,2,3,'ker')
 [1, 2, 3, "ker"]=&gt; nil
+
+# without parentheses style
+&gt;&gt; def spam var1, var2
+..   puts var1, var2
+.. end
+=&gt; nil
+&gt;&gt; spam :hello, :world
+hello
+world
+=&gt; nil
 </pre>
 
 <h3>Question Mark "?"</h3>
