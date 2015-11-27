@@ -5,11 +5,18 @@
 ### How to run the server
 
 ```
-pip install flask
-python app.py
+# Create python virtualenv
+$ virtualenv venv
+# Activate virtualenv
+$ scource venv/bin/activate
+# Install requirements of python package
+$ pip install -r requirements.txt
+# Run the server
+$ python app.py
+# URL: localhost
 ```
 
 ### How to run the server unit tests
 ```
-python app_test.py
+$ python app_test.py
 ```
