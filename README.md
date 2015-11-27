@@ -17,6 +17,7 @@ $ python app.py
 ```
 
 ### How to run the server unit tests
-```
+
+```bash
 $ python app_test.py
 ```
