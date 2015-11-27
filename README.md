@@ -4,7 +4,7 @@
 
 ### How to run the server
 
-```
+```bash
 # Create python virtualenv
 $ virtualenv venv
 # Activate virtualenv
