@@ -68,6 +68,7 @@ I am worker 2
 &gt;&gt;&gt; hasthread()
 11.3131771088
 # !Thread get bad Performance
+# since cost on context switch
 </pre>
 <h3>Consumer and Producer Architecture</h3>
 <pre class="code python">
@@ -102,7 +103,7 @@ I am worker 2
 
 <h3>Thread Pool Templeate</h3>
 <pre class="code python">
-# using producer and consumer architecture
+# producer and consumer architecture
 from Queue import Queue
 from threading import Thread
 
@@ -127,7 +128,7 @@ class ThreadPool(object):
       # Create Worker Thread
       for _ in range(num_t):
          Worker(self._q) 
-   def add_task(self, f, *args, **kwargs):
+   def add_task(self,f,*args,**kwargs):
       self._q.put((f, args, kwargs))
    def wait_complete(self):
       self._q.join()
@@ -143,9 +144,51 @@ if __name__ == '__main__':
       pool.add_task(fib,35)
    pool.wait_complete()
 </pre>
-</div>
 
-<div class="row col-md-4 col-xs-12">
+<h3>Using multiprocessing ThreadPool</h3>
+<pre class="code python">
+# ThreadPool is not in python doc
+&gt;&gt;&gt; from multiprocessing.pool import \
+...      ThreadPool
+&gt;&gt;&gt; pool = ThreadPool(5)
+&gt;&gt;&gt; pool.map(lambda x: x**2, range(5))
+[0, 1, 4, 9, 16]
+
+# compare with map performance
+# pool will get bad result since GIL
+import time
+from multiprocessing.pool import \
+     ThreadPool
+
+pool = ThreadPool(10)
+def profile(func):
+    def wrapper(*args, **kwargs):
+       print func.__name__ 
+       s = time.time() 
+       func(*args, **kwargs)
+       e = time.time()
+       print "cost: {0}".format(e-s) 
+    return wrapper
+
+@profile
+def pool_map():
+    res = pool.map(lambda x:x**2, 
+                   range(999999))
+
+@profile
+def ordinary_map():
+    res = map(lambda x:x**2, 
+              range(999999))
+
+pool_map()
+ordinary_map()
+
+# output:
+# pool_map
+# cost: 0.562669038773
+# ordinary_map
+# cost: 0.38525390625
+</pre>
 
 <h3>Synchronization Options in "threading"</h3>
 <pre class="code python">
@@ -168,7 +211,6 @@ threading.Condition
 </pre>
 
 <h3>Simple synchronization primitive - Mutex lock</h3>
-
 <pre class="code python">
 &gt;&gt;&gt; from threading import Thread
 &gt;&gt;&gt; from threading import Lock
@@ -227,7 +269,9 @@ True
 &gt;&gt;&gt; t2.isAlive()
 True
 </pre>
+</div>
 
+<div class="row col-md-4 col-xs-12">
 
 <h3>Implement "Monitor" Via RLock</h3>
 <pre class="code python">
@@ -467,6 +511,33 @@ t1.join();t2.join()
 &gt;&gt;&gt; hasmultiprocess()
 13.2433719635
 </pre>
+
+<h3>Custom multiprocessing map</h3>
+<pre class="code python">
+# ref: <a href="http://stackoverflow.com/questions/3288595/multiprocessing-using-pool-map-on-a-function-defined-in-a-class">stackoverflow</a>
+from multiprocessing import Process, Pipe
+from itertools import izip
+
+def spawn(f):
+    def fun(pipe,x):
+        pipe.send(f(x))
+        pipe.close()
+    return fun
+
+def parmap(f,X):
+    pipe=[Pipe() for x in X]
+    proc=[Process(target=spawn(f), 
+          args=(c,x)) 
+          for x,(p,c) in izip(X,pipe)]
+    [p.start() for p in proc]
+    [p.join() for p in proc]
+    return [p.recv() for (p,c) in pipe]
+
+print parmap(lambda x:x**x,range(1,5))
+# output:
+# [1, 4, 27, 256]
+</pre>
+
 </div>
 
 <div class="row col-md-4 col-xs-12">
