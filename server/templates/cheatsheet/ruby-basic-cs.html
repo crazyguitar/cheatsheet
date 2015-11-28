@@ -415,6 +415,26 @@ true=&gt; nil
 0 1 2 3 redo
 4 5 =&gt; 0..5
 </pre>
+
+<h3>Ruby Error Handling</h3>
+<pre class="code ruby">
+# begin...rescue...ensure
+&gt;&gt; begin 
+..   1/0
+.. rescue
+..   ZeroDivisionError^C
+&gt;&gt; begin 
+..   1/0
+.. rescue ZeroDivisionError
+..   puts 'divide by 0'
+.. ensure
+..   puts 'ruby finally'
+.. end
+divide by 0
+ruby finally
+=&gt;nil
+</pre>
+
 </div>
 
 <div class="row col-md-4 col-xs-12">
