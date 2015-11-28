@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Ruby Cheat Sheet</h1>
+   <p>Cheat sheet of Ruby. Some basic concepts for a newbie Ruby programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>Basic File IO</h3>
+<pre class="code ruby">
+# basic read write
+&gt;&gt; f = File.open('test','w')
+=&gt;#&lt;File:test&gt;
+&gt;&gt; f.write('Hello World')
+=&gt;11
+&gt;&gt; f.close
+=&gt;nil
+&gt;&gt; f = File.open('test','r')
+=&gt;#<File:test>
+&gt;&gt; f.read
+=&gt;"Hello World"
+</pre>
+
+<h3>Check File object closed?</h3>
+<pre class="code ruby">
+&gt;&gt; f = File.open('test','r')
+=&gt;#&lt;File:test&gt;
+&gt;&gt; f.closed?
+=&gt;false
+&gt;&gt; f.close
+=&gt;nil
+&gt;&gt; f.closed?
+=&gt;true
+</pre>
+
+<h3>Auto Close File Object</h3>
+<pre class="code ruby">
+&gt;&gt; File.open('test','w') do |file|
+..   file.write "Hello World"
+.. end
+=&gt;11
+</pre>
+
+<h3>Check File Attributes</h3>
+<pre class="code ruby">
+# check file exist
+&gt;&gt; File.exist? '/etc/passwd'
+=&gt;true
+# check readable
+&gt;&gt; File.readable? '/etc/passwd'
+=&gt;true
+# check writable
+&gt;&gt; File.writable? '/etc/passwd'
+=&gt;false
+# check symbolic link
+&gt;&gt; File.symlink? '/etc/passwd'
+=&gt;false
+# check directory
+&gt;&gt; File.directory? '/usr'
+=&gt;true
+</pre>
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+{% endblock %}
