@@ -44,6 +44,23 @@ puts 'ruby script main'
 # end ruby script
 </pre>
 
+<h3>lambda Function</h3>
+<pre class="code ruby">
+# ref: <a href="http://stackoverflow.com/questions/8476627/what-do-you-call-rubys-operator">stackoverflow</a>
+&gt;&gt; f = lambda {|x| puts x}
+=&gt;#&lt;Proc:0x007f8c2a0b@(irb):1 (lambda)&gt;
+&gt;&gt; f.call(5566)
+5566
+=&gt;nil
+
+# equal to
+&gt;&gt; f = -&gt;(x) {puts x}
+=&gt;#&lt;Proc:0x007f8c2a0c@(irb):3 (lambda)&gt;
+&gt;&gt; f.call(5566)
+5566
+=&gt;nil
+</pre>
+
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write
