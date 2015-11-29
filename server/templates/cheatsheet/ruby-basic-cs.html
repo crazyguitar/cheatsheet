@@ -527,6 +527,28 @@ world
 =&gt; true
 </pre>
 
+<h3>Exclamation Mark "!"</h3>
+<pre class="code ruby">
+# "!" imply method should use carefully
+# ref: <a href="http://stackoverflow.com/questions/612189/why-are-exclamation-marks-used-in-ruby-methods">stackoverflow</a> 
+# downcase! wiil change original var
+&gt;&gt; foo = "KER"
+=&gt;"KER"
+&gt;&gt; foo.downcase!
+=&gt;"ker"
+&gt;&gt; puts foo
+ker
+# downcase will not chage original var
+=&gt;nil
+&gt;&gt; foo = "KER"
+=&gt;"KER"
+&gt;&gt; foo.downcase
+=&gt;"ker"
+&gt;&gt; puts foo
+KER
+=&gt;nil
+</pre>
+
 <h3 class="code ruby">Ruby Block</h3>
 <pre class="code ruby">
 # block:
@@ -640,26 +662,6 @@ spam_hello spam_world {
 # arg: spam_world block run
 # no block to spam_hello
 
-</pre>
-
-
-<h3>BEGIN and END block</h3>
-<pre class="code ruby">
-# run BEGIN block before main
-BEGIN {
-  puts 'begin ruby script'
-}
-# run END block after main
-END {
-  puts 'end ruby script'
-}
-# main script
-puts 'ruby script main'
-
-# bash&gt; ruby ex.rb
-# begin ruby script
-# ruby script main
-# end ruby script
 </pre>
 </div>
 {% endblock %}

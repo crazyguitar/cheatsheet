@@ -25,6 +25,25 @@ ker
 =&gt;nil
 </pre>
 
+<h3>BEGIN and END block</h3>
+<pre class="code ruby">
+# run BEGIN block before main
+BEGIN {
+  puts 'begin ruby script'
+}
+# run END block after main
+END {
+  puts 'end ruby script'
+}
+# main script
+puts 'ruby script main'
+
+# bash&gt; ruby ex.rb
+# begin ruby script
+# ruby script main
+# end ruby script
+</pre>
+
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write
