@@ -52,10 +52,118 @@ loop do
   conn.close
 end
 </pre>
+</div>
 
+<div class="row col-md-4 col-xs-12">
 
+<h3>Async Socket Server - Thread</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+host = '0.0.0.0'
+port = 9527
+
+s = Socket.new(AF_INET,
+               SOCK_STREAM, 0)
+s.setsockopt(SOL_SOCKET, 
+             SO_REUSEADDR, true)
+saddr = Socket.sockaddr_in(port, host)
+
+def echo_task client
+  begin
+    loop do
+      msg =  client.gets
+      client.puts msg
+    end
+  ensure
+    client.close
+  end
+end
+
+begin
+  s.bind(saddr)
+  s.listen(10)
+  loop do
+    conn, addr = s.accept
+    Thread.new {echo_task(conn)}
+  end
+ensure
+  s.close
+end
+
+# bash1&gt; nc localhost 9527
+# Hello Ruby
+# Hello Ruby
+# bash2&gt; nc localhost 9527
+# Ruby World
+# Ruby World
+</pre>
 
 </div>
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>Async Socket Server - IO.select</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+host = '0.0.0.0'
+port = 5566
+
+s = Socket.new(AF_INET,
+               SOCK_STREAM, 0)
+s.setsockopt(SOL_SOCKET, 
+             SO_REUSEADDR, true)
+saddr = Socket.sockaddr_in(port, host)
+wait_r = [s]
+wait_w = [] 
+write_msg = {}
+begin
+  s.bind(saddr)
+  s.listen(20)
+  loop do 
+    r, w, _ = IO.select(wait_r, 
+                        wait_w, nil)  
+    # process ready to read
+    r.each { |sock|
+      if sock == s 
+        conn , addr = s.accept
+        wait_r.push(conn)
+      else
+        msg = sock.gets
+        if not msg
+          sock.close
+        else
+          wait_w.push(sock)
+          write_msg[sock.fileno] = msg
+        end
+        wait_r.delete(sock)
+      end
+    }
+    # process ready to write
+    w.each { |sock|
+      msg = write_msg[sock.fileno] 
+      sock.puts msg
+      write_msg.delete(sock.fileno) 
+      wait_r.push(sock)
+      wait_w.delete(sock)
+    }
+  end
+ensure
+  s.close
+end
+
+# bash1&gt; nc localhost 5566
+# Hello Ruby
+# Hello Ruby
+# bash2&gt; nc localhost 5566
+# Ruby Hello
+# Ruby Hello
+</pre>
+</div>
+
 {% endblock %}
 
 {% block script %}
