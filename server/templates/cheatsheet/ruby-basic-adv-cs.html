@@ -10,6 +10,21 @@
 {% block body %}
 <div class="row col-md-4 col-xs-12">
 
+<h3>p and puts</h3>
+<pre class="code ruby">
+# ref: <a href="http://stackoverflow.com/questions/1255324/p-vs-puts-in-ruby">stackoverflow</a>
+# p foo equal to puts foo.inspect
+&gt;&gt; puts :ker
+ker
+=&gt;nil
+&gt;&gt; p :ker
+:ker
+=&gt;:ker
+&gt;&gt; puts :ker.inspect
+:ker
+=&gt;nil
+</pre>
+
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write

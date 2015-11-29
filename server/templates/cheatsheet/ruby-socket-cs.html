@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Ruby Socket Cheat Sheet</h1>
+   <p>Cheat sheet of Ruby. Some basic socket concepts for a newbie Ruby programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>Simple Echo TCPServer</h3>
+<pre class="code ruby">
+require 'socket'
+
+port = 9527
+
+server = TCPServer.new port
+loop do
+  client = server.accept
+  msg = client.gets
+  client.puts msg
+  client.close
+end
+
+# bash&gt; nc localhost 9527
+# Hello World
+# Hello World
+</pre>
+
+<h3>Simple Echo Linux TCP Socket Server</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+host = '0.0.0.0'
+port = 9527
+
+s = Socket.new(AF_INET, 
+               SOCK_STREAM, 0)
+s.setsockopt(SOL_SOCKET, 
+             SO_REUSEADDR, true)
+saddr = Socket.sockaddr_in(port, host)
+s.bind(saddr)
+s.listen(5)
+
+loop do
+  conn, addr = s.accept
+  msg = conn.gets
+  conn.puts msg
+  conn.close
+end
+</pre>
+
+
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+
+{% endblock %}
