@@ -53,6 +53,30 @@ loop do
 end
 </pre>
 
+<h3>Simple Echo UDPSocket Server</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+host = '0.0.0.0'
+port = 9527
+
+begin
+  s = UDPSocket.new
+  s.bind(host, port)
+  loop do
+    msg, addr = s.recvfrom 1024
+    puts msg
+    s.send msg ,0 ,addr[2], addr[1]
+  end
+ensure
+  s.close
+end
+# bash&gt; nc -u 192.168.1.50 9527
+# Hello Ruby
+# Hello Ruby
+</pre>
+
 <h3>Simple Echo UDP Socket Server</h3>
 <pre class="code ruby">
 require 'socket'
@@ -62,9 +86,9 @@ host = '0.0.0.0'
 port = 9527
 BUF_SIZE = 1024
 
-s = Socket.new(AF_INET, 
+s = Socket.new(AF_INET,
                SOCK_DGRAM, 0)
-s.setsockopt(SOL_SOCKET, 
+s.setsockopt(SOL_SOCKET,
              SO_REUSEADDR, true)
 saddr = Socket.sockaddr_in(port, host)
 
@@ -73,9 +97,9 @@ begin
   loop do
     msg ,addr= s.recvfrom(BUF_SIZE)
     saddr = Socket.sockaddr_in(
-       addr.ip_port ,
+       addr.ip_port,
        addr.ip_address)
-    s.send msg, 0, saddr 
+    s.send msg, 0, saddr
   end
 ensure
     s.close
@@ -90,6 +114,57 @@ end
 </div>
 
 <div class="row col-md-4 col-xs-12">
+
+<h3>Ruby UDP Broadcast - Client</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+host = '255.255.255.255'
+port = 9527
+
+begin
+  s = Socket.new(AF_INET, SOCK_DGRAM, 0)
+  s.setsockopt(SOL_SOCKET,
+               SO_BROADCAST, true)
+  saddr = Socket.sockaddr_in(port ,host)
+  s.send "Hello Ruby", 0, saddr
+ensure
+  s.close
+end
+
+# bash&gt; nc -k -w 1 -ul 9527
+# Hello Ruby
+</pre>
+
+<h3>Ruby UDP Broadcast - Server</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+host = '0.0.0.0'
+port = 9527
+
+s = Socket.new(AF_INET, SOCK_DGRAM, 0)
+s.setsockopt(SOL_SOCKET,
+             SO_REUSEADDR, true)
+saddr = Socket.sockaddr_in(port, host)
+
+begin
+  s.bind(saddr)
+  loop do
+    msg ,addr = s.recvfrom 1024
+    puts msg
+    p addr
+  end
+ensure
+  s.close
+end
+# bash1&gt; ruby sock.rb
+# bash2&gt; socat - udp-datagram:\
+# &gt; 255.255.255.255:9527,broadcast
+# Hello Ruby
+</pre>
 
 <h3>Async Socket Server - Thread</h3>
 <pre class="code ruby">
