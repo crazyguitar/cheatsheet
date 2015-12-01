@@ -61,6 +61,49 @@ puts 'ruby script main'
 =&gt;nil
 </pre>
 
+<h3>Class - public, private and protected</h3>
+<pre class="code ruby">
+# ref: <a href="http://ruby-doc.org/core-2.2.3/Object.html#method-i-respond_to-3F">ruby document</a>
+&gt;&gt; class Spam
+..   private
+..   def priv_method
+..     puts "private method"
+..   end
+..   protected
+..   def pro_method
+..     puts "protected method"
+..   end
+..   public
+..   def pub_method
+..     puts "public method"
+..   end
+.. end
+=&gt;nil
+&gt;&gt; s = Spam.new
+=&gt;#&lt;Spam:0x007fa5e9944a58&gt;
+# check method exist
+&gt;&gt; s.private_methods\
+..  .include?:priv_method
+=&gt;true
+&gt;&gt; s.public_methods\
+..  .include?:pub_method
+=&gt;true
+&gt;&gt; s.protected_methods\
+..  .include? :pro_method
+=&gt;true
+&gt;&gt; s.respond_to? :pub_method
+=&gt;true
+&gt;&gt; s.respond_to? :priv_method
+=&gt;false
+&gt;&gt; s.respond_to? :pro_method
+=&gt;false
+&gt;&gt; s.respond_to? :pro_method, true
+=&gt;true
+</pre>
+
+</div>
+
+<div class="row col-md-4 col-xs-12">
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write
@@ -71,7 +114,7 @@ puts 'ruby script main'
 &gt;&gt; f.close
 =&gt;nil
 &gt;&gt; f = File.open('test','r')
-=&gt;#<File:test>
+=&gt;#&lt;File:test&gt;
 &gt;&gt; f.read
 =&gt;"Hello World"
 </pre>
