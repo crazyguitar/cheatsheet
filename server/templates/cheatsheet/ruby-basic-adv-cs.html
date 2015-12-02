@@ -104,6 +104,112 @@ puts 'ruby script main'
 </div>
 
 <div class="row col-md-4 col-xs-12">
+
+<h3>Ruby Module - Basic</h3>
+<pre class="code ruby">
+# ref: <a href="http://ruby-doc.org/core-2.2.0/Module.html">ruby document</a>
+# group method, class, constant
+&gt;&gt; module Spam
+..   SPAM_CONST = 9527
+..   def a
+..     puts "aaaaa"
+..   end
+..   def b
+..     puts "bbbbb"
+..   end
+..   def c
+..     puts "ccccc"
+..   end
+..   module_function :a, :b
+..   class SpamClass 
+..   end
+.. end
+=&gt;nil
+&gt;&gt; Spam::SPAM_CONST
+=&gt;9527
+&gt;&gt; Spam.a
+aaaaa
+=&gt;nil
+&gt;&gt; Spam.b
+bbbbb
+=&gt;nil
+&gt;&gt;s = Spam::SpamClass.new
+=&gt;#&lt;Spam::SpamClass:0x007fb4bb15a208&gt;
+</pre>
+
+<h3>Insert Module Methods to a "Object"</h3>
+<pre class="code ruby">
+&gt;&gt; module HelloMod
+..   def hello
+..     puts "Hello"
+..   end
+..   def world
+..     puts "World"
+..   end
+.. end
+=&gt;nil
+&gt;&gt; class Klass
+..   def hello
+..     puts "hello"
+..   end
+.. end
+=&gt;nil
+&gt;&gt; k = Klass.new
+=&gt;#&lt;Klass:0x007fb4bb1c1020&gt;
+&gt;&gt; k.hello
+hello
+=&gt;nil
+&gt;&gt; k.extend(HelloMod)
+=&gt;#&lt;Klass:0x007fb4bb1c1020&gt;
+&gt;&gt; k.hello
+Hello
+=&gt;nil
+&gt;&gt; k.world
+World
+=&gt;nil
+&gt;&gt; kk = Klass.new
+=&gt;#&lt;Klass:0x007fb4bb1dab38&gt;
+&gt;&gt; kk.hello
+hello
+=&gt;nil
+</pre>
+
+<h3>Ruby Module - Multiple Inheritance</h3>
+<pre class="code ruby">
+# Ruby not support multiple inheritance
+# Module providing a facility way
+&gt;&gt; module SpamMod
+..   def puts_spam
+..     puts "spam"
+..   end
+..   def p_spam
+..     p "_spam_"
+..   end
+.. end
+=&gt;nil
+&gt;&gt; class SpamClass
+.. include SpamMod
+..   def ker
+..     puts "kerker"
+..   end
+.. end
+=&gt;nil
+&gt;&gt; s = SpamClass.new
+=&gt;#&lt;SpamClass:0x007fb4bb193620&gt;
+&gt;&gt; s.puts_spam
+spam
+=&gt;nil
+&gt;&gt; s.p_spam
+"_spam_"
+=&gt;"_spam_"
+&gt;&gt; s.ker
+kerker
+=&gt;nil
+</pre>
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write
