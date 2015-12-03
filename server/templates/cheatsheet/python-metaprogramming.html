@@ -36,6 +36,38 @@ spam method
 &lt;type 'type'&gt;
 </pre>
 
+<h3>Class or Module "patch"</h3>
+<pre class="code python">
+&gt;&gt;&gt; import time
+&gt;&gt;&gt; class SpamKlass(object):
+...     def spam_sleep(self):
+...         time.sleep(3)
+...
+&gt;&gt;&gt; o = SpamKlass()
+&gt;&gt;&gt; o.spam_sleep()
+&gt;&gt;&gt; def spam_patch(self):
+...     s = time.time()
+...     self.spam_sleep()
+...     e = time.time()
+...     print e-s
+...
+&gt;&gt;&gt; SpamKlass.spam_patch = spam_patch
+&gt;&gt;&gt; o.spam_patch()
+3.00016617775
+
+# overwrite the module method
+&gt;&gt;&gt; import platform
+&gt;&gt;&gt; old_sys = platform.system
+&gt;&gt;&gt; old_sys()
+'Darwin'
+&gt;&gt;&gt; def new_sys():
+...     print "os: %s" % old_sys()
+...
+&gt;&gt;&gt; platform.system = new_sys
+&gt;&gt;&gt; platform.system()
+os: Darwin
+</pre>
+
 </div>
 
 <div class="row col-md-4 col-xs-12">

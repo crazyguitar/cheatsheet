@@ -232,6 +232,34 @@ spam
 kerker
 =&gt;nil
 </pre>
+
+<h3>Decorator in Ruby</h3>
+<pre class="code ruby">
+# use block
+&gt;&gt; def fib x
+..   if x &gt;=1
+..     1
+..   else
+..     fib(x-1) + fib(x-2)
+..   end
+.. end
+=&gt;nil
+&gt;&gt; def wrapper *args
+..   "I am wrapper"
+..   s = Time.now
+..   yield *args
+..   e = Time.now
+..   puts e-s
+.. end
+=&gt;nil
+&gt;&gt; wrapper(30) do |*args|
+..   puts fib(*args)
+.. end
+1346269
+0.311544
+=&gt;nil
+</pre>
+
 </div>
 
 <div class="row col-md-4 col-xs-12">
