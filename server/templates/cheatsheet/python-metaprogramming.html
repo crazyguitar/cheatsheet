@@ -10,6 +10,36 @@
 {% block body %}
 <div class="row col-md-4 col-xs-12">
 
+<h3>Create "Class" via type()</h3>
+<pre class="code python">
+&gt;&gt;&gt; def spam(self):
+...     print "spam method"
+...
+&gt;&gt;&gt; SpamKlass = type("SpamKlass",
+...                  (object,),
+...                  {'spam':spam})
+&gt;&gt;&gt; o = SpamKlass()
+&gt;&gt;&gt; o.spam()
+spam method
+&gt;&gt;&gt; type(SpamKlass)
+&lt;type 'type'&gt;
+
+# equal to
+&gt;&gt;&gt; class SpamKlass(object):
+...     def spam(self):
+...         print "spam method"
+...   
+&gt;&gt;&gt; o = SpamKlass()
+&gt;&gt;&gt; o.spam()
+spam method
+&gt;&gt;&gt; type(SpamKlass)
+&lt;type 'type'&gt;
+</pre>
+
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
 <h3>Debuging via Decorator</h3>
 <pre class="code python">
 # Using print is ugly.

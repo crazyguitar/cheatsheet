@@ -101,6 +101,30 @@ puts 'ruby script main'
 =&gt;true
 </pre>
 
+<h3>Check Superclass or Module include</h3>
+<pre class="code ruby">
+&gt;&gt; module Mod; end
+=&gt;nil
+&gt;&gt; class A; end
+=&gt;nil
+&gt;&gt; class B &lt; A; end
+=&gt;nil
+&gt;&gt; class C &lt; A
+..   include Mod
+.. end
+=&gt;C
+&gt;&gt; b = B.new
+=&gt;#&lt;B:0x007f9b99a6fc48&gt;
+&gt;&gt; b.is_a? A
+=&gt;true
+&gt;&gt; c = C.new
+=&gt;#&lt;C:0x007f9b99a85e08&gt;
+&gt;&gt; c.is_a? A
+=&gt;true
+&gt;&gt; c.is_a? Mod
+=&gt;true
+
+</pre>
 </div>
 
 <div class="row col-md-4 col-xs-12">
