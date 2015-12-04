@@ -25,6 +25,31 @@ ker
 =&gt;nil
 </pre>
 
+<h3>&lt;&lt; Operator</h3>
+<pre class="code ruby">
+# &lt;&lt; as shift operator
+&gt;&gt; a = 0b01
+=&gt;1
+&gt;&gt; b = a &lt;&lt; 3
+=&gt;8
+&gt;&gt; a.to_s(2)
+=&gt;"1"
+&gt;&gt; b.to_s(2)
+=&gt;"1000"
+&gt;&gt;
+
+# as append operator (common using)
+# String, Array, IO
+&gt;&gt; s = "Hello"
+=&gt;"Hello"
+&gt;&gt; s &lt;&lt; " Ruby"
+=&gt;"Hello Ruby"
+&gt;&gt; a &lt;&lt; "Hello Ruby"
+=&gt;["Hello Ruby"]
+&gt;&gt; STDOUT &lt;&lt; "Hello Ruby"
+Hello Ruby=&gt;#&lt;IO:&lt;STDOUT&gt;&gt;
+</pre>
+
 <h3>BEGIN and END block</h3>
 <pre class="code ruby">
 # run BEGIN block before main
@@ -258,6 +283,45 @@ kerker
 1346269
 0.311544
 =&gt;nil
+</pre>
+
+<h3>Context Manager in Ruby</h3>
+<pre class="code ruby">
+# python context manager in ruby
+require 'socket'
+include Socket::Constants
+
+host = "0.0.0.0"
+port = 9527 
+
+def with port, host
+  begin
+    s = Socket.new(AF_INET,
+                  SOCK_STREAM, 0)
+    s.setsockopt(SOL_SOCKET, 
+                 SO_REUSEADDR, true)
+    addr = Socket.sockaddr_in(port, host)
+    s.bind(addr)
+    s.listen(10)
+    yield s
+  ensure
+    if not s.closed?
+      s.close
+    end
+  end
+end
+
+with port, host do |s|
+  loop do
+    conn, addr = s.accept
+    msg = conn.gets
+    conn.puts msg
+    conn.close
+  end
+end
+# bash&gt; nc localhost 9527
+# Hello Ruby
+# Hello Ruby
 </pre>
 
 </div>
