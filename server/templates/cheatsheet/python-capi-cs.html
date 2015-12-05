@@ -107,6 +107,287 @@ setup(name="spam", version="1.0",
 &lt;type 'spam.Spam'&gt;
 </pre>
 </div>
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>PyObject with Member and Methods</h3>
+<pre class="code c">
+#include &lt;Python.h&gt;
+#include &lt;structmember.h&gt;
+
+typedef struct {
+    PyObject_HEAD
+    PyObject *hello;
+    PyObject *world;
+    int spam_id;
+} spamObj;
+
+static void
+spamdealloc(spamObj *self)
+{
+    Py_XDECREF(self-&gt;hello);
+    Py_XDECREF(self-&gt;world);
+    self-&gt;ob_type
+        -&gt;tp_free((PyObject*)self);
+}
+
+/* __new__ */
+static PyObject *
+spamNew(PyTypeObject *type, 
+        PyObject     *args, 
+        PyObject     *kwds)
+{
+    spamObj *self = NULL;
+
+    self = (spamObj *)
+           type-&gt;tp_alloc(type, 0);
+    if (self == NULL) {
+        goto END; 
+    } 
+    /* alloc str to hello */
+    self-&gt;hello = 
+        PyString_FromString("");
+    if (self-&gt;hello == NULL)
+    {
+        Py_XDECREF(self);
+        self = NULL;
+        goto END;
+    }
+    /* alloc str to world */
+    self-&gt;world = 
+        PyString_FromString("");
+    if (self-&gt;world == NULL)
+    {
+        Py_XDECREF(self);
+        self = NULL;
+        goto END;
+    }
+    self-&gt;spam_id = 0;
+END:
+    return (PyObject *)self;
+}
+
+/* __init__ */
+static int 
+spamInit(spamObj *self, 
+         PyObject *args, 
+         PyObject *kwds)
+{
+    int ret = -1;
+    PyObject *hello=NULL, 
+             *world=NULL, 
+             *tmp=NULL;
+
+    static char *kwlist[] = {
+        "hello", 
+        "world", 
+        "spam_id", NULL};
+
+    /* parse input arguments */
+    if (! PyArg_ParseTupleAndKeywords(
+          args, kwds, 
+          "|OOi", 
+          kwlist, 
+          &hello, &world, 
+          &self-&gt;spam_id)) {
+        goto END;
+    }
+    /* set attr hello */
+    if (hello) {
+        tmp = self-&gt;hello;
+        Py_INCREF(hello);
+        self-&gt;hello = hello;
+        Py_XDECREF(tmp);
+    }
+    /* set attr world */
+    if (world) {
+        tmp = self-&gt;world;
+        Py_INCREF(world);
+        self-&gt;world = world;
+        Py_XDECREF(tmp);
+    }
+    ret = 0;
+END:
+    return ret;
+}
+
+static long 
+fib(long n) {
+    if (n&lt;=2) {
+        return 1;
+    }
+    return fib(n-1)+fib(n-2);
+}
+
+static PyObject *
+spamFib(spamObj *self,
+        PyObject *args)
+{
+    PyObject  *ret = NULL;
+    long arg = 0;
+
+    if (!PyArg_ParseTuple(
+          args, 
+          "i", 
+          &arg)) {
+        goto END;
+    }
+    ret = PyInt_FromLong(fib(arg)); 
+END:
+    return ret;
+}
+
+//ref: <a href="https://docs.python.org/2/c-api/structures.html#c.PyMemberDef">python doc</a>
+static PyMemberDef spam_members[] = {
+    /* spameObj.hello*/
+    {"hello",                 //name
+     T_OBJECT_EX,             //type
+     offsetof(spamObj, hello),//offset 
+     0,                       //flags
+     "spam hello"},           //doc
+    /* spamObj.world*/
+    {"world", 
+     T_OBJECT_EX,
+     offsetof(spamObj, world), 
+     0,
+     "spam world"},
+    /* spamObj.spam_id*/
+    {"spam_id", 
+     T_INT, 
+     offsetof(spamObj, spam_id), 
+     0,
+     "spam id"},
+    /* Sentiel */
+    {NULL}
+};
+
+static PyMethodDef spam_methods[] = {
+    /* fib */
+    {"spam_fib", 
+    (PyCFunction)spamFib, 
+    METH_VARARGS,
+    "Calculate fib number"},
+    /* Sentiel */
+    {NULL}
+};
+
+static PyMethodDef module_methods[] = {
+    {NULL}  /* Sentinel */
+};
+
+static PyTypeObject spamKlass = {
+    PyObject_HEAD_INIT(NULL)
+    0,                  //ob_size
+    "spam.spamKlass",   //tp_name
+    sizeof(spamObj),    //tp_basicsize
+    0,                  //tp_itemsize
+    (destructor)
+    spamdealloc,        //tp_dealloc
+    0,                  //tp_print
+    0,                  //tp_getattr
+    0,                  //tp_setattr
+    0,                  //tp_compare
+    0,                  //tp_repr
+    0,                  //tp_as_number
+    0,                  //tp_as_sequence
+    0,                  //tp_as_mapping
+    0,                  //tp_hash 
+    0,                  //tp_call
+    0,                  //tp_str
+    0,                  //tp_getattro
+    0,                  //tp_setattro
+    0,                  //tp_as_buffer
+    Py_TPFLAGS_DEFAULT | 
+    Py_TPFLAGS_BASETYPE,//tp_flags
+    "spamKlass objects",//tp_doc 
+    0,                  //tp_traverse
+    0,                  //tp_clear
+    0,                  //tp_richcompare
+    0,              //tp_weaklistoffset
+    0,                  //tp_iter
+    0,                  //tp_iternext
+    spam_methods,       //tp_methods
+    spam_members,       //tp_members
+    0,                  //tp_getset
+    0,                  //tp_base
+    0,                  //tp_dict
+    0,                  //tp_descr_get
+    0,                  //tp_descr_set
+    0,                  //tp_dictoffset
+    (initproc)spamInit, //tp_init
+    0,                  //tp_alloc
+    spamNew,            //tp_new
+};
+
+/* declarations for DLL import */
+#ifndef PyMODINIT_FUNC 
+#define PyMODINIT_FUNC void
+#endif
+
+PyMODINIT_FUNC
+initspam(void)
+{
+    PyObject* m;
+
+    if (PyType_Ready(&spamKlass) &lt; 0) {
+        goto END;
+    }
+
+    m = Py_InitModule3(
+      "spam",         // Mod name 
+      module_methods, // Mod methods
+      "Spam Module"); // Mod doc  
+
+    if (m == NULL) {
+        goto END;
+    }
+    Py_INCREF(&spamKlass);
+    PyModule_AddObject(
+      m,              // Module    
+      "SpamKlass",    // Class Name
+      (PyObject *)
+      &spamKlass);    // Class
+END:
+    return;
+}
+</pre>
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>Profile C API Function</h3>
+<pre class="code python">
+&gt;&gt;&gt; import spam
+&gt;&gt;&gt; o = spam.SpamKlass()
+&gt;&gt;&gt; def profile(func):
+...   def wrapper(*args, **kwargs):
+...     s = time.time()
+...     ret = func(*args, **kwargs)
+...     e = time.time()
+...     print e-s
+...   return wrapper
+...
+&gt;&gt;&gt; def fib(n):
+...   if n &lt;= 1:
+...     return n
+...   return fib(n-1)+fib(n-2)
+... 
+&gt;&gt;&gt; @profile
+... def cfib(n):
+...   o.spam_fib(n)
+...
+&gt;&gt;&gt; @profile
+... def pyfib(n):
+...   fib(n)
+...
+&gt;&gt;&gt; cfib(30)
+0.0106310844421
+&gt;&gt;&gt; pyfib(30)
+0.399799108505
+</pre>
+
+</div>
+
 {% endblock %}
 
 {% block script %}
