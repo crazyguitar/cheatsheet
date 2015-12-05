@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some C API concepts for Python programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>PyObject header</h3>
+<pre class="code c">
+// ref: python source code
+// Python/Include/object.c
+
+#define _PyObject_HEAD_EXTRA \
+    struct _object *_ob_next;\
+    struct _object *_ob_prev;
+
+#define PyObject_HEAD    \
+    _PyObject_HEAD_EXTRA \
+    Py_ssize_t ob_refcnt;\
+    struct _typeobject *ob_type;
+</pre>
+
+
+<h3>Python C API Template</h3>
+<pre class="code c">
+# spam.c
+#include &lt;Python.h&gt;
+
+typedef struct {
+    PyObject_HEAD
+} spamObj;
+
+static PyTypeObject spamType = {
+    PyObject_HEAD_INIT(&PyType_Type)
+    0,                  //ob_size
+    "spam.Spam",        //tp_name
+    sizeof(spamObj),    //tp_basicsize
+    0,                  //tp_itemsize
+    0,                  //tp_dealloc
+    0,                  //tp_print
+    0,                  //tp_getattr
+    0,                  //tp_setattr
+    0,                  //tp_compare
+    0,                  //tp_repr
+    0,                  //tp_as_number
+    0,                  //tp_as_sequence
+    0,                  //tp_as_mapping
+    0,                  //tp_hash
+    0,                  //tp_call
+    0,                  //tp_str
+    0,                  //tp_getattro
+    0,                  //tp_setattro
+    0,                  //tp_as_buffer
+    Py_TPFLAGS_DEFAULT, //tp_flags
+    "spam objects",     //tp_doc
+};
+
+static PyMethodDef spam_methods[] = {
+    {NULL}  /* Sentinel */
+};
+
+/* declarations for DLL import */
+#ifndef PyMODINIT_FUNC
+#define PyMODINIT_FUNC void
+#endif
+
+PyMODINIT_FUNC
+initspam(void)
+{
+    PyObject *m;
+    spamType.tp_new = PyType_GenericNew;
+    if (PyType_Ready(&spamType) &lt; 0) {
+        goto END;
+    }
+    m = Py_InitModule3(
+            "spam", spam_methods,
+            "Example of Module");
+    Py_INCREF(&spamType);
+    PyModule_AddObject(m, 
+      "spam", (PyObject *)&spamType);
+END:
+    return;
+}
+</pre>
+
+<h3>Compile(Build) Module</h3>
+<pre class="code python">
+# setup.py
+from distutils.core import setup
+from distutils.core import Extension
+
+setup(name="spam", version="1.0",
+    ext_modules=[
+        Extension("spam", ["spam.c"])])
+
+# bash&gt; python setup.py build
+# bash&gt; python setup.py install
+&gt;&gt;&gt; import spam
+&gt;&gt;&gt; spam.__doc__
+'Example of Module'
+&gt;&gt;&gt; spam.spam
+&lt;type 'spam.Spam'&gt;
+</pre>
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+{% endblock %}

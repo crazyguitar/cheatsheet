@@ -166,6 +166,38 @@ end
 # Hello Ruby
 </pre>
 
+<h3>Simple Echo UNIX Socket Server</h3>
+<pre class="code ruby">
+require 'socket'
+include Socket::Constants
+
+unix_addr = "ruby_unix.sock"
+
+begin
+  s = Socket.new(AF_UNIX, SOCK_STREAM, 0)
+  saddr = Socket.sockaddr_un(unix_addr)
+  s.bind(saddr)
+  s.listen(10)
+  loop do
+    conn, addr = s.accept
+    msg = conn.gets
+    conn.puts msg
+    conn.close
+  end
+ensure
+  if not s.closed?
+    s.close
+  end
+  if File.exist? unix_addr
+    File.unlink unix_addr
+  end
+end
+
+# bash&gt; nc -U ruby_unix.sock
+# Hello Ruby
+# Hello Ruby
+</pre>
+
 <h3>Async Socket Server - Thread</h3>
 <pre class="code ruby">
 require 'socket'
