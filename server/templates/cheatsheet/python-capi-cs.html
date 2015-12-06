@@ -499,6 +499,24 @@ END:
 
 <div class="row col-md-4 col-xs-12">
 
+<h3>Compile Extension with Particular Compiler</h3>
+<pre class="code python">
+# method 1: set "CC" environment
+bash&gt; CC=gcc python setup.py build
+
+# method2: set os.environ['CC']
+# setup.py
+from distutils.core import setup
+from distutils.core import Extension
+import os
+
+os.environ['CC'] = 'gcc'
+setup(name="spam", version="1.0",
+    ext_modules=[
+        Extension("spam", ["spam.c"])])
+
+</pre>
+
 <h3>Profile C API Function</h3>
 <pre class="code python">
 &gt;&gt;&gt; import spam
