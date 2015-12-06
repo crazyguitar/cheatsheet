@@ -14,7 +14,6 @@
 <pre class="code c">
 // ref: python source code
 // Python/Include/object.c
-
 #define _PyObject_HEAD_EXTRA \
     struct _object *_ob_next;\
     struct _object *_ob_prev;
@@ -25,10 +24,147 @@
     struct _typeobject *ob_type;
 </pre>
 
+<h3>C type and PythonTypeObject Convert</h3>
+<pre class="code c">
+// ref: <a href="https://docs.python.org/2/c-api/int.html">PyIntObject</a>
+// Integer
+PyObject *PyInt_FromString(
+    char *str, char **pend, int base);
+
+PyObject* PyInt_FromLong(long ival);
+
+long PyInt_AsLong(PyObject *io);
+
+// ref: <a href="https://docs.python.org/2/c-api/bool.html">PyBool</a>
+// Boolean
+PyObject* Py_False;
+PyObject* Py_True;
+
+PyObject* PyBool_FromLong(long v);
+
+// ref: <a href="https://docs.python.org/2/c-api/long.html">PyLongObject</a>
+// Long
+PyObject* PyLong_FromLong(long v);
+
+PyObject* PyLong_FromUnsignedLong(
+    unsigned long v);
+
+PyObject* PyLong_FromLongLong(
+    PY_LONG_LONG v);
+
+PyObject* PyLong_FromString(
+    char *str, char **pend, int base);
+
+long PyLong_AsLong(PyObject *pylong);
+
+// ref: <a href="https://docs.python.org/2/c-api/float.html">PyFloatObject</a>
+// Float
+PyObject* PyFloat_FromString(
+    PyObject *s, char **pend);
+
+PyObject* PyFloat_FromDouble(double v);
+
+double PyFloat_AsDouble(
+    PyObject *pyfloat);
+
+// ref: <a href="https://docs.python.org/2/c-api/string.html">PyStringObject</a>
+// String 
+PyObject* PyString_FromString(
+    const char *v);
+
+PyObject* PyString_FromFormat(
+    const char *format, ...);
+
+// ref: <a href="https://docs.python.org/2/c-api/tuple.html">PyTupleObject</a>
+// Tuple
+PyObject* PyTuple_Pack(
+    Py_ssize_t n, ...);
+
+PyObject* PyTuple_GetItem(
+    PyObject *p, Py_ssize_t pos);
+
+PyObject* PyTuple_GetSlice(
+    PyObject *p, 
+    Py_ssize_t low, 
+    Py_ssize_t high);
+
+int PyTuple_SetItem(
+    PyObject *p, 
+    Py_ssize_t pos, 
+    PyObject *o);
+
+// ref: <a href="https://docs.python.org/2/c-api/list.html">PythonListObject</a>
+// List
+PyObject* PyList_New(Py_ssize_t len);
+
+Py_ssize_t PyList_Size(PyObject *list);
+
+PyObject* PyList_GetItem(
+    PyObject *list, Py_ssize_t index);
+
+int PyList_SetItem(
+    PyObject *list, 
+    Py_ssize_t index, 
+    PyObject *item);
+
+int PyList_Insert(
+    PyObject *list, 
+    Py_ssize_t index, 
+    PyObject *item);
+
+int PyList_Append(
+    PyObject *list, PyObject *item);
+
+// ref: <a href="https://docs.python.org/2/c-api/dict.html">PyDictObject</a>
+// Dictionary
+PyObject* PyDict_New();
+
+void PyDict_Clear(PyObject *p);
+
+int PyDict_Contains(
+    PyObject *p, PyObject *key);
+
+PyObject* PyDict_Copy(PyObject *p);
+
+int PyDict_SetItem(
+    PyObject *p, 
+    PyObject *key, 
+    PyObject *val);
+
+int PyDict_SetItemString(
+    PyObject *p, 
+    const char *key, 
+    PyObject *val);
+
+int PyDict_DelItem(
+    PyObject *p, PyObject *key);
+
+int PyDict_DelItemString(
+    PyObject *p, char *key);
+
+PyObject* PyDict_GetItem(
+    PyObject *p, PyObject *key);
+
+PyObject* PyDict_GetItemString(
+    PyObject *p, const char *key);
+
+PyObject* PyDict_Items(PyObject *p);
+PyObject* PyDict_Keys(PyObject *p);
+PyObject* PyDict_Values(PyObject *p);
+
+int PyDict_Update(
+    PyObject *a, PyObject *b);
+
+int PyDict_Next(
+    PyObject *p, 
+    Py_ssize_t *ppos, 
+    PyObject **pkey, 
+    PyObject **pvalue);
+</pre>
 
 <h3>Python C API Template</h3>
 <pre class="code c">
-# spam.c
+// spam.c
 #include &lt;Python.h&gt;
 
 typedef struct {
