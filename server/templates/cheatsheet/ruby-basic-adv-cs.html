@@ -86,6 +86,35 @@ puts 'ruby script main'
 =&gt;nil
 </pre>
 
+<h3>Proc VS. Lambda</h3>
+<pre class="code ruby">
+# ordinary block
+&gt;&gt; def exec
+..   yield
+.. end
+=&gt;nil
+&gt;&gt; exec {puts "5566"}
+5566
+=&gt;nil
+# proc: block-like behavior
+&gt;&gt; def execproc(&b)
+..   p b.class
+..   b.call
+.. end
+=&gt;nil
+&gt;&gt; execproc {puts 9527}
+Proc
+9527
+# method-like behavior
+=&gt;nil
+&gt;&gt; f = -&gt;{puts "lambda"}
+=&gt;#&lt;Proc:0x007fe6bf0@(irb):31 (lambda)&gt;
+&gt;&gt; execlambda f
+Proc
+lambda
+=&gt;nil
+</pre>
+
 <h3>Class - public, private and protected</h3>
 <pre class="code ruby">
 # ref: <a href="http://ruby-doc.org/core-2.2.3/Object.html#method-i-respond_to-3F">ruby document</a>
@@ -148,7 +177,6 @@ puts 'ruby script main'
 =&gt;true
 &gt;&gt; c.is_a? Mod
 =&gt;true
-
 </pre>
 </div>
 
