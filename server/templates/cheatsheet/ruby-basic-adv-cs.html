@@ -356,6 +356,49 @@ end
 
 <div class="row col-md-4 col-xs-12">
 
+<h3>require, require_relative, load, autoload</h3>
+<pre class="code ruby">
+# test.rb
+class Foo
+  def self.puts
+    puts "hello world"
+  end
+end
+
+puts "HELLO"
+
+# require not support current directory
+# since ruby 1.9.2 (ref: <a href="https://www.ruby-lang.org/en/news/2010/08/18/ruby-1-9.2-released/">rdoc</a>)
+&gt;&gt; require './test.rb'
+HELLO
+=&gt;true
+# also equal
+&gt;&gt; require './test'
+HELLO
+=&gt;true
+&gt;&gt; f = Foo.new
+=&gt;#&lt;Foo:0x007f906b9e2598&gt;
+
+# load - need explicit path
+&gt;&gt; load './test.rb'
+HELLO
+=&gt;true
+
+# require_relative
+&gt;&gt; require_relative 'test'
+HELLO
+=&gt;true
+
+# autoload - load obj when need
+# not support in the future
+# ref: </a href="https://bugs.ruby-lang.org/issues/5653">ruby issue tracking</a>
+&gt;&gt; autoload :Foo, './test.rb'
+=&gt;nil
+&gt;&gt; Foo.new
+HELLO
+=&gt;#&lt;Foo:0x007fddf2829858&gt;
+</pre>
+
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write
