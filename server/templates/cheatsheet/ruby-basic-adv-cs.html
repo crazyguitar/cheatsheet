@@ -399,6 +399,33 @@ HELLO
 =&gt;#&lt;Foo:0x007fddf2829858&gt;
 </pre>
 
+<h3>require scope</h3>
+<pre class="code ruby">
+# foo.rb
+module Spam1
+  class Spam
+    def self.foo
+      # module Spam2 in bar.rb
+      puts Spam2::KERKER
+    end
+  end
+end
+
+# bar.rb
+module Spam2
+  KERKER="HELLO WORLD"
+end
+
+# ex.rb
+require_relative 'src1'
+require_relative 'src2'
+
+Spam1::Spam.foo
+
+# bash&gt; ex.rb
+# HELLO WORLD
+</pre>
+
 <h3>Basic File IO</h3>
 <pre class="code ruby">
 # basic read write
