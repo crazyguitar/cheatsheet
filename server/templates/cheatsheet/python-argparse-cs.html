@@ -1,0 +1,165 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some argsparse concepts for Python programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-6 col-xs-12">
+<h3>argparse - basic usage</h3>
+<pre class="code python">
+# no arguments
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; p.parse_args()
+Namespace()
+&gt;&gt;&gt; p.print_help()
+usage: [-h]
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+# with arguments
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; ret = p.add_argument('hello')
+&gt;&gt;&gt; ret = p.add_argument('world')
+&gt;&gt;&gt; ret = p.parse_args(['hello', 'world'])
+&gt;&gt;&gt; hasattr(ret, 'hello')
+True
+&gt;&gt;&gt; hasattr(ret, 'world')
+True
+&gt;&gt;&gt; p.print_help()
+usage: [-h] hello world
+
+positional arguments:
+  hello
+  world
+
+optional arguments:
+  -h, --help  show this help message and exit
+</pre>
+
+<h3>argparse - basic help and parse args</h3>
+<pre class="code python">
+# test.py
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    '-f', 
+    '--foo',
+    help="foo help test")
+# parse argument from term
+args = parser.parse_args()
+print args.foo
+
+# output:
+# 
+# bash&gt; python test.py -h
+# usage: test.py [-h] [-f FOO]
+#
+# optional arguments:
+#   -h, --help         show this help message and exit
+#   -f FOO, --foo FOO  foo help test
+# 
+# bash&gt; python test.py -f foo
+# foo 
+</pre>
+
+<h3>argparse - some basic arguments</h3>
+<pre class="code python">
+title
+description
+prog
+parser_class
+action
+dest
+help
+metavar
+formatter_class
+nargs
+version
+</pre>
+
+<h3>argparse - description</h3>
+<pre class="code python">
+# without description
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; p = argparse.ArgumentParser(
+...   description="foo desc")
+&gt;&gt;&gt; p.print_help()
+usage: [-h]
+
+foo desc
+
+optional arguments:
+  -h, --help  show this help message and exit
+
+# with description
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser(
+...   description="===== foo desc =====")
+&gt;&gt;&gt; p.print_help()
+usage: [-h]
+
+===== foo desc =====
+
+optional arguments:
+  -h, --help  show this help message and exit
+</pre>
+
+<h3>argparse - metavar, help, prog, default</h3>
+<pre class="code python">
+# without title, metavar, help, prog
+import argparse
+p = argparse.ArgumentParser()
+p.add_argument('-p','--print')
+p.parse_args()
+
+# output
+# usage: test.py [-h] [-p PRINT]
+#
+# optional arguments:
+#   -h, --help            show this help message and exit
+#   -p PRINT, --print PRINT
+
+# with metavar, help, prog, default
+import argparse
+p = argparse.ArgumentParser(prog='PROG')
+p.add_argument(
+    '-p',
+    '--print_str', 
+    metavar="str",
+    default="hello world",
+    help="print str test")
+
+args = p.parse_args()
+print args.print_str
+
+# output:
+# 
+# bash&gt; python test.py -h
+# usage: PROG [-h] [-p str]
+#
+# optional arguments:
+#   -h, --help            show this help message and exit
+#   -p str, --print_str str
+#                         print str test
+#
+# bash&gt; python test.py
+# hello world
+# bash&gt; python 02_parser_test.py -p kerker
+# kerker
+</pre>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+{% endblock %}
