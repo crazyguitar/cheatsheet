@@ -155,8 +155,103 @@ print args.print_str
 # bash&gt; python 02_parser_test.py -p kerker
 # kerker
 </pre>
+</div>
+
+<div class="row col-md-6 col-xs-12">
+
+<h3>Sub-commeand - basic</h3>
+<pre class="code python">
+import argparse
+
+p = argparse.ArgumentParser()
+sp = p.add_subparsers(
+        title="sub-command",
+        description="sub command example")
+# parser a in sub-parser
+p_a = sp.add_parser('foo', help='sub foo')
+p_a.add_argument('--foo', help='print foo')
+# parser b in sub-parser
+p_b = sp.add_parser('bar', help='sub bar') 
+p_b.add_argument('--bar', help='print bar')
+
+args = p.parse_args()
+print args.foo
+
+# output:
+# 
+# bash&gt; python test.py -h
+# usage: 03_parser_test.py [-h] {foo,bar} ...
+#
+# optional arguments:
+#   -h, --help  show this help message and exit
+#
+# sub-command:
+#   sub command example
+#
+#   {foo,bar}
+#     foo       sub foo
+#     bar       sub bar
+# 
+# bash&gt; test.py foo -h
+# usage: test.py foo [-h] [--foo FOO] [--bar BAR]
+# 
+# optional arguments:
+#   -h, --help  show this help message and exit
+#   --foo FOO   print foo
+#
+# bash&gt; python test.py foo --foo "hello world"
+# hello world
+</pre>
+
+<h3>Group subparser</h3>
+<pre class="code python">
+import argparse
+
+desc = """
+First Group:
+  hello      subcommand hello in group1
+  world      subcommand world in group1
+
+Second Group:
+  foo        subcommand foo in group2
+  bar        subcommand bar in group2"""
+
+formater = argparse.RawDescriptionHelpFormatter
+p = argparse.ArgumentParser(
+        formatter_class=formater)
+sp = p.add_subparsers(
+        title="&lt;command&gt;",
+        description=desc)
+sp.add_parser("hello")
+sp.add_parser("world")
+sp.add_parser("foo")
+sp.add_parser("bar")
+
+args = p.parse_args()
+
+# output:
+#
+# bash&gt; test.py -h
+# usage: test.py [-h] {hello,world,foo,bar} ...
+#
+# optional arguments:
+#   -h, --help            show this help message and exit
+#
+# &lt;command&gt;:
+#  
+#   First Group:
+#     hello      subcommand hello in group1
+#     world      subcommand world in group1
+#  
+#   Second Group:
+#     foo        subcommand foo in group2
+#     bar        subcommand bar in group2
+#
+#   {hello,world,foo,bar}
+</pre>
 
 </div>
+
 
 {% endblock %}
 
