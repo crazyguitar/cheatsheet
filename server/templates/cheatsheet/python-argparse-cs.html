@@ -296,22 +296,33 @@ p = argparse.ArgumentParser(prog="PROG")
 group = p.add_mutually_exclusive_group()
 
 # add arguments to group
-group.add_argument('-f', '--foo', help="foo")
-group.add_argument('-b', '--bar', help="bar")
+group.add_argument('-f', help="foo")
+group.add_argument('-b', help="bar")
 
 args = p.parse_args()
-print args.foo 
-print args.bar
+print args.f
+print args.b
 
 # output:
 #
 # bash&gt; python test.py -h
-# usage: PROG [-h] [-f FOO | -b BAR]
-#
+# usage: PROG [-h] [-f F | -b B]
+# 
 # optional arguments:
-#   -h, --help         show this help message and exit
-#   -f FOO, --foo FOO  foo
-#   -b BAR, --bar BAR  bar
+#   -h, --help  show this help message and exit
+#   -f F        foo
+#   -b B        bar# bash&gt; python test.py --foo foo
+# foo
+# None
+# bash&gt; python test.py -f foo
+# foo
+# None
+# bash&gt; python test.py -b bar
+# None
+# bar
+# bash&gt; python test.py -f foo -b bar
+# usage: PROG [-h] [-f F | -b B]
+# PROG: error: argument -b: not allowed with argument -f
 </pre>
 
 </div>
