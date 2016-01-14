@@ -250,6 +250,70 @@ args = p.parse_args()
 #   {hello,world,foo,bar}
 </pre>
 
+<h3>Group arguments</h3>
+<pre class="code python">
+import argparse
+
+p = argparse.ArgumentParser()
+# add group1 to argument parser
+group1 = p.add_argument_group(
+            'group1', 'group1 desciption')
+group1.add_argument('-f', '--foo', help="foo")
+group1.add_argument('-k', '--ker', help="ker")
+
+# add group2 to argument parser
+group2 = p.add_argument_group(
+            'group2', 'group2 desciption')
+group2.add_argument('-b', '--bar', help="bar")
+
+args = p.parse_args()
+
+# output:
+#
+# bash&gt; python test.py -h
+# usage: test.py [-h] [-f FOO] [-k KER] [-b BAR]
+#
+# optional arguments:
+#   -h, --help         show this help message and exit
+#
+# group1:
+#   group1 desciption
+#
+#   -f FOO, --foo FOO  foo
+#   -k KER, --ker KER  ker
+#
+# group2:
+#   group2 desciption
+#
+#   -b BAR, --bar BAR  bar
+</pre>
+
+<h3>Mutual exclusion - only one of the arguments was present</h3>
+<pre class="code python">
+import argparse
+
+p = argparse.ArgumentParser(prog="PROG")
+group = p.add_mutually_exclusive_group()
+
+# add arguments to group
+group.add_argument('-f', '--foo', help="foo")
+group.add_argument('-b', '--bar', help="bar")
+
+args = p.parse_args()
+print args.foo 
+print args.bar
+
+# output:
+#
+# bash&gt; python test.py -h
+# usage: PROG [-h] [-f FOO | -b BAR]
+#
+# optional arguments:
+#   -h, --help         show this help message and exit
+#   -f FOO, --foo FOO  foo
+#   -b BAR, --bar BAR  bar
+</pre>
+
 </div>
 
 
