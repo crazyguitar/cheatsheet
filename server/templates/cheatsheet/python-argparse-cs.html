@@ -155,6 +155,84 @@ print args.print_str
 # bash&gt; python 02_parser_test.py -p kerker
 # kerker
 </pre>
+
+<h3>argparse - action</h3>
+<pre class="code python">
+# store: default action
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; _ = p.add_argument('--foo')
+&gt;&gt;&gt; p.parse_args(['--foo','ker'])
+Namespace(foo='ker')
+
+# store_true
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; _ = p.add_argument('--foo', action="store_true")
+&gt;&gt;&gt; p.parse_args(['--foo'])
+Namespace(foo=True)
+&gt;&gt;&gt; p.parse_args([])
+Namespace(foo=False)
+
+# store_const
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; _ = p.add_argument('--foo',
+...                    action='store_const',
+...                    const=5566)
+&gt;&gt;&gt; p.parse_args(['--foo'])
+Namespace(foo=5566)
+&gt;&gt;&gt; p.parse_args([])
+Namespace(foo=None)
+
+# append
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; _ = p.add_argument('--foo', action='append')
+&gt;&gt;&gt; p.parse_args('--foo 5566 --foo 9527'.split())
+Namespace(foo=['5566', '9527'])
+
+# append_const
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; _ = p.add_argument('--foo',
+...                    dest='ker',
+...                    action='append_const',
+...                    const='foooo')
+&gt;&gt;&gt; _ = p.add_argument('--bar',
+...                   dest='ker',
+...                   action='append_const',
+...                   const='baaar')
+&gt;&gt;&gt; p.parse_args('--foo --bar'.split())
+Namespace(ker=['foooo', 'baaar'])
+
+# custom action
+import argparse
+
+class FooAction(argparse.Action):
+    def __init__(self, option_strings, dest,
+                 nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super(FooAction, self).__init__(option_strings, 
+                                        dest, **kwargs)
+    def __call__(self, parser, namespace,
+                 values, option_string=None):
+        print '%r %r %r' % (namespace, values, option_string)
+        setattr(namespace, self.dest, values)
+
+p = argparse.ArgumentParser()
+p.add_argument('--foo',action=FooAction)
+args = p.parse_args()
+print args
+
+# output:
+#
+# bash&gt; python test.py --foo ker
+# Namespace(foo=None) 'ker' '--foo'
+# Namespace(foo='ker')
+</pre>
+
 </div>
 
 <div class="row col-md-6 col-xs-12">
@@ -201,6 +279,19 @@ print args.foo
 #
 # bash&gt; python test.py foo --foo "hello world"
 # hello world
+</pre>
+
+<h3>Get subparser command</h3>
+<pre class="code python">
+&gt;&gt;&gt; import argparse
+&gt;&gt;&gt; p = argparse.ArgumentParser()
+&gt;&gt;&gt; sp = p.add_subparsers(dest='subcmd')
+&gt;&gt;&gt; foo_p = sp.add_parser('foo')
+&gt;&gt;&gt; bar_p = sp.add_parser('bar')
+&gt;&gt;&gt; _ = foo_p.add_argument('--ker')
+&gt;&gt;&gt; args = p.parse_args(['foo', '--ker', 'hello world'])
+&gt;&gt;&gt; print args
+Namespace(ker='hello world', subcmd='foo')
 </pre>
 
 <h3>Group subparser</h3>
