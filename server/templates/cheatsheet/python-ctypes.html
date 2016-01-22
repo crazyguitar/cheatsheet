@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some ctypes concepts for Python programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+<pre class="code python">
+# example: printf
+&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; libc = CDLL('libc.dylib')
+&gt;&gt;&gt; libc.printf("Hello World\n")
+Hello World
+12
+
+# example: time
+&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; libc = CDLL('libc.dylib')
+&gt;&gt;&gt; libc.time()
+1453420300
+
+# example: getcwd
+&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; libc = CDLL('libc.dylib')
+&gt;&gt;&gt; buffer = libc.getcwd()
+&gt;&gt;&gt; libc.getcwd.restype = c_char_p
+&gt;&gt;&gt; buffer = libc.getcwd()
+&gt;&gt;&gt; buffer
+'/Users/apple/python-ctypes'
+&gt;&gt;&gt; libc.printf('cwd: %s\n', buffer)
+cwd: /Users/apple/python-ctypes
+32
+
+# example: file operation
+&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; import os
+&gt;&gt;&gt; libc = CDLL('libc.dylib')
+&gt;&gt;&gt; fd = libc.open('./foo.txt', 
+...                os.O_RDONLY)
+&gt;&gt;&gt; buffer = create_string_buffer(256)
+&gt;&gt;&gt; libc.read(fd, buffer, 
+...           sizeof(buffer))
+12
+&gt;&gt;&gt; buffer.value
+'Hello World\n'
+</pre>
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+{% endblock %}
