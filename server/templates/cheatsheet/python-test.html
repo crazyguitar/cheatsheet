@@ -1,0 +1,225 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some test concepts for a Python programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+<div class="col-md-8 col-md-offset-2 col-xs-12">
+
+<h3>Write a simple Python unittest basic</h3>
+<pre class="code python">
+# python unittet only run the function with prefix "test"
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; class TestFoo(unittest.TestCase):
+...     def test_foo(self):
+...             self.assertTrue(True)
+...     def fun_not_run(self):
+...             print "no run"
+... 
+&gt;&gt;&gt; unittest.main()
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; class TestFail(unittest.TestCase):
+...     def test_false(self):
+...             self.assertTrue(False)
+... 
+&gt;&gt;&gt; unittest.main()
+F
+======================================================================
+FAIL: test_false (__main__.TestFail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 3, in test_false
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+</pre>
+
+<h3>Python unittest setup & teardown hierarchy</h3>
+<pre class="code python">
+import unittest
+
+def fib(n):
+    return 1 if n&lt;=2 else fib(n-1)+fib(n-2)
+
+def setUpModule():
+        print "setup module" 
+def tearDownModule():
+        print "teardown module"
+
+class TestFib(unittest.TestCase):
+
+    def setUp(self):
+        print "setUp"
+        self.n = 10
+    def tearDown(self):
+        print "tearDown"
+        del self.n
+    @classmethod
+    def setUpClass(cls):
+        print "setup class"
+    @classmethod
+    def tearDownClass(cls):
+        print "teardown class"
+    def test_fib_assert_equal(self):
+        self.assertEqual(fib(self.n), 55)
+    def test_fib_assert_true(self):
+        self.assertTrue(fib(self.n) == 55)
+
+if __name__ == "__main__":
+    unittest.main()
+
+# bash&gt; python test.py
+# setup module
+# setup class
+# setUp
+# tearDown
+# .setUp
+# tearDown
+# .teardown class
+# teardown module
+#
+# ----------------------------------------------------------------------
+# Ran 2 tests in 0.000s
+#
+# OK
+</pre>
+<h3>Run the tests via <code>unittest.TextTestRunner</code></h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest  
+&gt;&gt;&gt; class TestFoo(unittest.TestCase):
+...     def test_foo(self):
+...         self.assertTrue(True)
+...     def test_bar(self):
+...         self.assertFalse(False)  
+
+&gt;&gt;&gt; suite = unittest.TestLoader().loadTestsFromTestCase(TestFoo)  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_bar (__main__.TestFoo) ... ok
+test_foo (__main__.TestFoo) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</pre>
+
+<h3>Test raise exception</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest  
+
+&gt;&gt;&gt; class TestRaiseException(unittest.TestCase):
+...     def test_raise_except(self):
+...         with self.assertRaises(SystemError):
+...             raise SystemError  
+&gt;&gt;&gt; suite_loader = unittest.TestLoader()  
+&gt;&gt;&gt; suite = suite_loader.loadTestsFromTestCase(TestRaiseException)  
+&gt;&gt;&gt; unittest.TextTestRunner().run(suite)  
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+&gt;&gt;&gt; class TestRaiseFail(unittest.TestCase):
+...     def test_raise_fail(self):
+...         with self.assertRaises(SystemError):
+...             pass  
+&gt;&gt;&gt; suite = unittest.TestLoader().loadTestsFromTestCase(TestRaiseFail)  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_raise_fail (__main__.TestRaiseFail) ... FAIL
+
+======================================================================
+FAIL: test_raise_fail (__main__.TestRaiseFail)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 4, in test_raise_fail
+AssertionError: SystemError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)
+</pre>
+
+<h3>Group multiple testcases into a suite</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest  
+&gt;&gt;&gt; class TestFooBar(unittest.TestCase):
+...     def test_foo(self):
+...         self.assertTrue(True)
+...     def test_bar(self):
+...         self.assertTrue(True)  
+...
+&gt;&gt;&gt; class TestHelloWorld(unittest.TestCase):
+...     def test_hello(self):
+...         self.assertEqual("Hello", "Hello")
+...     def test_world(self):
+...         self.assertEqual("World", "World")  
+...
+&gt;&gt;&gt; suite_loader = unittest.TestLoader()  
+&gt;&gt;&gt; suite1 = suite_loader.loadTestsFromTestCase(TestFooBar)  
+&gt;&gt;&gt; suite2 = suite_loader.loadTestsFromTestCase(TestHelloWorld)  
+&gt;&gt;&gt; suite = unittest.TestSuite([suite1, suite2])  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_bar (__main__.TestFooBar) ... ok
+test_foo (__main__.TestFooBar) ... ok
+test_hello (__main__.TestHelloWorld) ... ok
+test_world (__main__.TestHelloWorld) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK
+</pre>
+
+<h3>Skip some tests in the TestCase</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest  
+&gt;&gt;&gt; RUN_FOO = False  
+&gt;&gt;&gt; DONT_RUN_BAR = False  
+&gt;&gt;&gt; class TestSkip(unittest.TestCase):
+...     def test_always_run(self):
+...         self.assertTrue(True)
+...     @unittest.skip("always skip this test")
+...     def test_always_skip(self):
+...         raise RuntimeError
+...     @unittest.skipIf(RUN_FOO == False, "demo skipIf")
+...     def test_skipif(self):
+...         raise RuntimeError
+...     @unittest.skipUnless(DONT_RUN_BAR == True, "demo skipUnless")
+...     def test_skipunless(self):
+...         raise RuntimeError  
+...
+&gt;&gt;&gt; suite = unittest.TestLoader().loadTestsFromTestCase(TestSkip)  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_always_run (__main__.TestSkip) ... ok
+test_always_skip (__main__.TestSkip) ... skipped 'always skip this test'
+test_skipif (__main__.TestSkip) ... skipped 'demo skipIf'
+test_skipunless (__main__.TestSkip) ... skipped 'demo skipUnless'
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK (skipped=3)
+</pre>
+
+</div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+{% endblock %}
