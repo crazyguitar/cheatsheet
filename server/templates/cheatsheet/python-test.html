@@ -69,10 +69,10 @@ class TestFib(unittest.TestCase):
         del self.n
     @classmethod
     def setUpClass(cls):
-        print "setup class"
+        print "setUpClass"
     @classmethod
     def tearDownClass(cls):
-        print "teardown class"
+        print "tearDownClass"
     def test_fib_assert_equal(self):
         self.assertEqual(fib(self.n), 55)
     def test_fib_assert_true(self):
@@ -84,12 +84,12 @@ if __name__ == "__main__":
 # output:
 bash&gt; python test.py
 setup module
-setup class
+setUpClass
 setUp
 tearDown
 .setUp
 tearDown
-.teardown class
+.tearDownClass
 teardown module
 
 ----------------------------------------------------------------------
@@ -97,6 +97,71 @@ Ran 2 tests in 0.000s
 
 OK
 </pre>
+
+<h3>setUp & tearDown hierarchy from different unittest module</h3>
+<pre class="code python">
+# test_module.py
+import unittest
+
+class TestFoo(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        print "foo setUpClass"
+    @classmethod
+    def tearDownClass(self):
+        print "foo tearDownClass"
+    def setUp(self):
+        print "foo setUp"
+    def tearDown(self):
+        print "foo tearDown"
+    def test_foo(self):
+        self.assertTrue(True)
+
+class TestBar(unittest.TestCase):
+    def setUp(self):
+        print "bar setUp"
+    def tearDown(self):
+        print "bar tearDown"
+    def test_bar(self):
+        self.assertTrue(True)
+
+# test.py
+from test_module import TestFoo
+from test_module import TestBar
+import test_module
+import unittest
+
+def setUpModule():
+    print "setUpModule"
+
+def tearDownModule():
+    print "tearDownModule"
+
+
+if __name__ == "__main__":
+    test_module.setUpModule = setUpModule
+    test_module.tearDownModule = tearDownModule
+    suite1 = unittest.TestLoader().loadTestsFromTestCase(TestFoo)
+    suite2 = unittest.TestLoader().loadTestsFromTestCase(TestBar)
+    suite = unittest.TestSuite([suite1,suite2])
+    unittest.TextTestRunner().run(suite)
+
+# output:
+setUpModule
+foo setUpClass
+foo setUp
+foo tearDown
+.foo tearDownClass
+bar setUp
+bar tearDown
+.tearDownModule
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
+</pre>
+
 <h3>Run the tests via <code>unittest.TextTestRunner</code></h3>
 <pre class="code python">
 &gt;&gt;&gt; import unittest  
@@ -364,6 +429,98 @@ Ran 1 test in 0.000s
 
 OK
 &lt;unittest.runner.TextTestResult run=1 errors=0 failures=0&gt;
+</pre>
+
+<h3>doctest - testing your document is right</h3>
+<pre class="code python">
+"""
+This is an example of doctest
+
+&gt;&gt;&gt; fib(10)
+55
+"""
+
+def fib(n):
+    """
+    This function calculate fib number.
+
+    example:
+
+    &gt;&gt;&gt; fib(10)
+    55
+    &gt;&gt;&gt; fib(-1)
+    Traceback (most recent call last):
+        ...
+    ValueError
+    """
+    if n < 0:
+        raise ValueError('')
+    return 1 if n&lt;=2 else fib(n-1) + fib(n-2)
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+
+# output:
+bash&gt; python demo_doctest.py -v
+Trying:
+    fib(10)
+Expecting:
+    55
+ok
+Trying:
+    fib(10)
+Expecting:
+    55
+ok
+Trying:
+    fib(-1)
+Expecting:
+    Traceback (most recent call last):
+        ...
+    ValueError
+ok
+2 items passed all tests:
+   1 tests in __main__
+   2 tests in __main__.fib
+3 tests in 2 items.
+3 passed and 0 failed.
+Test passed.
+</pre>
+
+<h3>Re-using doctest to unittest</h3>
+<pre class="code python">
+import unittest
+import doctest
+
+"""
+This is an example of doctest
+
+&gt;&gt;&gt; fib(10)
+55
+"""
+
+def fib(n):
+    """
+    This function calculate fib number.
+
+    example:
+
+    &gt;&gt;&gt; fib(10)
+    55
+    &gt;&gt;&gt; fib(-1)
+    Traceback (most recent call last):
+        ...
+    ValueError
+    """
+    if n < 0:
+        raise ValueError('')
+    return 1 if n&lt;=2 else fib(n-1) + fib(n-2)
+
+if __name__ == "__main__":
+    suite = unittest.TestSuite()
+    finder = doctest.DocTestFinder()
+    unittest.TextTestRunner(verbosity=2).run(suite)
 </pre>
 
 
