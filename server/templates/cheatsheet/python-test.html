@@ -523,6 +523,58 @@ if __name__ == "__main__":
     unittest.TextTestRunner(verbosity=2).run(suite)
 </pre>
 
+<h3>Mocking Test - Replace real object to fake object</h3>
+<pre class="code python">
+# without mock - test will always failed
+import unittest
+import os
+
+class TestFoo(unittest.TestCase):
+    def test_foo(self):
+        os.remove('!@#$%^~')
+
+if __name__ == "__main__":
+    unittest.main()
+
+# output:
+bash&gt; python mock_test.py 
+E
+======================================================================
+ERROR: test_foo (__main__.TestFoo)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "mock_test.py", line 7, in test_foo
+    os.remove('!@#$%^~')
+OSError: [Errno 2] No such file or directory: '!@#$%^~'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+# with mock - substitute real object to fake object
+import mock
+import unittest
+import os
+
+def mock_os_remove(path):
+    pass
+
+class TestFoo(unittest.TestCase):
+    @mock.patch('os.remove', mock_os_remove)
+    def test_foo(self):
+        os.remove('!@#$%^~')
+
+if __name__ == "__main__":
+    unittest.main()
+
+#output:
+bash&gt; python mock_test.py 
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+</pre>
+
 
 </div>
 </div>
