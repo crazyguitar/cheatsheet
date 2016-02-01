@@ -153,6 +153,33 @@ Ran 1 test in 0.000s
 FAILED (failures=1)
 </pre>
 
+<h3>Pass arguments into a TestCase</h3>
+<pre class="code python">
+# ref: <a herf="http://stackoverflow.com/questions/1842168/python-unit-test-pass-command-line-arguments-to-setup-of-unittest-testcase">stackoverflow</a>
+&gt;&gt;&gt; import unittest  
+&gt;&gt;&gt; class TestArg(unittest.TestCase):
+...     def __init__(self, testname, arg):
+...         super(TestArg, self).__init__(testname)
+...         self._arg = arg
+...     def setUp(self):
+...         print "setUp:", self._arg
+...     def test_arg(self):
+...         print "test_arg:", self._arg
+...         self.assertTrue(True)  
+...
+&gt;&gt;&gt; suite = unittest.TestSuite()  
+&gt;&gt;&gt; suite.addTest(TestArg('test_arg', 'foo'))  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_arg (__main__.TestArg) ... setUp: foo
+test_arg: foo
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+</pre>
+
 <h3>Group multiple testcases into a suite</h3>
 <pre class="code python">
 &gt;&gt;&gt; import unittest  
@@ -184,6 +211,31 @@ Ran 4 tests in 0.000s
 OK
 </pre>
 
+<h3>Group multiple tests from different TestCase</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest  
+&gt;&gt;&gt; class TestFoo(unittest.TestCase):
+...     def test_foo(self):
+...         assert "foo" == "foo"  
+...
+&gt;&gt;&gt; class TestBar(unittest.TestCase):
+...     def test_bar(self):
+...         assert "bar" == "bar"  
+...
+&gt;&gt;&gt; suite = unittest.TestSuite()  
+&gt;&gt;&gt; suite.addTest(TestFoo('test_foo'))  
+&gt;&gt;&gt; suite.addTest(TestBar('test_bar'))  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_foo (__main__.TestFoo) ... ok
+test_bar (__main__.TestBar) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.001s
+
+OK
+</pre>
+
+
 <h3>Skip some tests in the TestCase</h3>
 <pre class="code python">
 &gt;&gt;&gt; import unittest  
@@ -213,6 +265,33 @@ test_skipunless (__main__.TestSkip) ... skipped 'demo skipUnless'
 Ran 4 tests in 0.000s
 
 OK (skipped=3)
+</pre>
+
+<h3>Python unittest skip setup & teardown when the test is skipped</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; class TestSkip(unittest.TestCase):
+...     def setUp(self):
+...         print "setUp"
+...     def tearDown(self):
+...         print "tearDown"
+...     @unittest.skip("skip this test")
+...     def test_skip(self):
+...         raise RuntimeError
+...     def test_not_skip(self):
+...         self.assertTrue(True)  
+...
+&gt;&gt;&gt; suite = unittest.TestLoader().loadTestsFromTestCase(TestSkip)  
+&gt;&gt;&gt; unittest.TextTestRunner(verbosity=2).run(suite)  
+test_not_skip (__main__.TestSkip) ... setUp
+tearDown
+ok
+test_skip (__main__.TestSkip) ... skipped 'skip this test'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK (skipped=1)
 </pre>
 
 </div>
