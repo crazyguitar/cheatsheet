@@ -81,20 +81,21 @@ class TestFib(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
-# bash&gt; python test.py
-# setup module
-# setup class
-# setUp
-# tearDown
-# .setUp
-# tearDown
-# .teardown class
-# teardown module
-#
-# ----------------------------------------------------------------------
-# Ran 2 tests in 0.000s
-#
-# OK
+# output:
+bash&gt; python test.py
+setup module
+setup class
+setUp
+tearDown
+.setUp
+tearDown
+.teardown class
+teardown module
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK
 </pre>
 <h3>Run the tests via <code>unittest.TextTestRunner</code></h3>
 <pre class="code python">
@@ -265,6 +266,50 @@ test_skipunless (__main__.TestSkip) ... skipped 'demo skipUnless'
 Ran 4 tests in 0.000s
 
 OK (skipped=3)
+</pre>
+
+<h3>Make a cross-module variable into different Test files.</h3>
+<pre class="code python">
+# ref: <a href="http://stackoverflow.com/questions/142545/python-how-to-make-a-cross-module-variable">stackoverflow</a>
+# test_foo.py
+import unittest
+
+print conf
+
+class TestFoo(unittest.TestCase):
+    def test_foo(self):
+        print conf
+        
+    @unittest.skipIf(conf.isskip==True, "skip test")
+    def test_skip(self):
+        raise RuntimeError
+
+# test_bar.py
+import unittest
+import __builtin__
+
+if __name__ == "__main__":
+    conf = type('TestConf', (object,), {})
+    conf.isskip = True
+    # make a cross-module variable
+    __builtin__.conf = conf
+    module = __import__('test_foo')
+    loader = unittest.TestLoader()
+    suite = loader.loadTestsFromTestCase(module.TestFoo)
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+# output:
+bash&gt; python test_bar.py
+&lt;class '__main__.TestConf'&gt;
+test_foo (test_foo.TestFoo) ... &lt;class '__main__.TestConf'&gt;
+ok
+test_skip (test_foo.TestFoo) ... skipped 'skip test'
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.000s
+
+OK (skipped=1)
+
 </pre>
 
 <h3>Python unittest skip setup & teardown when the test is skipped</h3>
