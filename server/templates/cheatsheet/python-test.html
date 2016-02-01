@@ -339,6 +339,34 @@ Ran 2 tests in 0.000s
 OK (skipped=1)
 </pre>
 
+<h3>Re-using old test code</h3>
+<pre class="code python">
+&gt;&gt;&gt; import unittest
+&gt;&gt;&gt; def old_func_test():
+...     assert "Hello" == "Hello"                                                                                                                                                                                                      
+... 
+&gt;&gt;&gt; def old_func_setup():                                                                                                                                                                                                              
+...     print "setup"
+... 
+&gt;&gt;&gt; def old_func_teardown():
+...     print "teardown"                                                                                                                                                                                                               
+... 
+&gt;&gt;&gt; testcase = unittest.FunctionTestCase(old_func_test,
+...                                      setUp=old_func_setup,
+...                                      tearDown=old_func_teardown)
+&gt;&gt;&gt; suite = unittest.TestSuite([testcase])
+&gt;&gt;&gt; unittest.TextTestRunner().run(suite)
+setup
+teardown
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK
+&lt;unittest.runner.TextTestResult run=1 errors=0 failures=0&gt;
+</pre>
+
+
 </div>
 </div>
 
