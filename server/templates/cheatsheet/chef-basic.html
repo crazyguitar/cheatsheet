@@ -1,0 +1,225 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Chef Basic Cheat Sheet</h1>
+   <p>Cheat sheet of Chef. Some basic concepts for a Chef beginner.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>Create a chef-repo</h3>
+<pre class="code bash">
+# create a chef-repo
+$ chef generate repo ~/chef-repo
+
+# list FHS of chef-repo
+$ tree chef-repo
+├── LICENSE
+├── README.md
+├── chefignore
+├── cookbooks
+│   ├── README.md
+│   └── example
+│       ├── README.md
+│       ├── attributes
+│       │   └── default.rb
+│       ├── metadata.rb
+│       └── recipes
+│           └── default.rb
+├── data_bags
+│   ├── README.md
+│   └── example
+│       └── example_item.json
+├── environments
+│   ├── README.md
+│   └── example.json
+└── roles
+    ├── README.md
+    └── example.json
+
+8 directories, 14 files
+
+# put .knife.rb and .pem in .chef
+$ cd ~/chef-repo
+$ mkdir ~/.chef
+$ mv /path/to/knife.rb ~/.chef
+$ mv /path/to/admin.pem ~/.chef
+
+# check connect to chef server success
+$ knife ssl check
+</pre>
+
+<h3>Create a Chef cookbook</h3>
+<pre class="code bash">
+# create a chef cookbook
+$ cd ~/chef-repo
+$ chef generate \
+&gt;      cookbook cookbooks/aws-flask
+$ tree cookbooks
+ookbooks/
+├── README.md
+├── aws-flask
+│   ├── Berksfile
+│   ├── README.md
+│   ├── chefignore
+│   ├── metadata.rb
+│   ├── recipes
+│   │   └── default.rb
+│   ├── spec
+│   │   ├── spec_helper.rb
+│   │   └── unit
+│   │       └── recipes
+│   │           └── default_spec.rb
+│   └── test
+│       └── integration
+│           ├── default
+│           │   └── serverspec
+│           │       └── default_spec.rb
+│           └── helpers
+│               └── serverspec
+│                   └── spec_helper.rb
+└── example
+    ├── README.md
+    ├── attributes
+    │   └── default.rb
+    ├── metadata.rb
+    └── recipes
+        └── default.rb
+
+14 directories, 14 files
+</pre>
+
+<h3>Reference other cookbooks on 'supermarket'</h3>
+<pre class="code ruby">
+# <a href="https://supermarket.chef.io/">chef supermarket</a>
+# chef cookbook latest version
+# $ knife cookbook site show [cookbook]
+$ knife cookbook site show apt
+
+# modify [cookbook]/metadata.rb
+name 'aws-flask'
+maintainer 'The Authors'
+maintainer_email 'you@example.com'
+license 'all_rights'
+description 'Installs/Configures aws-flask'
+long_description 'Installs/Configures aws-flask'
+version '0.1.0'
+
+depends 'apt', '2.9.2'
+depends 'poise-python', '1.2.1'
+</pre>
+
+<h3>Create attributes files</h3>
+<pre class="code bash">
+$ chef generate attribute \
+&gt; 'cookbooks/aws-flask' default
+$ tree cookbooks/aws-flask/attributes
+cookbooks/aws-flask/attributes/
+└── default.rb
+
+0 directories, 1 file
+</pre>
+
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
+<h3>Configure a node (server)</h3>
+<pre class="code bash">
+# configure a node
+$ knife cookbook upload --force \
+&gt;    'aws-flask'
+Uploading aws-flask      [0.1.0]
+Uploaded 1 cookbook.
+
+# bootstrap a node
+$ knife bootstrap $ADDRESS \
+&gt;    --ssh-user $USER 
+&gt;    --sudo 
+&gt;    --identity-file $IDENTITY_FILE 
+&gt;    --node-name 'aws-flask-node' 
+&gt;    --run-list 'recipe[aws-flask]'
+
+# list current nodes
+$ knife node list
+aws-flask-node
+aws-nginx-node
+</pre>
+
+<h3>Setup a python environments</h3>
+<pre class="code ruby">
+# edit attributes/default
+user = 'ubuntu'
+path = File.join('/home',user,'.pyvenv')
+default['aws-flask']['e'] = path
+
+# edit recipes/default.rb
+include_recipe 'apt::default'
+
+python_runtime '2'
+python_virtualenv node['aws-flask']['e']
+python_package 'flask'
+python_package 'ptpython'
+python_package 'paramiko'
+python_package 'sqlalchemy' do
+  version '1.0.11'
+end
+</pre>
+
+<h3>Install apt packages</h3>
+<pre class="code ruby">
+# ref: <a href="https://docs.chef.io/resource_package.html">chef resource package</a>
+# edit [cookbook]/recipe/default.rb
+# install apt package
+package 'git'
+package 'libxml2'
+package 'libffi6'
+package 'ruby2.0'
+package 'swig3.0'
+</pre>
+
+<h3>Create files</h3>
+<pre class="code ruby">
+# edit [cookbook]/attribute/default.rb
+user = 'ubuntu'
+group = 'ubuntu'
+path = File.join('/home',user,'test')
+default['aws-flask']['s'] = path
+default['aws-flask']['user'] = user
+default['aws-flask']['group'] = group
+
+# edit [cookbook]/recipe/default.rb
+file node['aws-flask']['s'] do
+  content 'Hell World'
+  mode '0755'
+  owner node['aws-flask']['user']
+  group node['aws-flask']['group']
+end
+</pre>
+
+<h3>Execute bash commands</h3>
+<pre class="code ruby">
+# edit [cookbook]/attributes/default.rb
+user = 'ubuntu'
+home = File.join('/home',user)
+default['aws-flask']['home'] = home
+
+# execute commands
+execute 'mkdir_flaks' do
+  cwd node['aws-flask']['home'] 
+  user node['aws-flask']['user']
+  command &lt;&lt;-EOH
+  mkdir flask
+  echo "Hello Chef" &gt; chef
+  chmod 755 chef
+  EOH
+end
+
+</pre>
+
+</div>
+
+{% endblock %}
