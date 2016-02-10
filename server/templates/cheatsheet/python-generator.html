@@ -198,6 +198,7 @@ gen stop
 
 <h3>What "RES = yield from EXP" actually do?</h3>
 <pre class="code python">
+# ref: <a href="https://www.python.org/dev/peps/pep-0380">pep380</a>
 &gt;&gt;&gt; def subgen():
 ...     for _ in range(3):
 ...         yield _
@@ -260,15 +261,13 @@ Traceback (most recent call last):
   File "&lt;stdin&gt;", line 1, in &lt;module&gt;
 StopIteration
 # generator expression
-&gt;&gt;&gt; g = (_ for _ in range(3))
+&gt;&gt;&gt; g = (_ for _ in range(2))
 &gt;&gt;&gt; g
 &lt;generator object &lt;genexpr&gt; at 0x10191&gt;
 &gt;&gt;&gt; next(g)
 0
 &gt;&gt;&gt; next(g)
 1
-&gt;&gt;&gt; next(g)
-2
 &gt;&gt;&gt; next(g)
 Traceback (most recent call last):
   File "&lt;stdin&gt;", line 1, in &lt;module&gt;
@@ -304,22 +303,6 @@ False
 &gt;&gt;&gt; g.close()
 &gt;&gt;&gt; inspect.getgeneratorstate(g)
 'GEN_CLOSED'
-</pre>
-
-<h3>Implement an iterator via generator</h3>
-<pre class="code python">
-&gt;&gt;&gt; class MyIterator:
-...     def __init__(self):
-...         self._list = range(3)
-...     def __iter__(self):
-...         yield from self._list
-... 
-&gt;&gt;&gt; for _ in MyIterator():
-...     print(_)
-... 
-0
-1
-2
 </pre>
 
 <h3>generator and contextmanager</h3>
@@ -464,6 +447,26 @@ def handler(conn):
 loop.create_task(echo_server())
 loop.run_forever()
 
+# equal to
+async def echo_server():
+    while True:
+        conn, addr = await \
+            loop.sock_accept(sock)
+        loop.create_task(handler(conn))
+
+async def handler(conn):
+    while True:
+        msg = await \
+            loop.sock_recv(conn, 1024)
+        if not msg:
+            break
+        await \
+            loop.sock_sendall(conn, msg)
+    conn.close()
+
+loop.create_task(echo_server())
+loop.run_forever()
+
 # output:
 # bash1&gt; python asyncio_test.py
 # bash2&gt; nc localhost 5566
@@ -528,6 +531,7 @@ loop.run_forever()
 
 <h3>Implement a simple scheduler via generator</h3>
 <pre class="code python">
+# idea: write an event loop(scheduler)
 &gt;&gt;&gt; def fib(n):
 ...   if n&lt;=2:
 ...     return 1
