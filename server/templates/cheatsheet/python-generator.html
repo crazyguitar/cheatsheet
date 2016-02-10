@@ -240,6 +240,241 @@ gen stop
 </div>
 
 <div class="row col-md-4 col-xs-12">
+
+<h3>Glossary of Generator</h3>
+<pre class="code python">
+# generator function
+&gt;&gt;&gt; def gen_func():
+...     yield 5566
+... 
+&gt;&gt;&gt; gen_func
+&lt;function gen_func at 0x1019a&gt;
+# generator
+&gt;&gt;&gt; g = gen_func()
+&gt;&gt;&gt; g
+&lt;generator object gen_func at 0x1018d&gt;
+&gt;&gt;&gt; next(g)
+5566
+&gt;&gt;&gt; next(g)
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+StopIteration
+# generator expression
+&gt;&gt;&gt; g = (_ for _ in range(3))
+&gt;&gt;&gt; g
+&lt;generator object &lt;genexpr&gt; at 0x10191&gt;
+&gt;&gt;&gt; next(g)
+0
+&gt;&gt;&gt; next(g)
+1
+&gt;&gt;&gt; next(g)
+2
+&gt;&gt;&gt; next(g)
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+StopIteration
+</pre>
+
+<h3>Check generator type</h3>
+<pre class="code python">
+&gt;&gt;&gt; from types import GeneratorType
+&gt;&gt;&gt; def gen_func():
+...     yield 5566
+... 
+&gt;&gt;&gt; g = gen_func()
+&gt;&gt;&gt; isinstance(g, GeneratorType)
+True
+&gt;&gt;&gt; isinstance(123, GeneratorType)
+False
+</pre>
+
+<h3>Check Generator State</h3>
+<pre class="code python">
+&gt;&gt;&gt; import inspect
+&gt;&gt;&gt; def gen_func():
+...     yield 9527
+... 
+&gt;&gt;&gt; g = gen_func()
+&gt;&gt;&gt; inspect.getgeneratorstate(g)
+'GEN_CREATED'
+&gt;&gt;&gt; next(g)
+9527
+&gt;&gt;&gt; inspect.getgeneratorstate(g)
+'GEN_SUSPENDED'
+&gt;&gt;&gt; g.close()
+&gt;&gt;&gt; inspect.getgeneratorstate(g)
+'GEN_CLOSED'
+</pre>
+
+<h3>Implement an iterator via generator</h3>
+<pre class="code python">
+&gt;&gt;&gt; class MyIterator:
+...     def __init__(self):
+...         self._list = range(3)
+...     def __iter__(self):
+...         yield from self._list
+... 
+&gt;&gt;&gt; for _ in MyIterator():
+...     print(_)
+... 
+0
+1
+2
+</pre>
+
+<h3>generator and contextmanager</h3>
+<pre class="code python">
+&gt;&gt;&gt; import contextlib
+&gt;&gt;&gt; @contextlib.contextmanager
+... def mylist():
+...   try:
+...     l = [1,2,3,4,5]
+...     yield l
+...   finally:
+...     print("exit scope")
+... 
+&gt;&gt;&gt; with mylist() as l:
+...   print(l)
+... 
+[1, 2, 3, 4, 5]
+exit scope
+</pre>
+
+<h3>What @contextmanager actually doing?</h3>
+<pre class="code python">
+# ref: <a href="https://www.youtube.com/watch?v=5-qadlG7tWo">PyCon 2014 - David Beazley</a>
+# define a context manager class
+class GeneratorCM(object):
+   def __init__(self,gen):
+      self._gen = gen
+   def __enter__(self):
+      return next(self._gen)
+
+   def __exit__(self, *exc_info):
+      try:
+         if exc_info[0] is None:
+            next(self._gen)
+         else:
+            self._gen.throw(*exc_info)
+         raise RuntimeError
+      except StopIteration:
+         return True
+      except:
+         raise
+            
+# define a decorator
+def contextmanager(func):
+   def run(*a, **k):
+      return GeneratorCM(func(*a, **k))
+   return run
+
+# example of context manager
+@contextmanager
+def mylist():
+   try:
+      l=[1,2,3,4,5]
+      yield l
+   finally:
+      print "exit scope"
+
+with mylist() as l:
+   print l
+
+# bash&gt; python example.py 
+# [1, 2, 3, 4, 5]
+# exit scope
+</pre>
+
+<h3>@coroutine prototype</h3>
+<pre class="code python">
+&gt;&gt;&gt; from functools import wraps
+&gt;&gt;&gt; def coroutine(func):
+...     @wraps(func)
+...     def wrapper(*args, **kwargs):
+...         gen = func(*args, **kwargs)
+...         next(gen)
+...         return gen
+...     return wrapper
+... 
+&gt;&gt;&gt; @coroutine
+... def average():
+...     total = .0
+...     count = 0
+...     avg = None
+...     while True:
+...         val = yield 
+...         if not val:
+...             break
+...         total += val
+...         count += 1
+...         avg = total / count
+...     return avg
+... 
+&gt;&gt;&gt; g = average()
+&gt;&gt;&gt; g.send(3)
+&gt;&gt;&gt; g.send(3)
+&gt;&gt;&gt; g.send(5)
+&gt;&gt;&gt; try: 
+...     g.send(None)
+... except StopIteration as _e:
+...     ret = _e.value
+... 
+&gt;&gt;&gt; ret
+3.6666666666666665
+</pre>
+
+<h3>"yield from == await" expression</h3>
+<pre class="code python">
+# "await" include in pyhton3.5
+import asyncio
+import socket
+import concurrent.futures as fut
+
+loop = asyncio.get_event_loop()
+host = 'localhost'
+port = 5566
+sock = socket.socket(
+        socket.AF_INET,
+        socket.SOCK_STREAM,0)
+sock.setsockopt(
+        socket.SOL_SOCKET,
+        socket.SO_REUSEADDR,1)
+sock.setblocking(False)
+sock.bind((host, port))
+sock.listen(10)
+
+@asyncio.coroutine
+def echo_server():
+    while True:
+        conn, addr = yield from \
+            loop.sock_accept(sock)
+        loop.create_task(handler(conn))
+
+@asyncio.coroutine
+def handler(conn):
+    while True:
+        msg = yield from \
+            loop.sock_recv(conn, 1024)
+        if not msg:
+            break
+        yield from \
+            loop.sock_sendall(conn, msg)
+    conn.close()
+
+loop.create_task(echo_server())
+loop.run_forever()
+
+# output:
+# bash1&gt; python asyncio_test.py
+# bash2&gt; nc localhost 5566
+# Hello
+# Hello
+</pre>
+
+</div>
+
+<div class="row col-md-4 col-xs-12">
+
 <h3>Closure in Python - using generator</h3>
 <pre class="code python">
 # nonlocal version
@@ -466,111 +701,6 @@ def client_handler(conn):
 
 tasks.append(server())
 run()
-</pre>
-</div>
-
-<div class="row col-md-4 col-xs-12">
-
-<h3>generator and contextmanager</h3>
-<pre class="code python">
-&gt;&gt;&gt; import contextlib
-&gt;&gt;&gt; @contextlib.contextmanager
-... def mylist():
-...   try:
-...     l = [1,2,3,4,5]
-...     yield l
-...   finally:
-...     print("exit scope")
-... 
-&gt;&gt;&gt; with mylist() as l:
-...   print(l)
-... 
-[1, 2, 3, 4, 5]
-exit scope
-</pre>
-
-<h3>What @contextmanager actually doing?</h3>
-<pre class="code python">
-# ref: <a href="https://www.youtube.com/watch?v=5-qadlG7tWo">PyCon 2014 - David Beazley</a>
-# define a context manager class
-class GeneratorCM(object):
-   def __init__(self,gen):
-      self._gen = gen
-   def __enter__(self):
-      return next(self._gen)
-
-   def __exit__(self, *exc_info):
-      try:
-         if exc_info[0] is None:
-            next(self._gen)
-         else:
-            self._gen.throw(*exc_info)
-         raise RuntimeError
-      except StopIteration:
-         return True
-      except:
-         raise
-            
-# define a decorator
-def contextmanager(func):
-   def run(*a, **k):
-      return GeneratorCM(func(*a, **k))
-   return run
-
-# example of context manager
-@contextmanager
-def mylist():
-   try:
-      l=[1,2,3,4,5]
-      yield l
-   finally:
-      print "exit scope"
-
-with mylist() as l:
-   print l
-
-# bash&gt; python example.py 
-# [1, 2, 3, 4, 5]
-# exit scope
-</pre>
-</div>
-
-<h3>@coroutine prototype</h3>
-<pre class="code python">
-&gt;&gt;&gt; from functools import wraps
-&gt;&gt;&gt; def coroutine(func):
-...     @wraps(func)
-...     def wrapper(*args, **kwargs):
-...         gen = func(*args, **kwargs)
-...         next(gen)
-...         return gen
-...     return wrapper
-... 
-&gt;&gt;&gt; @coroutine
-... def average():
-...     total = .0
-...     count = 0
-...     avg = None
-...     while True:
-...         val = yield 
-...         if not val:
-...             break
-...         total += val
-...         count += 1
-...         avg = total / count
-...     return avg
-... 
-&gt;&gt;&gt; g = average()
-&gt;&gt;&gt; g.send(3)
-&gt;&gt;&gt; g.send(3)
-&gt;&gt;&gt; g.send(5)
-&gt;&gt;&gt; try: 
-...     g.send(None)
-... except StopIteration as _e:
-...     ret = _e.value
-... 
-&gt;&gt;&gt; ret
-3.6666666666666665
 </pre>
 </div>
 
