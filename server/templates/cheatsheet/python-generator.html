@@ -93,6 +93,9 @@ Message: Hello World!
 ...     except ValueError:
 ...         print("get value error")
 ... 
+&gt;&gt;&gt; def delegating_gen():
+...     yield from subgen()
+...
 &gt;&gt;&gt; g = delegating_gen()
 &gt;&gt;&gt; try: 
 ...     next(g)
@@ -124,7 +127,7 @@ gen stop
 'GEN_CLOSED'
 </pre>
 
-<h3>yield ... return</h3>
+<h3>yield (from) EXPR return RES</h3>
 <pre class="code python">
 &gt;&gt;&gt; def average():
 ...     total = .0
@@ -151,6 +154,24 @@ gen stop
 ... 
 &gt;&gt;&gt; ret
 4.0
+
+# yield from EXP return RES
+&gt;&gt;&gt; def subgen():
+...     yield 9527
+... 
+&gt;&gt;&gt; def delegating_gen():
+...     yield from subgen()
+...     return 5566
+...
+&gt;&gt;&gt; try:
+...     g = delegating_gen()
+...     next(g)
+...     next(g)
+... except StopIteration as _e:
+...     print(_e.value)
+... 
+9527
+5566
 </pre>
 
 <h3>Generate sequences via generator</h3>
@@ -216,7 +237,9 @@ gen stop
 &gt;&gt;&gt; next(g)
 1
 </pre>
+</div>
 
+<div class="row col-md-4 col-xs-12">
 <h3>Closure in Python - using generator</h3>
 <pre class="code python">
 # nonlocal version
@@ -267,9 +290,6 @@ gen stop
 &gt;&gt;&gt; next(g)
 5569
 </pre>
-</div>
-
-<div class="row col-md-4 col-xs-12">
 
 <h3>Implement a simple scheduler via generator</h3>
 <pre class="code python">
@@ -307,6 +327,7 @@ Task done
 5
 Task done
 </pre>
+
 <h3>Implement Simple round-robin with blocking</h3>
 <pre class="code python">
 # skill: using task and wait queue
@@ -371,6 +392,7 @@ def client_handler(conn):
 tasks.append(server())
 run()
 </pre>
+
 <h3>Implement simple round-robin with blocking and non-blocking</h3>
 <pre class="code pythob">
 # this method will cause blocking hunger
@@ -445,8 +467,11 @@ def client_handler(conn):
 tasks.append(server())
 run()
 </pre>
+</div>
 
-<h3>Relationship between generator and contextmanager</h3>
+<div class="row col-md-4 col-xs-12">
+
+<h3>generator and contextmanager</h3>
 <pre class="code python">
 &gt;&gt;&gt; import contextlib
 &gt;&gt;&gt; @contextlib.contextmanager
@@ -508,157 +533,47 @@ with mylist() as l:
 # [1, 2, 3, 4, 5]
 # exit scope
 </pre>
-
-<h3>Realizing "future" concept</h3>
-<pre class="code python">
-# future - a result will compute later
-# using Python 3.2 or later
-&gt;&gt;&gt; import concurrent.futures as cf
-&gt;&gt;&gt; pool = cf.ThreadPoolExecutor(3)
-&gt;&gt;&gt; import time
-&gt;&gt;&gt; def do_func(x,y):
-...   time.sleep(10)
-...   return x + y
-... 
-&gt;&gt;&gt; pool.submit(do_func,2,3)
-&lt;Future at 0x10bffd4e0 state=running&gt;
-&gt;&gt;&gt; _.result()
-5
-# error handling on callback function 
-&gt;&gt;&gt; def callback_handler(fut):
-...   try:
-...     result = fut.result()
-...     print("Got:",result)
-...   except TypeError:
-...     print("Got TypeError")
-...
-&gt;&gt;&gt; pool.submit(do_func,2,"Hello")
-&lt;Future at 0x10c2800b8 state=pending&gt;
-&gt;&gt;&gt; _.add_done_callback(callback_handler)
-Got TypeError
-</pre>
-
-<h3>"res = yield func()" come from?</h3>
-<pre class="code python">
-# as above example, rename func below
-&gt;&gt;&gt; import concurrent.futures as cf
-&gt;&gt;&gt; import time
-&gt;&gt;&gt; def enter(x,y):
-...   time.sleep(10)
-...   return x + y
-... 
-&gt;&gt;&gt; def exit(fut):
-...   try:
-...     res = fut.result()
-...     print("Got:",res)
-...   except:
-...     raise
-...
-# This is almost a context manager form
-# Rewrite:
-# wrapping generator with "Task"
-class Task(object):
-   def __init__(self,gen):
-      self._gen = gen
-
-   def step(self, val=None):
-      # Purpose: run the next yield
-      try:
-         fut = self._gen.send(val)
-         fut.add_done_callback(self._wkup)
-      except StopIteration:
-         pass
-   def _wkup(self, fut):
-      # Purpose: handling result
-      res = fut.result()
-      # "send result" to generator 
-      self.step(res)
-
-# Demo how to use "Task"
-import concurrent.futures as cf
-import time
-pool = cf.ThreadPoolExecutor(3)
-
-def f(x,y):
-   time.sleep(10)
-   return x + y
-
-def do_func(x,y):
-   result = yield pool.submit(f,x,y)
-   print("Got:",result)
-
-g = do_func(2,3)
-t = Task(g)
-t.step()
-# bash&gt; python example.py
-# Got: 5
-</pre>
-
-<h3>Do some task after some task done</h3>
-<pre class="code python">
-# ex.py
-# wrapping generator with "Task"
-class Task(object):
-   def __init__(self,gen):
-      self._gen = gen
-
-   def step(self, val=None):
-      # Purpose: run the next yield
-      try:
-         fut = self._gen.send(val)
-         fut.add_done_callback(self._wakeup)
-      except StopIteration:
-         pass
-   def _wakeup(self, fut):
-      # Purpose: handling result
-      res = fut.result()
-      self.step(res)
-
-# Demo how to use "Task"
-import concurrent.futures as cf
-import time
-pool = cf.ThreadPoolExecutor(8)
-
-def func(x,y):
-   return x + y
-
-def do_func(x,y):
-   res = yield pool.submit(func,x,y)
-   print("Got:", res)
-
-# brute-force solution
-def after_bf(delay,gen):
-   yield pool.submit(time.sleep, delay)
-   result = None
-   try:
-      while True:
-         fut = gen.send(result)
-         result = yield fut
-   except StopIteration:
-      pass
-   
-# elegant solution
-def after_e(delay,gen):
-   # do some task like init
-   yield pool.submit(time.sleep, delay)
-   # do exactly task after some task
-   yield from gen
-
-# bash&gt; python3
-&gt;&gt;&gt; from ex import Task
-&gt;&gt;&gt; from ex import do_func
-&gt;&gt;&gt; from ex import after_bf
-&gt;&gt;&gt; from ex import after_e
-&gt;&gt;&gt; Task(after_bf(5,do_func(2,3))).step()
-&gt;&gt;&gt; Got: 5
-
-&gt;&gt;&gt; Task(after_e(5,do_func(2,3))).step()
-&gt;&gt;&gt; Got: 5
-</pre>
-
 </div>
-<div class="row col-md-4 col-xs-12">
+
+<h3>@coroutine prototype</h3>
+<pre class="code python">
+&gt;&gt;&gt; from functools import wraps
+&gt;&gt;&gt; def coroutine(func):
+...     @wraps(func)
+...     def wrapper(*args, **kwargs):
+...         gen = func(*args, **kwargs)
+...         next(gen)
+...         return gen
+...     return wrapper
+... 
+&gt;&gt;&gt; @coroutine
+... def average():
+...     total = .0
+...     count = 0
+...     avg = None
+...     while True:
+...         val = yield 
+...         if not val:
+...             break
+...         total += val
+...         count += 1
+...         avg = total / count
+...     return avg
+... 
+&gt;&gt;&gt; g = average()
+&gt;&gt;&gt; g.send(3)
+&gt;&gt;&gt; g.send(3)
+&gt;&gt;&gt; g.send(5)
+&gt;&gt;&gt; try: 
+...     g.send(None)
+... except StopIteration as _e:
+...     ret = _e.value
+... 
+&gt;&gt;&gt; ret
+3.6666666666666665
+</pre>
 </div>
+
 {% endblock %}
 
 {% block script %}
