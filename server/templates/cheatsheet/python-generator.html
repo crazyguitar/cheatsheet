@@ -84,28 +84,192 @@ StopIteration
 Message: Hello World!
 </pre>
 
-<h3>Generator delegating</h3>
+<h3>"yield from" expression</h3>
 <pre class="code python">
-# delegating list
-&gt;&gt;&gt; def chain(a,b):
-...   yield from a
-...   yield from b
+# delegating gen do nothing(pipe)
+&gt;&gt;&gt; def subgen():
+...     try:
+...         yield 9527
+...     except ValueError:
+...         print("get value error")
 ... 
-&gt;&gt;&gt; a = [1,2,3]
-&gt;&gt;&gt; b = [4,5,6]
-&gt;&gt;&gt; for _ in chain(a,b):
-...   print(_, end=" ")
+&gt;&gt;&gt; g = delegating_gen()
+&gt;&gt;&gt; try: 
+...     next(g)
+...     g.throw(ValueError)
+... except StopIteration:
+...     print("gen stop")
 ... 
-1 2 3 4 5 6 &gt;&gt;&gt;
-# delegating dict
-&gt;&gt;&gt; a = {'k1':1,'k2':2}
-&gt;&gt;&gt; b = {'k3':3,'k4':4}
-&gt;&gt;&gt; for _key in chain(a,b):
-...   print(_key, end=" ")
-... 
-k2 k1 k3 k4 &gt;&gt;&gt;
+9527
+get value error
+gen stop
 
+# yield from + yield from
+&gt;&gt;&gt; import inspect
+&gt;&gt;&gt; def subgen():
+...     yield from range(5)
+... 
+&gt;&gt;&gt; def delegating_gen():
+...     yield from subgen()
+... 
+&gt;&gt;&gt; g = delegating_gen()
+&gt;&gt;&gt; inspect.getgeneratorstate(g)
+'GEN_CREATED'
+&gt;&gt;&gt; next(g)
+0
+&gt;&gt;&gt; inspect.getgeneratorstate(g)
+'GEN_SUSPENDED'
+&gt;&gt;&gt; g.close()
+&gt;&gt;&gt; inspect.getgeneratorstate(g)
+'GEN_CLOSED'
 </pre>
+
+<h3>yield ... return</h3>
+<pre class="code python">
+&gt;&gt;&gt; def average():
+...     total = .0
+...     count = 0
+...     avg = None
+...     while True:
+...         val = yield 
+...         if not val:
+...             break
+...         total += val
+...         count += 1
+...         avg = total / count
+...     return avg
+... 
+&gt;&gt;&gt; g = average()
+&gt;&gt;&gt; g = average()
+&gt;&gt;&gt; next(g) # start gen
+&gt;&gt;&gt; g.send(3)
+&gt;&gt;&gt; g.send(5)
+&gt;&gt;&gt; try:
+...     g.send(None)
+... except StopIteration as e:
+...     ret = e.value
+... 
+&gt;&gt;&gt; ret
+4.0
+</pre>
+
+<h3>Generate sequences via generator</h3>
+<pre class="code python">
+# get a list via generator
+&gt;&gt;&gt; def chain():
+...     for _ in 'ab':
+...         yield _
+...     for _ in range(3):
+...         yield _
+... 
+&gt;&gt;&gt; a = list(chain())
+&gt;&gt;&gt; a
+['a', 'b', 0, 1, 2]
+# equivalent to 
+&gt;&gt;&gt; def chain():
+...     yield from 'ab'
+...     yield range(3)
+...
+&gt;&gt;&gt; a = list(chain())
+&gt;&gt;&gt; a
+['a', 'b', range(0, 3)]
+</pre>
+
+<h3>What "RES = yield from EXP" actually do?</h3>
+<pre class="code python">
+&gt;&gt;&gt; def subgen():
+...     for _ in range(3):
+...         yield _
+... 
+&gt;&gt;&gt; EXP = subgen()
+&gt;&gt;&gt; def delegating_gen():
+...   _i = iter(EXP)
+...   try:
+...     _y = next(_i)
+...   except StopIteration as _e:
+...     RES = _e.value
+...   else:
+...     while True:
+...       _s = yield _y
+...       try:
+...         _y = _i.send(_s)
+...       except StopIteration as _e:
+...           RES = _e.value
+...           break
+... 
+&gt;&gt;&gt; g = delegating_gen()
+&gt;&gt;&gt; next(g)
+0
+&gt;&gt;&gt; next(g)
+1
+&gt;&gt;&gt; next(g)
+2
+
+# equivalent to
+&gt;&gt;&gt; EXP = subgen()
+&gt;&gt;&gt; def delegating_gen():
+...     RES = yield from EXP
+... 
+&gt;&gt;&gt; g = delegating_gen()
+&gt;&gt;&gt; next(g)
+0
+&gt;&gt;&gt; next(g)
+1
+</pre>
+
+<h3>Closure in Python - using generator</h3>
+<pre class="code python">
+# nonlocal version
+&gt;&gt;&gt; def closure():
+...     x = 5566
+...     def inner_func():
+...         nonlocal x
+...         x += 1
+...         return x
+...     return inner_func
+... 
+&gt;&gt;&gt; c = closure()
+&gt;&gt;&gt; c()
+5567
+&gt;&gt;&gt; c()
+5568
+&gt;&gt;&gt; c()
+5569
+
+# class version
+&gt;&gt;&gt; class Closure:
+...     def __init__(self):
+...         self._x = 5566
+...     def __call__(self):
+...         self._x += 1
+...         return self._x
+... 
+&gt;&gt;&gt; c = Closure()
+&gt;&gt;&gt; c()
+5567
+&gt;&gt;&gt; c()
+5568
+&gt;&gt;&gt; c()
+5569
+
+# generator version (best)
+&gt;&gt;&gt; def closure_gen():
+...     x = 5566
+...     while True:
+...         x += 1
+...         yield x
+... 
+&gt;&gt;&gt; g = closure_gen()
+&gt;&gt;&gt; next(g)
+5567
+&gt;&gt;&gt; next(g)
+5568
+&gt;&gt;&gt; next(g)
+5569
+</pre>
+</div>
+
+<div class="row col-md-4 col-xs-12">
 
 <h3>Implement a simple scheduler via generator</h3>
 <pre class="code python">
@@ -344,9 +508,6 @@ with mylist() as l:
 # [1, 2, 3, 4, 5]
 # exit scope
 </pre>
-</div>
-
-<div class="row col-md-4 col-xs-12">
 
 <h3>Realizing "future" concept</h3>
 <pre class="code python">
