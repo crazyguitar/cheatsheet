@@ -1,10 +1,14 @@
 """
 This module is cheatsheet website backend.
 """
+import os
 
 from flask import Flask, abort, render_template
+from flask_sslify import SSLify
 
 app = Flask(__name__)
+if 'DYNO' in os.environ:
+    sslify = SSLify(app)
 
 
 @app.route('/', methods=['GET'])
