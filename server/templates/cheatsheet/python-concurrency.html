@@ -649,6 +649,167 @@ run()
 # 10
 # 55
 </pre>
+
+<h3>PoolExecutor</h3>
+<pre class="code python">
+# python2.x is module futures on PyPI
+# new in Python3.2
+&gt;&gt;&gt; from concurrent.futures import \
+...     ThreadPoolExecutor
+&gt;&gt;&gt; def fib(n):
+...     if n&lt;=2:
+...         return 1
+...     return fib(n-1) + fib(n-2)
+...
+&gt;&gt;&gt; with ThreadPoolExecutor(3) as e:
+...     res= e.map(fib,[1,2,3,4,5])
+...     for _ in res:
+...         print(_, end=' ')
+... 
+1 1 2 3 5 &gt;&gt;&gt; 
+# result is generator?!
+&gt;&gt;&gt; with ThreadPoolExecutor(3) as e:
+...   res = e.map(fib, [1,2,3])
+...   inspect.isgenerator(res)
+... 
+True
+
+# demo GIL 
+import concurrent.futures as cf
+import time
+
+def fib(n):
+    if n &lt;= 2:
+        return 1
+    return fib(n-1) + fib(n-2)
+
+def thread():
+    s = time.time()
+    with cf.ThreadPoolExecutor(2) as e:
+        res = e.map(fib, [35]*2)
+        for _ in res:
+            print(_)
+    e = time.time()
+    print("thread cost: {}".format(e-s))
+
+def process():
+    s = time.time()
+    with cf.ProcessPoolExecutor(2) as e:
+        res = e.map(fib, [35]*2)
+        for _ in res:
+            print(_)
+    e = time.time()
+    print("pocess cost: {}".format(e-s))
+
+
+# bash&gt; python3 -i test.py 
+&gt;&gt;&gt; thread()
+9227465
+9227465
+thread cost: 12.550225019454956
+&gt;&gt;&gt; process()
+9227465
+9227465
+pocess cost: 5.538189888000488
+</pre>
+
+<h3>What "with ThreadPoolExecutor" doing?</h3>
+<pre class="code python">
+import concurrent.futures as cf
+
+def fib(n):
+    if n &lt;= 2:
+        return 1
+    return fib(n-1) + fib(n-2)
+
+with cf.ThreadPoolExecutor(3) as e:
+    fut = e.submit(fib, 30)
+    res = fut.result()
+    print(res)
+
+# equal to
+e = cf.ThreadPoolExecutor(3)
+fut = e.submit(fib, 30)
+fut.result()
+e.shutdown(wait=True)
+print(res)
+
+# bash&gt; python3 test.py 
+# 832040
+# 832040
+</pre>
+
+<h3>Future object</h3>
+<pre class="code python">
+# future: deferred computation
+# add_done_callback
+import concurrent.futures as cf
+
+def fib(n):
+    if n &lt;= 2:
+        return 1
+    return fib(n-1) + fib(n-2)
+
+def handler(future):
+    res = future.result()
+    print("res: {}".format(res))
+
+def thread_v1():
+    with cf.ThreadPoolExecutor(3) as e:
+        for _ in range(3):
+            f = e.submit(fib, 30+_)
+            f.add_done_callback(handler)
+    print("end")
+
+def thread_v2():
+    to_do = []
+    with cf.ThreadPoolExecutor(3) as e:
+        for _ in range(3):
+            fut = e.submit(fib, 30+_)
+            to_do.append(fut)
+        for _f in cf.as_completed(to_do):
+            res = _f.result()
+            print("res: {}".format(res))
+    print("end")
+
+# bash&gt; python3 -i test.py 
+&gt;&gt;&gt; thread_v1()
+res: 832040
+res: 1346269
+res: 2178309
+end
+&gt;&gt;&gt; thread_v2()
+res: 832040
+res: 1346269
+res: 2178309
+end
+</pre>
+
+<h3>Future error handling</h3>
+<pre class="code python">
+import concurrent.futures as cf
+
+def spam():
+    raise RuntimeError
+
+def handler(future):
+    print("callback handler")
+    try:
+        res = future.result()
+    except RuntimeError:
+        print("get RuntimeError")
+
+def thread_spam():
+    with cf.ThreadPoolExecutor(2) as e:
+        f = e.submit(spam)
+        f.add_done_callback(handler)
+
+# bash&gt; python -i test.py
+&gt;&gt;&gt; thread_spam()
+callback handler
+get RuntimeError
+</pre>
+
 </div>
 {% endblock %}
 
