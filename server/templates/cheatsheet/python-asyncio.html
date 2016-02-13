@@ -1,0 +1,113 @@
+{% extends "layout.html" %}
+
+{% block jumbotron %}
+<div class="jumbotron">
+   <h1>Python Cheat Sheet</h1>
+   <p>Cheat sheet of Python. Some asyncio concepts for Python programmer need to know.</p>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="row col-md-4 col-xs-12">
+
+<h3>@asyncio.coroutine?</h3>
+<pre class="code python">
+import asyncio
+import inspect
+from functools import wraps
+
+Future = asyncio.futures.Future
+def coroutine(func):
+    """ Simple prototype of coroutine"""
+    def coro(*a, **k):
+        res = func(*a, **k)
+        if isinstance(res, Future) or \
+           inspect.isgenerator(res):
+            res = yield from res
+        return res
+    return coro
+
+@coroutine
+def foo():
+    yield from asyncio.sleep(1)
+    print("Hello Foo")
+
+@asyncio.coroutine
+def bar():
+    print("Hello Bar")
+
+loop = asyncio.get_event_loop()
+tasks = [loop.create_task(foo()),
+         loop.create_task(bar())]
+loop.run_until_complete(
+     asyncio.wait(tasks))
+loop.close()
+
+# output:
+# Hello Bar
+# Hello Foo
+</pre>
+
+<h3>Task?</h3>
+<pre class="code python">
+# goal: supervise coroutine run state
+# ref: asyncio/tasks.py
+import asyncio
+Future = asyncio.futures.Future
+
+class Task(Future):
+    def __init__(self, gen, *,loop):
+        super().__init__(loop=loop)
+        self._gen = gen
+        self._loop.call_soon(self._step)
+
+    def _step(self, val=None, exc=None):
+        try:
+            if exc:
+                f = self._gen.throw(exc)
+            else:
+                f = self._gen.send(val)
+        except StopIteration as e:
+            self.set_result(e.value)
+        except Exception as e:
+            self.set_exception(e)
+        else:
+            f.add_done_callback(
+                 self._wakeup)
+
+    def _wakeup(self, fut):
+        try:
+            res = fut.result()
+        except Exception as e:
+            self._step(None, e)
+        else:
+            self._step(res, None)
+
+@asyncio.coroutine
+def foo():
+    yield from asyncio.sleep(3)
+    print("Hello Foo")
+
+@asyncio.coroutine
+def bar():
+    yield from asyncio.sleep(1)
+    print("Hello Bar")
+
+loop = asyncio.get_event_loop()
+tasks = [Task(foo(), loop=loop),
+         loop.create_task(bar())]
+loop.run_until_complete(
+        asyncio.wait(tasks))
+loop.close()
+
+# output:
+# Hello Bar
+# hello Foo
+</pre>
+
+</div>
+{% endblock %}
+
+{% block script %}
+{{ super() }}
+{% endblock %}
