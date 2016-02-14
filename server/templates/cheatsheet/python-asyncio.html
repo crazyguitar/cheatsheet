@@ -385,6 +385,34 @@ ker done
 
 </div>
 
+<div class="row col-md-4 col-xs-12">
+<h3>Async Context Manager</h3>
+<pre class="code python">
+# ref: <a href="https://www.python.org/dev/peps/pep-0492/">PEP-0492</a>
+# need Python &gt;= 3.5
+&gt;&gt;&gt; class AsyncCtxMgr:
+...     async def __aenter__(self):
+...         await asyncio.sleep(3)
+...         print("__anter__")
+...         return self
+...     async def __aexit__(self, *exc):
+...         await asyncio.sleep(1)
+...         print("__aexit__")
+...
+&gt;&gt;&gt; async def hello():
+...     async with AsyncCtxMgr() as m:
+...         print("hello block")
+... 
+&gt;&gt;&gt; async def world():
+...     print("world block")
+...
+&gt;&gt;&gt; t = loop.create_task(world())
+&gt;&gt;&gt; loop.run_until_complete(hello())
+world block
+__anter__
+hello block
+__aexit__
+</pre>
 </div>
 {% endblock %}
 
