@@ -18,7 +18,7 @@ from functools import wraps
 
 Future = asyncio.futures.Future
 def coroutine(func):
-    """ Simple prototype of coroutine"""
+    """Simple prototype of coroutine"""
     def coro(*a, **k):
         res = func(*a, **k)
         if isinstance(res, Future) or \
@@ -56,6 +56,8 @@ import asyncio
 Future = asyncio.futures.Future
 
 class Task(Future):
+    """Simple prototype of Task"""
+
     def __init__(self, gen, *,loop):
         super().__init__(loop=loop)
         self._gen = gen
@@ -104,6 +106,96 @@ loop.close()
 # Hello Bar
 # hello Foo
 </pre>
+
+<h3>What event loop doing? (without polling)</h3>
+<pre class="code python">
+import asyncio
+from collections import deque
+
+def donecb(fut):
+    fut._loop.stop()
+
+class Loop:
+    """Simple event loop prototype"""
+
+    def __init__(self):
+        self._ready = deque()
+        self._stopping = False
+
+    def create_task(self, coro):
+        Task = asyncio.tasks.Task
+        task = Task(coro, loop=self)
+        return task
+
+    def run_until_complete(self, fut):
+        tasks = asyncio.tasks
+        # get task
+        fut = tasks.ensure_future(
+                    fut, loop=self)
+        # add task to ready queue
+        fut.add_done_callback(donecb)
+        # run tasks
+        self.run_forever()
+        # remove task from ready queue
+        fut.remove_done_callback(donecb)
+
+    def run_forever(self):
+        """Run tasks until stop"""
+        try:
+            while True:
+                self._run_once()
+                if self._stopping:
+                    break
+        finally:
+            self._stopping = False
+
+    def call_soon(self, cb, *args):
+        """Append task to ready queue"""
+        self._ready.append((cb, args))
+    def call_exception_handler(self, c):
+        pass
+
+    def _run_once(self):
+        """Run task at once"""
+        ntodo = len(self._ready)
+        for i in range(ntodo):
+            t, a = self._ready.popleft() 
+            t(*a)
+
+    def stop(self):
+        self._stopping = True
+        
+    def close(self):
+        self._ready.clear()
+
+    def get_debug(self):
+        return False
+
+@asyncio.coroutine
+def foo():
+    print("Foo")
+
+@asyncio.coroutine
+def bar():
+    print("Bar")
+
+
+loop = Loop()
+tasks = [loop.create_task(foo()),
+         loop.create_task(bar())]
+loop.run_until_complete(
+        asyncio.wait(tasks))
+loop.close()
+
+# output:
+# Foo 
+# Bar
+</pre>
+
+<div class="row col-md-4 col-xs-12">
+
+
+</div>
 
 </div>
 {% endblock %}
