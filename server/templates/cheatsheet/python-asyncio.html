@@ -386,6 +386,36 @@ ker done
 </div>
 
 <div class="row col-md-4 col-xs-12">
+
+<h3>Asynchronous Iterators</h3>
+<pre class="code python">
+# ref: <a href="https://www.python.org/dev/peps/pep-0492/">PEP-0492</a>
+# need Python &gt;= 3.5
+&gt;&gt;&gt; class AsyncIter:
+...     def __init__(self, it):
+...         self._it = iter(it)
+...     async def __aiter__(self):
+...         return self
+...     async def __anext__(self):
+...         await asyncio.sleep(1)
+...         try:
+...             val = next(self._it)
+...         except StopIteration:
+...             raise StopAsyncIteration
+...         return val
+...
+&gt;&gt;&gt; async def foo():
+...     it = [1,2,3]
+...     async for _ in AsyncIter(it):
+...         print(_)
+... 
+&gt;&gt;&gt; loop = asyncio.get_event_loop()
+&gt;&gt;&gt; loop.run_until_complete(foo())
+1
+2
+3
+</pre>
+
 <h3>Async Context Manager</h3>
 <pre class="code python">
 # ref: <a href="https://www.python.org/dev/peps/pep-0492/">PEP-0492</a>
