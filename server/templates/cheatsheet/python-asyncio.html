@@ -353,6 +353,36 @@ loop.create_task(server())
 loop.run_forever()
 </pre>
 
+<h3>Inline callback</h3>
+<pre class="code python">
+&gt;&gt;&gt; import asyncio
+&gt;&gt;&gt; async def foo():
+...     await asyncio.sleep(1)
+...     return "foo done"
+... 
+&gt;&gt;&gt; async def bar():
+...     await asyncio.sleep(.5)
+...     return "bar done"
+... 
+&gt;&gt;&gt; async def ker():
+...     await asyncio.sleep(3)
+...     return "ker done"
+... 
+&gt;&gt;&gt; async def task():
+...     res = await foo()
+...     print(res)
+...     res = await bar()
+...     print(res)
+...     res = await ker()
+...     print(res)
+... 
+&gt;&gt;&gt; loop = asyncio.get_event_loop()
+&gt;&gt;&gt; loop.run_until_complete(task())
+foo done
+bar done
+ker done
+</pre>
+
 </div>
 
 </div>
