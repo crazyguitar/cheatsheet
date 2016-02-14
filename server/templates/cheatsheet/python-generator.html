@@ -411,8 +411,8 @@ with mylist() as l:
 # "await" include in pyhton3.5
 import asyncio
 import socket
-import concurrent.futures as fut
 
+# set socket and event loop
 loop = asyncio.get_event_loop()
 host = 'localhost'
 port = 5566
@@ -444,9 +444,6 @@ def handler(conn):
             loop.sock_sendall(conn, msg)
     conn.close()
 
-loop.create_task(echo_server())
-loop.run_forever()
-
 # equal to
 async def echo_server():
     while True:
@@ -472,6 +469,9 @@ loop.run_forever()
 # bash2&gt; nc localhost 5566
 # Hello
 # Hello
+# bash3&gt; nc localhost 5566
+# World
+# World
 </pre>
 
 </div>

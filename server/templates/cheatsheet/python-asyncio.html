@@ -191,9 +191,167 @@ loop.close()
 # Foo 
 # Bar
 </pre>
+</div>
 
 <div class="row col-md-4 col-xs-12">
+<h3>socket with asyncio</h3>
+<pre class="code python">
+import asyncio
+import socket
 
+host = 'localhost'
+port = 9527
+loop = asyncio.get_event_loop()
+s = socket.socket(
+        socket.AF_INET, 
+        socket.SOCK_STREAM, 0)
+s.setsockopt(
+        socket.SOL_SOCKET,
+        socket.SO_REUSEADDR, 1)
+s.setblocking(False)
+s.bind((host, port))
+s.listen(10)
+
+async def handler(conn):
+    while True:
+        msg = await \
+            loop.sock_recv(conn, 1024)
+        if not msg:
+            break
+        await \
+            loop.sock_sendall(conn, msg)
+    conn.close()
+
+async def server():
+    while True:
+        conn, addr = await \
+                loop.sock_accept(s)
+        loop.create_task(handler(conn))
+
+loop.create_task(server())
+loop.run_forever()
+loop.close()
+
+#output:
+# bash&gt; python3 async_test.py
+# bash1&gt; nc localhost 9527
+# Hello
+# Hello
+# bash2&gt; nc localhost 9527
+# World
+# World
+</pre>
+
+<h3>Event Loop with Polling - Using selectors</h3>
+<pre class="code python">
+# ref: <a href="https://www.youtube.com/watch?v=lYe8W04ERnY">PyCon 2015 - David Beazley</a>
+import asyncio
+import socket
+import selectors
+from collections import deque
+
+@asyncio.coroutine
+def read_wait(s):
+    yield 'read_wait', s
+
+@asyncio.coroutine
+def write_wait(s):
+    yield 'write_wait', s
+
+class Loop:
+    """Simple loop prototype"""
+
+    def __init__(self):
+        self.ready = deque() 
+        self.selector = \
+            selectors.DefaultSelector()
+
+    @asyncio.coroutine
+    def sock_accept(self, s):
+        yield from read_wait(s)
+        return s.accept()
+
+    @asyncio.coroutine
+    def sock_recv(self, c, mb):
+        yield from read_wait(c)
+        return c.recv(mb)
+
+    @asyncio.coroutine
+    def sock_sendall(self, c, m):
+        while m: 
+            yield from write_wait(c)
+            nsent = c.send(m)
+            m = m[nsent:]
+
+    def create_task(self, coro):
+        self.ready.append(coro)
+
+    def run_forever(self):
+        while True:
+            self._run_once()
+    def _run_once(self):
+        sel = self.selector
+        ready = self.ready
+        while not self.ready:
+            e = sel.select()
+            for k, _ in e:
+                ready.append(k.data)
+                sel.unregister(k.fileobj)
+
+        while self.ready:
+            t = ready.popleft()
+            try:
+                op, *a = t.send(None)
+                self.cur_t = t
+                getattr(self, op)(*a)
+            except StopIteration:
+                pass
+
+    def read_wait(self, s):
+        self.selector.register(
+             s, selectors.EVENT_READ, 
+             self.cur_t)
+
+    def write_wait(self, s):
+        self.selector.register(
+             s, selectors.EVENT_WRITE, 
+             self.cur_t)
+
+loop = Loop()
+host = 'localhost'
+port = 9527
+
+s = socket.socket(
+        socket.AF_INET,
+        socket.SOCK_STREAM, 0)
+s.setsockopt(
+        socket.SOL_SOCKET,
+        socket.SO_REUSEADDR, 1)
+s.setblocking(False)
+s.bind((host, port))
+s.listen(10)
+
+@asyncio.coroutine
+def handler(c):
+    while True:
+        msg = yield from \
+            loop.sock_recv(c, 1024)
+        if not msg:
+            break
+        yield from \
+            loop.sock_sendall(c, msg)
+    c.close()
+
+@asyncio.coroutine
+def server():
+    while True:
+        c, addr = yield from \
+            loop.sock_accept(s)
+        loop.create_task(handler(c))
+
+loop.create_task(server())
+loop.run_forever()
+</pre>
 
 </div>
 
