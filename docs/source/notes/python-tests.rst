@@ -487,15 +487,18 @@ Testing your document is right
     ValueError
     """
     if n < 0:
-    raise ValueError('')
+        raise ValueError('')
     return 1 if n<=2 else fib(n-1) + fib(n-2)
 
     if __name__ == "__main__":
-    import doctest
-    doctest.testmod()
+        import doctest
+        doctest.testmod()
 
-    # output:
-    bash> python demo_doctest.py -v
+output:
+
+.. code-block:: console
+
+    $ python demo_doctest.py -v
     Trying:
     fib(10)
     Expecting:
