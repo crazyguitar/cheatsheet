@@ -788,7 +788,7 @@ Future Object
 
 output:
 
-.. code-block:: python 
+.. code-block:: console 
 
     $ python3 -i fut.py 
     >>> thread_v1()
@@ -826,7 +826,7 @@ Future error handling
 
 output:
 
-.. code-block:: python 
+.. code-block:: console 
 
     $ python -i fut_err.py
     >>> thread_spam()
