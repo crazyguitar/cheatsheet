@@ -576,8 +576,8 @@ Simple asyncio WSGI web server
             header = [('Server', 'WSGIServer 0.2')]
             self.headers_set = [status, resp_header + header]
 
-        async def finish_response(self, conn, data):
-            status, resp_header = self.headers_set 
+        async def finish_response(self, conn, data, headers):
+            status, resp_header = headers
 
             # make header
             resp = 'HTTP/1.1 {0}\r\n'.format(status)
@@ -602,15 +602,14 @@ Simple asyncio WSGI web server
             req = await loop.sock_recv(conn, 1024)
             if req:
                 method, path, ver = self.parse_request(req)
-
                 # get environment
                 env = self.get_environ(req, method, path)
-
                 # get application execute result
                 res = self._app(env, self.start_response)
                 res = [_.decode('utf-8') for _ in list(res)]
                 res = ''.join(res)
-                loop.create_task(self.finish_response(conn, res))
+                loop.create_task(
+                     self.finish_response(conn, res, self.headers_set))
 
     app = Flask(__name__)
 
