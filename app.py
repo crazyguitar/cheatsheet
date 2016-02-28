@@ -21,5 +21,4 @@ def index_redirection():
     return send_from_directory(ROOT, 'index.html')
 
 if __name__ == "__main__":
-    print DIR, ROOT
     app.run(debug=True)

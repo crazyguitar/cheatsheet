@@ -11,12 +11,18 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   notes/python-basic
+   notes/python-generator
+   notes/python-socket
+   notes/python-concurrency
+   notes/python-asyncio
+   notes/python-capi
+   notes/python-cstyle
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
