@@ -808,6 +808,7 @@ Common Use "Magic"
 ------------------
 
 .. code-block:: python
+
     # see python document: data model 
     # For command class
     __main__
