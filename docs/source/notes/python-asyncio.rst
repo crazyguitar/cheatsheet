@@ -46,8 +46,8 @@ output:
     Hello Foo
 
 
-What is Task?
--------------
+What is a Task?
+---------------
 
 .. code-block:: python
 
