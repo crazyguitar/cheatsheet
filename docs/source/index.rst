@@ -16,6 +16,7 @@ Contents:
    notes/python-socket
    notes/python-concurrency
    notes/python-asyncio
+   notes/python-tests
    notes/python-capi
    notes/python-cstyle
 
